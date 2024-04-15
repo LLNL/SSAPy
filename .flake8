@@ -1,0 +1,24 @@
+# -*- conf -*-
+# flake8 settings for SSAPy.
+#
+[flake8]
+#ignore = E129,,W503
+#extend-ignore = E731,E203
+max-line-length = 120
+
+# F4: Import
+# - F405: `name` may be undefined, or undefined from star imports: `module`
+#
+# F8: Name
+# - F821: undefined name `name`
+#
+#per-file-ignores =
+#  *-ci-package.py:F403,F405,F821
+
+# exclude things we usually do not want linting for.
+# These still get linted when passed explicitly.
+exclude =
+  .git
+  build/
+  dist/
+  __pycache__

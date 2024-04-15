@@ -1,0 +1,21 @@
+EGMF-1
+# An Earth Gravity Model (Format 1) file.  For documentation on the
+# format of this file see
+# http://geographiclib.sf.net/html/gravity.html#gravityformat
+Name            wgs84
+Publisher       National Geospatial Intelligence Agency
+Description     WGS84 Reference Ellipsoid
+URL             http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html
+ReleaseDate     1996-01-01
+ConversionDate  2011-11-23
+DataVersion     1
+ModelRadius     6378137
+ModelMass       3986004.418e8
+AngularVelocity 7292115e-11
+ReferenceRadius 6378137
+ReferenceMass   3986004.418e8
+Flattening      1/298.257223563
+
+# Coefficients are computed for normal gravity using
+# the WGS84 ellipsoid with Nmax = 20.
+ID              WGS1984A

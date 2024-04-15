@@ -1,0 +1,15 @@
+Earth Gravity Models downloaded from
+https://geographiclib.sourceforge.io/html/gravity.html
+
+GeographicLib is MIT-licensed.
+
+
+Moon Gravity Models downloaded from
+https://pgda.gsfc.nasa.gov/products/50
+
+
+TODO: Be able to load data from:
+  For the Earth:
+    http://icgem.gfz-potsdam.de/tom_longtime
+  For other celestial bodies:
+    http://icgem.gfz-potsdam.de/tom_celestial
