@@ -1,17 +1,17 @@
 SSAPy - Space Situational Awareness for Python
 ==============================================
 
-.. image:: link/to/linux_tests.svg
-    :target: https://github.com/llnl/ssapy/actions
+.. image:: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml
 
-.. image:: link/to/codecov.svg
-    :target: https://codecov.io/gh/ssapy/ssapy
+.. image:: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml/badge.svg
+    :target: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml
 
-.. image:: link/to/Containers.svg
-    :target: https://github.com/llnl/ssapy/actions/workflows/build-containers.yml
+.. image:: https://github.com/LLNL/SSAPy/actions/workflows/pages/pages-build-deployment/badge.svg
+    :target: https://llnl.github.io/SSAPy
 
-.. image:: link/to/docs.svg
-    :target: https://ssapy.github.io/
+.. image:: https://codecov.io/gh/LLNL/SSAPy/branch/develop/graph/badge.svg
+    :target: https://codecov.io/gh/LLNL/SSAPy
 
 SSAPy is a python package allowing for fast and precise orbital modeling.
 
