@@ -76,3 +76,8 @@ master_doc = "index"
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+html_logo = "images/logo/ssapy_logo.svg"
+html_theme_options = {
+    'logo_only': True,
+}
+html_favicon = 'images/logo/ssapy_logo.ico'
