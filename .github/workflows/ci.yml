@@ -63,12 +63,12 @@ jobs:
     #    python setup.py build
     #    python setup.py install
     #    python -m pip list
-    #- name: Install graphviz
-    #  if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
-    #  uses: ts-graphviz/setup-graphviz@v2
-    #- name: Upload codecov
-    #  if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
-    #  uses: codecov/codecov-action@v4
+    - name: Upload coverage reports to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: LLNL/SSAPy
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
