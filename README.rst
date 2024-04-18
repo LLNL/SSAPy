@@ -67,7 +67,7 @@ The API documentation may also be seen by doing:
 Contributing
 ------------
 
-Contributing to SSAPy is relatively easy. Just send us a `pull request <https://help.github.com/articles/using-pull-requests/>`_. When you send your request, make `develop` the destination branch on the `SSAPy repository <https://gitub.com/LLNL/SSAPy>`_.
+Contributing to SSAPy is relatively easy. Just send us a `pull request <https://help.github.com/articles/using-pull-requests/>`_. When you send your request, make `develop` the destination branch on the `SSAPy repository <https://github.com/LLNL/SSAPy>`_.
 
 Your PR must pass SSAPy's unit tests and documentation tests, and must be `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ compliant. We enforce these guidelines with our CI process. To run these tests locally, and for helpful tips on git, see our `Contribution Guide <https://ssapy.reathedocs.io/en/latest/contribution_guide.html>`_.
 
