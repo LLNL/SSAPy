@@ -92,31 +92,23 @@ Please note that SSAPy has a `Code of Conduct <https://github.com/LLNL/SSAPy/blo
 Authors
 -------
 
-SSAPy was created by:
-
-- `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Josh Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_)
-- `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_)
-- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Outrider).
-
-The lead developers are:
-
-- `Travis Yeager <https://people.llnl.gov/yeager7>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_)
-
-Many thanks go to SSAPy's contributors:
-
-- `Kerianne Pruett <https://people.llnl.gov/pruett6>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Bob Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Nate Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Will Dawson <https://people.llnl.gov/dawson29>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Dan Merl <https://people.llnl.gov/merl1>`_ (`LLNL <https://www.llnl.gov/>`_)
-- Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_)
-- and all the people listed on the `GitHub contributors page <https://github.com/llnl/ssapy/graphs/contributors>`_.
-
 SSAPy was developed with support from Lawrence Livermore National Laboratory's Laboratory Directed Research and Development (LDRD) Program under projects
 `19-SI-004 <https://ldrd-annual.llnl.gov/archives/ldrd-annual-2021/project-highlights/high-performance-computing-simulation-and-data-science/madstare-modeling-and-analysis-data-starved-or-ambiguous-environments>`_ and
-`22-ERD-054 <https://ldrd-annual.llnl.gov/ldrd-annual-2023/project-highlights/space-security/data-demand-capable-space-domain-awareness-architecture>`_.
+`22-ERD-054 <https://ldrd-annual.llnl.gov/ldrd-annual-2023/project-highlights/space-security/data-demand-capable-space-domain-awareness-architecture>`_, by the following individuals (in alphabetical order):
+
+- `Robert Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
+- `Nathan Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
+- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Outrider) - Developer
+- Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_) - Developer
+- `Dan Merl <https://people.llnl.gov/merl1>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
+- `Joshua Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Lead Developer
+- `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
+- `Kerianne Pruett <https://people.llnl.gov/pruett6>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer, Technical Advisor
+- `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Developer
+- `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_) - Creator, Developer, Technical Advisor
+- `Travis Yeager <https://people.llnl.gov/yeager7>`_ (`LLNL <https://www.llnl.gov/>`_) - Lead Developer
+
+Many thanks go to SSAPy's other `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
 
 ..
     Citing SSAPy
