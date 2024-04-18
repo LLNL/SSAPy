@@ -1,16 +1,18 @@
 SSAPy - Space Situational Awareness for Python
 ==============================================
 
-.. image:: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml/badge.svg
+|ci_badge| |container_badge| |docs_badge| |codecov_badge|
+
+.. |ci_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml
 
-.. image:: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml/badge.svg
+.. |container_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml/badge.svg
     :target: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml
 
-.. image:: https://github.com/LLNL/SSAPy/actions/workflows/pages/pages-build-deployment/badge.svg
-    :target: https://llnl.github.io/SSAPy
+.. |docs_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/pages/pages-build-deployment/badge.svg
+    :target: https://LLNL.github.io/SSAPy
 
-.. image:: https://codecov.io/gh/LLNL/SSAPy/branch/develop/graph/badge.svg
+.. |codecov_badge| image:: https://codecov.io/gh/LLNL/SSAPy/branch/develop/graph/badge.svg
     :target: https://codecov.io/gh/LLNL/SSAPy
 
 SSAPy is a python package allowing for fast and precise orbital modeling.
@@ -30,7 +32,7 @@ SSAPy is much faster than other orbit modeling tools and offers:
 Installation
 ------------
 
-For installation details, see the `Installing SSAPy <https://ssapy.github.io/ssapy/installation.html>`_ section of the documentation.
+For installation details, see the `Installing SSAPy <https://LLNL.github.io/SSAPy/installation.html>`_ section of the documentation.
 
 Strict dependencies
 -------------------
@@ -52,7 +54,7 @@ The following are installed automatically when you install SSAPy:
 Documentation
 -------------
 
-All documentation is hosted at `https://ssapy.github.io/ssapy/ <https://ssapy.github.io/ssapy/>`_.
+All documentation is hosted at `https://LLNL.github.io/SSAPy/ <https://LLNL.github.io/SSAPy/>`_.
 
 The API documentation may also be seen by doing:
 
@@ -90,14 +92,31 @@ Please note that SSAPy has a `Code of Conduct <https://github.com/LLNL/SSAPy/blo
 Authors
 -------
 
-Many thanks go to SSAPy's `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
-
 SSAPy was created by:
 
 - `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_)
 - `Josh Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_)
 - `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_)
 - Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Outrider).
+
+The lead developers are:
+
+- `Travis Yeager <https://people.llnl.gov/yeager7>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_)
+
+Many thanks go to SSAPy's contributors:
+
+- `Kerianne Pruett <https://people.llnl.gov/pruett6>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Bob Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Nate Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Will Dawson <https://people.llnl.gov/dawson29>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Dan Merl <https://people.llnl.gov/merl1>`_ (`LLNL <https://www.llnl.gov/>`_)
+- Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_)
+- and all the people listed on the `GitHub contributors page <https://github.com/llnl/ssapy/graphs/contributors>`_.
+
+SSAPy was developed with support from Lawrence Livermore National Laboratory's Laboratory Directed Research and Development (LDRD) Program under projects
+`19-SI-004 <https://ldrd-annual.llnl.gov/archives/ldrd-annual-2021/project-highlights/high-performance-computing-simulation-and-data-science/madstare-modeling-and-analysis-data-starved-or-ambiguous-environments>`_ and
+`22-ERD-054 <https://ldrd-annual.llnl.gov/ldrd-annual-2023/project-highlights/space-security/data-demand-capable-space-domain-awareness-architecture>`_.
 
 ..
     Citing SSAPy
