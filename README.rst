@@ -98,7 +98,7 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's L
 
 - `Robert Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
 - `Nathan Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
-- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Outrider) - Developer
+- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics) - Developer
 - Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_) - Developer
 - `Dan Merl <https://people.llnl.gov/merl1>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
 - `Joshua Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Lead Developer
@@ -111,15 +111,17 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's L
 
 Many thanks go to SSAPy's other `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
 
-..
-    Citing SSAPy
-    ^^^^^^^^^^^^
+Citing SSAPy
+^^^^^^^^^^^^
 
-    If you are referencing SSAPy in a publication, please cite the following paper:
+On GitHub, you can copy this citation in APA or BibTeX format via the "Cite this repository" button.
+If you prefer MLA or Chicago style citations, see the comments in `CITATION.cff <https://github.com/LLNL/SSAPy/blob/main/CITATION.cff>`_.
 
-        - citation
+You may also cite the following publications (click `here <https://github.com/LLNL/SSAPy/blob/main/docs/source/citations.bib>`_ for list of BibTeX citations):
 
-    On GitHub, you can copy this citation in APA or BibTeX format via the "Cite this repository" button. Or, see the comments in CITATION.cff for the raw BibTex.
+ - Yeager, T., Pruett, K., & Schneider, M. (2022). *Unaided Dynamical Orbit Stability in the Cislunar Regime.* [Poster presentation]. Cislunar Security Conference, USA.
+ - Yeager, T., Pruett, K., & Schneider, M. (2023). *Long-term N-body Stability in Cislunar Space.* [Poster presentation]. Advanced Maui Optical and Space Surveillance (AMOS) Technologies Conference, USA.
+ - Yeager, T., Pruett, K., & Schneider, M. (2023, September). Long-term N-body Stability in Cislunar Space. In S. Ryan (Ed.), *Proceedings of the Advanced Maui Optical and Space Surveillance (AMOS) Technologies Conference* (p. 208). Retrieved from `https://amostech.com/TechnicalPapers/2023/Poster/Yeager.pdf <https://amostech.com/TechnicalPapers/2023/Poster/Yeager.pdf>`_
 
 License
 -------
