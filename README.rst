@@ -12,7 +12,7 @@ SSAPy - Space Situational Awareness for Python
 .. |docs_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/pages/pages-build-deployment/badge.svg
     :target: https://LLNL.github.io/SSAPy
 
-.. |codecov_badge| image:: https://codecov.io/gh/LLNL/SSAPy/branch/develop/graph/badge.svg
+.. |codecov_badge| image:: https://codecov.io/gh/LLNL/SSAPy/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/LLNL/SSAPy
 
 SSAPy is a python package allowing for fast and precise orbital modeling.
@@ -67,18 +67,18 @@ The API documentation may also be seen by doing:
 Contributing
 ------------
 
-Contributing to SSAPy is relatively easy. Just send us a `pull request <https://help.github.com/articles/using-pull-requests/>`_. When you send your request, make `develop` the destination branch on the `SSAPy repository <https://github.com/LLNL/SSAPy>`_.
+Contributing to SSAPy is relatively easy. Just send us a `pull request <https://help.github.com/articles/using-pull-requests/>`_. When you send your request, make `main` the destination branch on the `SSAPy repository <https://github.com/LLNL/SSAPy>`_.
 
 Your PR must pass SSAPy's unit tests and documentation tests, and must be `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_ compliant. We enforce these guidelines with our CI process. To run these tests locally, and for helpful tips on git, see our `Contribution Guide <https://ssapy.reathedocs.io/en/latest/contribution_guide.html>`_.
 
-SSAPy's `develop` branch has the latest contributions. Pull requests should target `develop`, and users who want the latest package versions, features, etc. can use `develop`.
+SSAPy's `main` branch has the latest contributions. Pull requests should target `main`, and users who want the latest package versions, features, etc. can use `main`.
 
 Releases
 --------
 
 For multi-user site deployments or other use cases that need very stable software installations, we recommend using SSAPy's `stable releases <https://github.com/LLNL/SSAPy/releases>`_.
 
-Each SSAPy release series also has a corresponding branch, e.g. `releases/v0.14` has `0.14.x` versions of SSAPy, and `releases/v0.13` has `0.13.x` versions. We backport important bug fixes to these branches but we do not advance the package versions or make other changes that would change the way SSAPy concretizes dependencies within a release branch. So, you can base your SSAPy deployment on a release branch and `git pull` to get fixes, without the package churn that comes with develop.
+Each SSAPy release series also has a corresponding branch, e.g. `releases/v0.14` has `0.14.x` versions of SSAPy, and `releases/v0.13` has `0.13.x` versions. We backport important bug fixes to these branches but we do not advance the package versions or make other changes that would change the way SSAPy concretizes dependencies within a release branch. So, you can base your SSAPy deployment on a release branch and `git pull` to get fixes, without the package churn that comes with `main`.
 
 The latest release is always available with the `releases/latest` tag.
 
