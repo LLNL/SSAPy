@@ -1,0 +1,6 @@
+plotRVTrace
+===========
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: plotRVTrace

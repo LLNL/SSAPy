@@ -1,0 +1,6 @@
+gcrf_plot
+=========
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: gcrf_plot

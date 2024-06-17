@@ -1,0 +1,5 @@
+﻿ssapy.particles
+===============
+
+.. automodapi:: ssapy.particles
+    :no-heading:

@@ -1,0 +1,6 @@
+npsave
+======
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: npsave

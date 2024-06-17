@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>refine_pass &mdash; SSAPy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+    <link rel="shortcut icon" href="../_static/ssapy_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/ssapy_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Basics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SSAPy by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">SSAPy Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribution_guide.html">Contribution Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API DOCS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">API Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SSAPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">refine_pass</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/ssapy.compute.refine_pass.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="refine-pass">
+<h1>refine_pass<a class="headerlink" href="#refine-pass" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="ssapy.compute.refine_pass">
+<span class="sig-prename descclassname"><span class="pre">ssapy.compute.</span></span><span class="sig-name descname"><span class="pre">refine_pass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propagator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">KeplerianPropagator()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">np.float64(0.3490658503988659)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxSpan</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">86400.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/compute.py#L1038"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.compute.refine_pass" title="Link to this definition"></a></dt>
+<dd><p>Refine a satellite overhead pass.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>orbit<span class="classifier">Orbit</span></dt><dd><p>Orbit in question.</p>
+</dd>
+<dt>observer<span class="classifier">EarthObserver.</span></dt><dd><p>Observer for which to refine pass.</p>
+</dd>
+<dt>time<span class="classifier">float or astropy.time.Time</span></dt><dd><p>A time when satellite is visible to observer.  (Found using
+find_passes, for instance)
+If float, then should correspond to GPS seconds; i.e., seconds
+since 1980-01-06 00:00:00 UTC</p>
+</dd>
+<dt>propagator<span class="classifier">Propagator, optional</span></dt><dd><p>The propagator instance to use.</p>
+</dd>
+<dt>horizon<span class="classifier">float or Quantity, optional</span></dt><dd><p>Minimum altitude for which to consider a satellite “visible”.
+If float, then should be in radians.</p>
+</dd>
+<dt>maxSpan<span class="classifier">float or Quantity, optional</span></dt><dd><p>Maximum amount of time before or after <cite>time</cite> to search for
+rise/set times, or time of max altitude.
+If float, then seconds.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
+<dl>
+<dt>dict</dt><dd><p>Key/values are:
+tStart : Time</p>
+<blockquote>
+<div><p>Time at which Orbit rises above horizon</p>
+</div></blockquote>
+<dl class="simple">
+<dt>tEnd<span class="classifier">Time</span></dt><dd><p>Time at which Orbit rises above horizon</p>
+</dd>
+<dt>tMaxAlt<span class="classifier">Time</span></dt><dd><p>Time Orbit passes through maximum altitude</p>
+</dd>
+<dt>maxAlt<span class="classifier">Quantity</span></dt><dd><p>Maximum altitude</p>
+</dd>
+<dt>duration<span class="classifier">Quantity</span></dt><dd><p>Duration of pass.</p>
+</dd>
+<dt>illumAtStart<span class="classifier">bool</span></dt><dd><p>Is satellite illuminated at <cite>tStart</cite>?</p>
+</dd>
+<dt>illumAtEnd<span class="classifier">bool</span></dt><dd><p>Is satellite illuminated at <cite>tEnd</cite>?</p>
+</dd>
+<dt>tTerminator<span class="classifier">Time or None</span></dt><dd><p>If illumAtStart != illumAtEnd, then time satellite passes through
+cylindrical terminator shadow.  Otherwise, None.</p>
+</dd>
+<dt>sunAltStart<span class="classifier">Quantity</span></dt><dd><p>Altitude of sun at <cite>tStart</cite></p>
+</dd>
+<dt>sunAltEnd<span class="classifier">Quantity</span></dt><dd><p>Altitude of sun at <cite>tEnd</cite></p>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

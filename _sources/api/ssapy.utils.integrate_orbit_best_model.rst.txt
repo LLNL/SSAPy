@@ -1,0 +1,6 @@
+integrate_orbit_best_model
+==========================
+
+.. currentmodule:: ssapy.utils
+
+.. autofunction:: integrate_orbit_best_model

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Particles &mdash; SSAPy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+    <link rel="shortcut icon" href="../_static/ssapy_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/ssapy_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Basics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SSAPy by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">SSAPy Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribution_guide.html">Contribution Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API DOCS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">API Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SSAPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Particles</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/ssapy.particles.Particles.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="particles">
+<h1>Particles<a class="headerlink" href="#particles" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ssapy.particles.Particles">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ssapy.particles.</span></span><span class="sig-name descname"><span class="pre">Particles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rvprobability</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lnpriors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ln_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L7"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A class for importance (re-)sampling orbit model parameter samples</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>particles<span class="classifier">(num_particles, 6) array_like</span></dt><dd><p>Positions and velocities of orbiting object at epoch in meters and meters / second.
+The ‘chain’ part of the output from rvsampler.XXSampler.sample</p>
+</dd>
+<dt>rvprobability<span class="classifier">class instance</span></dt><dd><p>An instance of an RVProbability for this epoch. The Particles class wraps the <cite>lnlike</cite>
+method of the supplied RVProbability object.</p>
+</dd>
+<dt>ln_weights<span class="classifier">(num_particles,) array_like, optional</span></dt><dd><p>Weights for each particle in the input particles</p>
+</dd>
+</dl>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>particles<span class="classifier">(num_particles, ) array_like</span></dt><dd><p>Positions and velocities of orbiting object at epoch in meters and meters / second.
+The ‘chain’ part of the output from RVSampler.sample</p>
+</dd>
+<dt>rvprobability<span class="classifier">class instance</span></dt><dd><p>An instance of an RVProbability for this epoch. The Particles class wraps the <cite>lnlike</cite>
+method of the supplied RVProbability object.</p>
+</dd>
+<dt>ln_wts<span class="classifier">(num_particles,) array_like</span></dt><dd><p>Log weights for each particle.</p>
+</dd>
+<dt>num_particles<span class="classifier">int</span></dt><dd><p>Number of particles</p>
+</dd>
+<dt>initial_particles<span class="classifier">(num_particles, 6) array_like</span></dt><dd><p>Copy of input particles to enable reset_to_pseudo_prior()</p>
+</dd>
+<dt>initial_ln_wts<span class="classifier">(num_particles,) array_like</span></dt><dd><p>Copy of input log weights to enable reset_to_pseudo_prior()</p>
+</dd>
+<dt>epoch<span class="classifier">float or astropy.time.Time</span></dt><dd><p>The time at which the model parameters (position and velocity) are specified. If float,
+then should correspond to GPS seconds; i.e., seconds since 1980-01-06 00:00:00 UTC.</p>
+</dd>
+<dt>orbits<span class="classifier">list</span></dt><dd><p>List of Orbit class instances derived from each particle</p>
+</dd>
+<dt>lnpriors<span class="classifier">(num_particles,) array_like</span></dt><dd><p>Log prior probabilities for each particle. The priors are as set in the input RVProbability
+object.</p>
+</dd>
+</dl>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>reset_to_pseudo_prior()</dt><dd><p>Reset the particles and weights to their values at instantiation</p>
+</dd>
+<dt>move(epoch)</dt><dd><p>Move particles to the specified epoch</p>
+</dd>
+<dt>lnlike(epoch_particles)</dt><dd><p>Evaluate the log-likelihood of the input particles given internally stored measurements</p>
+</dd>
+<dt>reweight(epoch_particles)</dt><dd><p>Reweight particles using cross-epoch likelihoods</p>
+</dd>
+<dt>resample(num_particles)</dt><dd><p>Resample particles to achieve near-uniform weighting per particle</p>
+</dd>
+<dt>fuse(epoch_particles, verbose)</dt><dd><p>Fuse particles from a different epoch and fuse internal particles and weights</p>
+</dd>
+<dt>draw_orbit()</dt><dd><p>Draw a single orbit model from the internal list of particles</p>
+</dd>
+<dt>mean()</dt><dd><p>Evaluate the weighted mean of the particle values</p>
+</dd>
+</dl>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.particles.Particles.epoch" title="ssapy.particles.Particles.epoch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">epoch</span></code></a></p></td>
+<td><p>Get the epoch time at which the particles (i.e., position and velocity) are defined</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.particles.Particles.lnpriors" title="ssapy.particles.Particles.lnpriors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lnpriors</span></code></a></p></td>
+<td><p>Get an array of log prior probabilities for each particle</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.particles.Particles.orbits" title="ssapy.particles.Particles.orbits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orbits</span></code></a></p></td>
+<td><p>Get a list of orbits corresponding to each stored particle</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.particles.Particles.draw_orbit" title="ssapy.particles.Particles.draw_orbit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">draw_orbit</span></code></a>()</p></td>
+<td><p>Draw a single orbit model from the internal particle collection with probability proportional to the internal weights.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.particles.Particles.fuse" title="ssapy.particles.Particles.fuse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fuse</span></code></a>(epoch_particles[, verbose])</p></td>
+<td><p>Add particles from a new epoch and fuse all epoch particles and weights accordingly</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.particles.Particles.lnlike" title="ssapy.particles.Particles.lnlike"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lnlike</span></code></a>(orbits)</p></td>
+<td><p>Evaluate this epoch likelihood given one or more particles</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.particles.Particles.mean" title="ssapy.particles.Particles.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a>()</p></td>
+<td><p>Evaluate the weighted mean of all particles</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.particles.Particles.move" title="ssapy.particles.Particles.move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">move</span></code></a>(epoch)</p></td>
+<td><p>Move particles to the given epoch</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.particles.Particles.resample" title="ssapy.particles.Particles.resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample</span></code></a>(num_particles)</p></td>
+<td><p>Resample particles to achieve near-uniform weighting per particle</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.particles.Particles.reset_to_pseudo_prior" title="ssapy.particles.Particles.reset_to_pseudo_prior"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_to_pseudo_prior</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.particles.Particles.reweight" title="ssapy.particles.Particles.reweight"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reweight</span></code></a>(epoch_particles)</p></td>
+<td><p>Reweight particles using cross-epoch likelihoods</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.epoch">
+<span class="sig-name descname"><span class="pre">epoch</span></span><a class="headerlink" href="#ssapy.particles.Particles.epoch" title="Link to this definition"></a></dt>
+<dd><p>Get the epoch time at which the particles (i.e., position and velocity) are defined</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.lnpriors">
+<span class="sig-name descname"><span class="pre">lnpriors</span></span><a class="headerlink" href="#ssapy.particles.Particles.lnpriors" title="Link to this definition"></a></dt>
+<dd><p>Get an array of log prior probabilities for each particle</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.orbits">
+<span class="sig-name descname"><span class="pre">orbits</span></span><a class="headerlink" href="#ssapy.particles.Particles.orbits" title="Link to this definition"></a></dt>
+<dd><p>Get a list of orbits corresponding to each stored particle</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.draw_orbit">
+<span class="sig-name descname"><span class="pre">draw_orbit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L251"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.draw_orbit" title="Link to this definition"></a></dt>
+<dd><p>Draw a single orbit model from the internal particle collection with probability
+proportional to the internal weights.</p>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>particle<span class="classifier">array (1, 6)</span></dt><dd><p>Position and velocity for one particle</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.fuse">
+<span class="sig-name descname"><span class="pre">fuse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch_particles</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.fuse" title="Link to this definition"></a></dt>
+<dd><p>Add particles from a new epoch and fuse all epoch particles and weights accordingly</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>epoch_particles<span class="classifier">Particles</span></dt><dd><p>The particles object from another observation</p>
+</dd>
+<dt>verbose<span class="classifier">bool, optional</span></dt><dd><p>Enable verbose output to stdout</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Returns<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>None. Side effect is to fuse the internal particles state.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.lnlike">
+<span class="sig-name descname"><span class="pre">lnlike</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orbits</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L142"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.lnlike" title="Link to this definition"></a></dt>
+<dd><p>Evaluate this epoch likelihood given one or more particles</p>
+<section id="id3">
+<h3>Parameters<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>orbits<span class="classifier">List of Orbit class instances</span></dt><dd><p>A list of the Orbit models for each particle, e.g., as generated by Particles.orbits</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Returns<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>lnlike<span class="classifier">array (num_particles, )</span></dt><dd><p>Array of log-likelihood values for each particle</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.mean">
+<span class="sig-name descname"><span class="pre">mean</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L265"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.mean" title="Link to this definition"></a></dt>
+<dd><p>Evaluate the weighted mean of all particles</p>
+<section id="id5">
+<h3>Returns<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>mean<span class="classifier">(6,) array_like</span></dt><dd><p>Weighted mean of the particle values (3*m, 3*m/s)</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.move">
+<span class="sig-name descname"><span class="pre">move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L127"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.move" title="Link to this definition"></a></dt>
+<dd><p>Move particles to the given epoch</p>
+<section id="id6">
+<h3>Parameters<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<p>epoch : astropy.time.Time</p>
+</section>
+<section id="id7">
+<h3>Returns<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>particles<span class="classifier">array (num_particles, 6)</span></dt><dd><p>Position and velocity for each particle at the new epoch</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.resample">
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_particles</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L194"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.resample" title="Link to this definition"></a></dt>
+<dd><p>Resample particles to achieve near-uniform weighting per particle</p>
+<section id="id8">
+<h3>Parameters<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>num_particles<span class="classifier">int</span></dt><dd><p>The number of particles to keep</p>
+</dd>
+</dl>
+</section>
+<section id="id9">
+<h3>Returns<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<blockquote>
+<div><p>None. Side effect is to update the internal particles state.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.reset_to_pseudo_prior">
+<span class="sig-name descname"><span class="pre">reset_to_pseudo_prior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.reset_to_pseudo_prior" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.particles.Particles.reweight">
+<span class="sig-name descname"><span class="pre">reweight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch_particles</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/particles.py#L157"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.particles.Particles.reweight" title="Link to this definition"></a></dt>
+<dd><p>Reweight particles using cross-epoch likelihoods</p>
+<dl class="simple">
+<dt>The weights for the kth particle are,</dt><dd><dl class="simple">
+<dt>w_k = log(Prod_i L_(d_i | theta_k) / L(d_j | theta_k))</dt><dd><p>= Sum_{i /= j} log(L(d_i | theta_k))</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p>where j is the current epoch, theta are the particle parameters, and d_i is the data from
+epoch i.</p>
+<section id="id10">
+<h3>Parameters<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>epoch_particles<span class="classifier">Particles</span></dt><dd><p>The particles object from another observation</p>
+</dd>
+</dl>
+</section>
+<section id="id11">
+<h3>Returns<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>status<span class="classifier">bool</span></dt><dd><p>Status (True means success). Side effect is to update the internal particles state.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

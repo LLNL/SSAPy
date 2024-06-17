@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tracking_plot &mdash; SSAPy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+    <link rel="shortcut icon" href="../_static/ssapy_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/ssapy_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Basics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SSAPy by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">SSAPy Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribution_guide.html">Contribution Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API DOCS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">API Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SSAPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">tracking_plot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/ssapy.plotUtils.tracking_plot.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tracking-plot">
+<h1>tracking_plot<a class="headerlink" href="#tracking-plot" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="ssapy.plotUtils.tracking_plot">
+<span class="sig-prename descclassname"><span class="pre">ssapy.plotUtils.</span></span><span class="sig-name descname"><span class="pre">tracking_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_stations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(7,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">azim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/plotUtils.py#L386"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.plotUtils.tracking_plot" title="Link to this definition"></a></dt>
+<dd><p>Create a 3D tracking plot of satellite positions over time on Earth’s surface.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>r<span class="classifier">numpy.ndarray or list of numpy.ndarray</span></dt><dd><p>Satellite positions in GCRF coordinates. If a single numpy array, it represents the satellite’s position vector over time. If a list of numpy arrays, it represents multiple satellite position vectors.</p>
+</dd>
+<dt>times<span class="classifier">numpy.ndarray</span></dt><dd><p>Timestamps corresponding to the satellite positions.</p>
+</dd>
+<dt>ground_stations<span class="classifier">list of tuples, optional</span></dt><dd><p>List of ground stations represented as (latitude, longitude) pairs. Default is None.</p>
+</dd>
+<dt>limits<span class="classifier">float or bool, optional</span></dt><dd><p>The plot limits for x, y, and z axes. If a float, it sets the limits for all axes. If False, the limits are automatically determined based on the data. Default is False.</p>
+</dd>
+<dt>title<span class="classifier">str, optional</span></dt><dd><p>Title for the plot. Default is an empty string.</p>
+</dd>
+<dt>figsize<span class="classifier">tuple, optional</span></dt><dd><p>Figure size in inches (width, height). Default is (7, 8).</p>
+</dd>
+<dt>save_path<span class="classifier">str or bool, optional</span></dt><dd><p>Path to save the plot as an image or PDF. If False, the plot is not saved. Default is False.</p>
+</dd>
+<dt>elev<span class="classifier">float, optional</span></dt><dd><p>Elevation angle for the 3D plot view. Default is 30 degrees.</p>
+</dd>
+<dt>azim<span class="classifier">float, optional</span></dt><dd><p>Azimuthal angle for the 3D plot view. Default is 90 degrees.</p>
+</dd>
+<dt>scale<span class="classifier">int, optional</span></dt><dd><p>Scaling factor for the Earth’s image. Default is 5.</p>
+</dd>
+<dt>frame<span class="classifier">str, optional</span></dt><dd><p>Coordinate frame for the satellite positions, “gcrf” or “ecef”. Default is “gcrf”.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>matplotlib.figure.Figure</dt><dd><p>The created tracking plot figure.</p>
+</dd>
+</dl>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The function supports plotting the positions of one or multiple satellites over time.</p></li>
+<li><p>Ground station locations can be optionally displayed on the plot.</p></li>
+<li><p>The limits parameter can be set to specify the plot’s axis limits or automatically determined if set to False.</p></li>
+<li><p>The frame parameter determines the coordinate frame for the satellite positions, “gcrf” (default) or “ecef”.</p></li>
+</ul>
+</section>
+<section id="example-usage">
+<h2>Example Usage<a class="headerlink" href="#example-usage" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Single satellite tracking plot:
+tracking_plot(r_satellite, times, ground_stations=[(40, -75)], title=”Satellite Tracking”)</p></li>
+<li><p>Multiple satellite tracking plot:
+tracking_plot([r_satellite_1, r_satellite_2], times, title=”Multiple Satellite Tracking”)</p></li>
+<li><p>Save the plot as a PNG image:
+tracking_plot(r_satellite, times, save_path=”satellite_tracking.png”)</p></li>
+<li><p>Customize the plot view:
+tracking_plot(r_satellite, times, elev=45, azim=120)</p></li>
+<li><p>Set custom axis limits:
+tracking_plot(r_satellite, times, limits=500)</p></li>
+</ul>
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

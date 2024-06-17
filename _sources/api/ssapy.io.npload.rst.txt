@@ -1,0 +1,6 @@
+npload
+======
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: npload

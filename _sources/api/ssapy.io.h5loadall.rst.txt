@@ -1,0 +1,6 @@
+h5loadall
+=========
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: h5loadall

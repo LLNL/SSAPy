@@ -1,0 +1,6 @@
+mpi_scatter_exclude_rank_0
+==========================
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: mpi_scatter_exclude_rank_0

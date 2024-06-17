@@ -1,0 +1,6 @@
+M_v
+===
+
+.. currentmodule:: ssapy.compute
+
+.. autofunction:: M_v

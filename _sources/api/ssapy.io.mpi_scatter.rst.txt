@@ -1,0 +1,6 @@
+mpi_scatter
+===========
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: mpi_scatter

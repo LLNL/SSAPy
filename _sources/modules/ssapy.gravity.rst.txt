@@ -1,0 +1,5 @@
+﻿ssapy.gravity
+=============
+
+.. automodapi:: ssapy.gravity
+    :no-heading:

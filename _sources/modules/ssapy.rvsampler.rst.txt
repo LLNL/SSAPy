@@ -1,0 +1,5 @@
+﻿ssapy.rvsampler
+===============
+
+.. automodapi:: ssapy.rvsampler
+    :no-heading:

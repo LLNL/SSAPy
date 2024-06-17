@@ -1,0 +1,5 @@
+﻿ssapy.plotUtils
+===============
+
+.. automodapi:: ssapy.plotUtils
+    :no-heading:

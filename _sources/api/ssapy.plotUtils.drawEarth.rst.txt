@@ -1,0 +1,6 @@
+drawEarth
+=========
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: drawEarth

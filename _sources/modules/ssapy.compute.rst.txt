@@ -1,0 +1,5 @@
+﻿ssapy.compute
+=============
+
+.. automodapi:: ssapy.compute
+    :no-heading:

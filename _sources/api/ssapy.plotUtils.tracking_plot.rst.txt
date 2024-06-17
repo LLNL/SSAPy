@@ -1,0 +1,6 @@
+tracking_plot
+=============
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: tracking_plot

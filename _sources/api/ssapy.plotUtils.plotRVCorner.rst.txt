@@ -1,0 +1,6 @@
+plotRVCorner
+============
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: plotRVCorner

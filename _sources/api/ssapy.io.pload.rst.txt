@@ -1,0 +1,6 @@
+pload
+=====
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: pload

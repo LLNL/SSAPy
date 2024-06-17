@@ -1,0 +1,6 @@
+format_xaxis_decimal_year
+=========================
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: format_xaxis_decimal_year

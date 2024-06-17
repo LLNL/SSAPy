@@ -1,0 +1,5 @@
+﻿ssapy.io
+========
+
+.. automodapi:: ssapy.io
+    :no-heading:

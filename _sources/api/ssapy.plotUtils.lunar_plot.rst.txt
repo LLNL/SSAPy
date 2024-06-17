@@ -1,0 +1,6 @@
+lunar_plot
+==========
+
+.. currentmodule:: ssapy.plotUtils
+
+.. autofunction:: lunar_plot

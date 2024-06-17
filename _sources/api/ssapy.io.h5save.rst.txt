@@ -1,0 +1,6 @@
+h5save
+======
+
+.. currentmodule:: ssapy.io
+
+.. autofunction:: h5save

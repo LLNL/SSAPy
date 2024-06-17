@@ -1,0 +1,5 @@
+﻿ssapy.constants
+===============
+
+.. automodapi:: ssapy.constants
+    :no-heading:

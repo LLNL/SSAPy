@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TrackBase &mdash; SSAPy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+    <link rel="shortcut icon" href="../_static/ssapy_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/ssapy_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Basics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SSAPy by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">SSAPy Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribution_guide.html">Contribution Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API DOCS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">API Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SSAPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">TrackBase</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/ssapy.correlate_tracks.TrackBase.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="trackbase">
+<h1>TrackBase<a class="headerlink" href="#trackbase" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.TrackBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ssapy.correlate_tracks.</span></span><span class="sig-name descname"><span class="pre">TrackBase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">satIDs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propagator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbitattr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L704"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.TrackBase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Set of observations fit together as an orbital track.</p>
+<p>This class represents a set of observations that are being modeled
+as the motion of a single object through space.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>satIDs<span class="classifier">array_like</span></dt><dd><p>list of detection IDs considered part of this track</p>
+</dd>
+<dt>data<span class="classifier">array_like</span></dt><dd><p>observations that could be part of this track.  Observations that are
+actually part of this track are specified in satIDs.
+data is must contain a number of fields used in fitting, like
+ra, dec, obsPos, obsVel, and time.</p>
+</dd>
+<dt>volume<span class="classifier">float</span></dt><dd><p>the volume in 6-D orbital element space in which objects could be
+found, needed to normalize false-positive vs. new satellite odds
+default to a very rough number only applicable for RV parameterization</p>
+</dd>
+<dt>propagator<span class="classifier">ssa Propagator instance</span></dt><dd><p>the propagator to use when propagating the orbit.  Default to None
+(Keplerian)</p>
+</dd>
+</dl>
+</section>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>satIDs<span class="classifier">array_like, int</span></dt><dd><p>the detection IDs that are part of this Track</p>
+</dd>
+<dt>data<span class="classifier">array_like</span></dt><dd><p>observations that could be part of this track; see constructor</p>
+</dd>
+<dt>volume<span class="classifier">float</span></dt><dd><p>the prior volume in 6-D parameter where satellites may be observed</p>
+</dd>
+<dt>times<span class="classifier">array_like, float</span></dt><dd><p>the GPS times at which this object was observed</p>
+</dd>
+<dt>mode<span class="classifier">str</span></dt><dd><p>the type of parameterization to use to fit the track
+one of ‘rv’, ‘angle’, ‘equinoctial’</p>
+</dd>
+<dt>lnprob<span class="classifier">float</span></dt><dd><p>the log probability of this association of observations to an orbit
+contains contributions both from priors and likelihood.</p>
+</dd>
+</dl>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.TrackBase.lnprob" title="ssapy.correlate_tracks.TrackBase.lnprob"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lnprob</span></code></a></p></td>
+<td><p>meant to be used for lazy evaluation of an object attribute.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.TrackBase.gate" title="ssapy.correlate_tracks.TrackBase.gate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gate</span></code></a>(arc[, return_nwrap])</p></td>
+<td><p>Compute chi^2 that this track could be associated with arc.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.TrackBase.predict" title="ssapy.correlate_tracks.TrackBase.predict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code></a>(arc0[, return_sigma, return_nwrap])</p></td>
+<td><p>Predict the location and uncertainty of this object at future times.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.TrackBase.propagaterdz" title="ssapy.correlate_tracks.TrackBase.propagaterdz"><code class="xref py py-obj docutils literal notranslate"><span class="pre">propagaterdz</span></code></a>(param[, arc0, return_nwrap])</p></td>
+<td><p>Propagate param to times and locations specified in arc0.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.TrackBase.update" title="ssapy.correlate_tracks.TrackBase.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(time[, rStation, vStation])</p></td>
+<td><p>Shift this track to a new time.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.TrackBase.lnprob">
+<span class="sig-name descname"><span class="pre">lnprob</span></span><a class="headerlink" href="#ssapy.correlate_tracks.TrackBase.lnprob" title="Link to this definition"></a></dt>
+<dd><p>meant to be used for lazy evaluation of an object attribute.
+property should represent non-mutable data, as it replaces itself.</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.TrackBase.gate">
+<span class="sig-name descname"><span class="pre">gate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nwrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L853"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.TrackBase.gate" title="Link to this definition"></a></dt>
+<dd><p>Compute chi^2 that this track could be associated with arc.</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>arc<span class="classifier">array_like, structure array</span></dt><dd><p>must contain fields:
+time: future time (GPS) (float)
+rStation_GCRF: GCRF position of observer at future time (3, float)
+vStation_GCRF: GCRF velocity of observer at future time (3, float)
+ra: observed ra (float)
+pmra: observed proper motion in ra (float)
+dec: observed dec (float)
+pmdec: observed proper motion in dec (float)
+dra: uncertainty in ra (float)
+ddec: uncertainty in dec (float)
+dpmra: uncertainty in proper motion in ra (float)
+dpmdec uncertainty in proper motion in dec (float)</p>
+</dd>
+<dt>return_nwrap<span class="classifier">bool</span></dt><dd><p>if True, also return the standard deviation of the number of
+orbits the object could have made at the time of observation.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<p>chi2, nwrapsig
+chi2 : float</p>
+<blockquote>
+<div><p>The chi-squared implied by associating this observation with this
+track.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>nwrapsig<span class="classifier">float</span></dt><dd><p>if return_nwrap, the standard deviation of the number of orbits the
+object could have made at the time of observation</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.TrackBase.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arc0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nwrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L802"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.TrackBase.predict" title="Link to this definition"></a></dt>
+<dd><p>Predict the location and uncertainty of this object at future times.</p>
+<section id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>arc0<span class="classifier">array_like, structure array</span></dt><dd><p>must contain fields:
+time: future times (GPS) (float)
+rStation_GCRF: GCRF position of observer at future time (3, float)
+vStation_GCRF: GCRF velocity of observer at future time (3, float)</p>
+</dd>
+<dt>return_sigma<span class="classifier">bool</span></dt><dd><p>if True, also return the sigma points used to compute the
+future covariance</p>
+</dd>
+<dt>return_nwrap<span class="classifier">bool</span></dt><dd><p>if True, also return the number of orbital wrappings of the
+sigma points.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h3>Returns<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>mean, covar, fsigma
+mean : array_like (4, n)</p>
+<blockquote>
+<div><p>ra, dec, dra/dt*cos(dec), ddec/dt at future times (rad, rad/s)</p>
+</div></blockquote>
+<dl class="simple">
+<dt>covar<span class="classifier">array_like (4, 4, n)</span></dt><dd><p>covariance of mean parameters at future times</p>
+</dd>
+<dt>fsigma<span class="classifier">array_like (4, 13, n)</span></dt><dd><p>13 sigma points used to compute covar
+fsigma[:, 0, :] is identical to mean.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.TrackBase.propagaterdz">
+<span class="sig-name descname"><span class="pre">propagaterdz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arc0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_nwrap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L926"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.TrackBase.propagaterdz" title="Link to this definition"></a></dt>
+<dd><p>Propagate param to times and locations specified in arc0.</p>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>param<span class="classifier">array_like</span></dt><dd><p>parameters corresponding to self.mode for orbit to propagate</p>
+</dd>
+<dt>arc0<span class="classifier">arary_like, must contain observation fields</span></dt><dd><p>array containing fields specifying times and observer locations
+to which track fit should be propagated.</p>
+</dd>
+<dt>return_nwrap<span class="classifier">bool</span></dt><dd><p>if True, additionally return nwrap</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h3>Returns<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>array([rr, pmrr, dd, pmdd, nwrap])
+rr : ra at future times, radians
+dd : dec at future times, radians
+pmrr : proper motion in ra at future times, rad / s
+pmdd : proper motion in dec at future times, rad / s
+nwrap : number of orbits completed.  Only provided if return_nwrap</p>
+<blockquote>
+<div><p>is True.</p>
+</div></blockquote>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.TrackBase.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rStation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vStation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L957"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.TrackBase.update" title="Link to this definition"></a></dt>
+<dd><p>Shift this track to a new time.</p>
+<p>Only implemented for numerical propagators where time-shifting can provide a big
+speed up.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

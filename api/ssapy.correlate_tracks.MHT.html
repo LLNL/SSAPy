@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MHT &mdash; SSAPy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+
+  
+    <link rel="shortcut icon" href="../_static/ssapy_logo.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/ssapy_logo.svg" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Basics</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">SSAPy by Example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../concepts.html">SSAPy Concepts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribution_guide.html">Contribution Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API DOCS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference.html">API Reference Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SSAPy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">MHT</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/ssapy.correlate_tracks.MHT.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="mht">
+<h1>MHT<a class="headerlink" href="#mht" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ssapy.correlate_tracks.</span></span><span class="sig-name descname"><span class="pre">MHT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nsat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypotheses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">propagator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fitonly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">approximate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orbitattr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1513"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Multiple Hypothesis Tracking of many hypotheses explaining data.</p>
+<p>This class manages the assessment of which hypothesis are most likely
+to explain data, building a set of tracks observation by observation.</p>
+<p>Initialize the MHT with the data, do mht.run(), and inspect the most
+likely hypotheses using [h.lnprob for h in mht.hypotheses].</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt>data<span class="classifier">array_like[N]</span></dt><dd><p>data to model.  Must contain angles of observations, observer
+locations and velocities, times, detection IDs, etc.</p>
+</dd>
+<dt>nsat<span class="classifier">int</span></dt><dd><p>total number of satellites in the sky.  Affects the overall
+prior and the preference for new tracks vs. additional assignments
+to existing tracks.</p>
+</dd>
+<dt>truth<span class="classifier">dict</span></dt><dd><p>when true assignments are known, this argument can provide debug
+information about when the tracker has lost the true assignment</p>
+</dd>
+<dt>hypotheses<span class="classifier">list of Hypothesis</span></dt><dd><p>initialize the MHT with this existing list of Hypotheses.
+Default None.</p>
+</dd>
+<dt>propagator<span class="classifier">instance of ssa Propagator</span></dt><dd><p>propagator to use.  Default to None (Keplerian)</p>
+</dd>
+<dt>fitonly<span class="classifier">ndarray[N] bool</span></dt><dd><p>entries in data to fit</p>
+</dd>
+</dl>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.MHT.add_tracklet" title="ssapy.correlate_tracks.MHT.add_tracklet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_tracklet</span></code></a>(satid, **kw)</p></td>
+<td><p>Add an observation from data to the MHT analysis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.MHT.flag_inconsistency" title="ssapy.correlate_tracks.MHT.flag_inconsistency"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flag_inconsistency</span></code></a>(track2hyp, hyp)</p></td>
+<td><p>Debug method checking to see if there are any inconsistencies between the tracks tracked by the MHT and the hypotheses tracked by the MHT.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.MHT.prune" title="ssapy.correlate_tracks.MHT.prune"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune</span></code></a>(satid[, nkeepmax, pkeep, ...])</p></td>
+<td><p>Prune unlikely hypotheses from the MHT.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.MHT.prune_stale_hypotheses" title="ssapy.correlate_tracks.MHT.prune_stale_hypotheses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune_stale_hypotheses</span></code></a>(newdeadtracks)</p></td>
+<td><p>Prune hypotheses that are different from better hypotheses only in dead tracks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.MHT.prune_tracks" title="ssapy.correlate_tracks.MHT.prune_tracks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prune_tracks</span></code></a>(satid[, nconfirm])</p></td>
+<td><p>Prune tracks that are now nearly identical from the MHT analysis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#ssapy.correlate_tracks.MHT.run" title="ssapy.correlate_tracks.MHT.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([first, last, verbose, order])</p></td>
+<td><p>Run the MHT analysis.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT.add_tracklet">
+<span class="sig-name descname"><span class="pre">add_tracklet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">satid</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1605"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT.add_tracklet" title="Link to this definition"></a></dt>
+<dd><p>Add an observation from data to the MHT analysis.</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>satid<span class="classifier">int</span></dt><dd><p>the ID of the observation to add.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT.flag_inconsistency">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flag_inconsistency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">track2hyp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hyp</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1885"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT.flag_inconsistency" title="Link to this definition"></a></dt>
+<dd><p>Debug method checking to see if there are any inconsistencies
+between the tracks tracked by the MHT and the hypotheses tracked
+by the MHT.  Should only be needed for debugging.</p>
+<p>Every hypothesis in track2hyp[track] should include the Track track.
+Every hypothesis in hyp should be in the list of track2hyp[track] for
+each of its tracks.
+Every track should be in a hypothesis.</p>
+<section id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<p>track2hyp : dict[Track -&gt; list(Hypothesis)]
+hyp: list(Hypothesis)</p>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Link to this heading"></a></h3>
+<p>True if everything is consistent.</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT.prune">
+<span class="sig-name descname"><span class="pre">prune</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">satid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nkeepmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pkeep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-09</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keeponlytrue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nconfirm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1817"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT.prune" title="Link to this definition"></a></dt>
+<dd><p>Prune unlikely hypotheses from the MHT.</p>
+<section id="id3">
+<h3>Parameters<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>satid<span class="classifier">int</span></dt><dd><p>the detection ID most recently added to the MHT</p>
+</dd>
+<dt>nkeepmax<span class="classifier">int</span></dt><dd><p>keep no more than nkeepmax hypotheses</p>
+</dd>
+<dt>pkeep<span class="classifier">float</span></dt><dd><p>keep no hypotheses more than pkeep times less likely than the
+most likely hypothesis</p>
+</dd>
+<dt>keeponlytrue<span class="classifier">bool</span></dt><dd><p>keep only the single hypothesis known to be true for speed
+comparison purposes.</p>
+</dd>
+<dt>nconfirm<span class="classifier">int</span></dt><dd><p>only keep one variant of tracks that agree in the last nconfirm
+detections</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT.prune_stale_hypotheses">
+<span class="sig-name descname"><span class="pre">prune_stale_hypotheses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">newdeadtracks</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1773"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT.prune_stale_hypotheses" title="Link to this definition"></a></dt>
+<dd><p>Prune hypotheses that are different from better hypotheses only in
+dead tracks.</p>
+<p>Note: implentation relies on identical tracks always having the same
+id.  The MHT code tries to guarantee this—otherwise it must do
+extra work matching identical tracks to new detections, etc.  But
+using id(Track) feels horrible to me.</p>
+<section id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>newdeadtracks<span class="classifier">list of Track</span></dt><dd><p>list of tracks that died since the last pruning.</p>
+</dd>
+</dl>
+</section>
+<section id="id5">
+<h3>Returns<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p>boolean mask indicating hypotheses to keep</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT.prune_tracks">
+<span class="sig-name descname"><span class="pre">prune_tracks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">satid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nconfirm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1711"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT.prune_tracks" title="Link to this definition"></a></dt>
+<dd><p>Prune tracks that are now nearly identical from the MHT analysis.</p>
+<p>As the MHT adds observations to tracks, eventually some tracks
+have a number of confirming observations.  For these long tracks,
+we really only need to keep different Tracks and Hypotheses for cases
+where there are recent disagreements with how those tracks continue;
+if hypotheses agree that the track continues in the same way,
+we don’t need to continue tracking the past differences.  So
+we prune out cases of former disagreement.</p>
+<p>This tries to identify such overlapping tracks and keep only one of
+them.</p>
+<section id="id6">
+<h3>Parameters<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>satid<span class="classifier">int</span></dt><dd><p>the satID of the most-recently added detection to the MHT</p>
+</dd>
+<dt>nconfirm<span class="classifier">int</span></dt><dd><p>if two tracks are identical in their last nconfirm observations
+delete the tracks not in the most likely hypothesis.</p>
+</dd>
+</dl>
+</section>
+<section id="id7">
+<h3>Returns<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>boolean array indicating hypotheses to keep</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ssapy.correlate_tracks.MHT.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'forward'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kw</span></span></em><span class="sig-paren">)</span><a class="reference external" href="http://github.com/LLNL/SSAPy/blob/9c617fffe2c5c5d0eb75680c19b4f916a2918977/site-packages/SSAPy-0.7-py3.12-linux-x86_64.egg/ssapy/correlate_tracks.py#L1571"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ssapy.correlate_tracks.MHT.run" title="Link to this definition"></a></dt>
+<dd><p>Run the MHT analysis.</p>
+<section id="id8">
+<h3>Parameters<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt>first<span class="classifier">int</span></dt><dd><p>First tracklet to consider</p>
+</dd>
+<dt>last<span class="classifier">int</span></dt><dd><p>Last tracklet to consider</p>
+</dd>
+<dt>verbose<span class="classifier">bool</span></dt><dd><p>print extra progress information while running</p>
+</dd>
+<dt><a href="#id9"><span class="problematic" id="id10">**</span></a>kw<span class="classifier">dict</span></dt><dd><p>extra keyword arguments to pass to MHT.prune.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
