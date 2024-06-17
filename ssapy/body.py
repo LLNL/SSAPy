@@ -1,3 +1,7 @@
+"""
+Classes representing celestial bodies.
+"""
+
 import erfa
 import numpy as np
 from .utils import _gpsToTT, iers_interp
@@ -103,7 +107,7 @@ class MoonPosition:
         from jplephem.spk import SPK
         from . import datadir
 
-        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp.lbl
+        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp
         self.kernel = SPK.open(fn)
 
     def __call__(self, t):
@@ -134,7 +138,7 @@ class SunPosition:
         from jplephem.spk import SPK
         from . import datadir
 
-        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp.lbl
+        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp
         self.kernel = SPK.open(fn)
 
     def __call__(self, t):

@@ -6,5 +6,7 @@ ssapy/data/de430.bsp filter=lfs diff=lfs merge=lfs -text
 ssapy/data/gggrx_1200a_sha.lbl filter=lfs diff=lfs merge=lfs -text
 ssapy/data/gggrx_1200a_sha.tab filter=lfs diff=lfs merge=lfs -text
 ssapy/data/moon_pa_de440_200625.bpc filter=lfs diff=lfs merge=lfs -text
+*.bsp filter=lfs diff=lfs merge=lfs -text
+*.egm.cof filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
