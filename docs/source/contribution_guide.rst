@@ -30,17 +30,17 @@ and error prone. If possible, try to follow the **one-PR-one-feature** rule.
 Branches
 --------
 
-SSAPy's ``develop`` branch has the latest contributions. Nearly all pull
-requests should start from ``develop`` and target ``develop``.
+SSAPy's ``main`` branch has the latest contributions. Nearly all pull
+requests should start from ``main`` and target ``main``.
 
 There is a branch for each major release series. Release branches
-originate from ``develop`` and have tags for each point release in the
+originate from ``main`` and have tags for each point release in the
 series. For example, ``releases/v0.14`` might have tags for ``0.14.0``,
 ``0.14.1``, ``0.14.2``, etc. versions of SSAPy. We backport important bug
 fixes to these branches, but we do not advance the package versions or
 make other changes that would change the way SSAPy concretizes
 dependencies. Currently, the maintainers manage these branches by
-cherry-picking from ``develop``. See :ref:`releases` for more
+cherry-picking from ``main``. See :ref:`releases` for more
 information.
 
 ----------------------
@@ -155,7 +155,7 @@ command:
 ``ssapy style`` has a couple advantages over running the tools by hand:
 
 #. It only tests files that you have modified since branching off of
-   ``develop``.
+   ``main``.
 
 #. It works regardless of what directory you are in.
 
@@ -274,9 +274,9 @@ substantial changes to the core, we may request unit tests to increase coverage.
 
    You may notice that the Codecov tests fail even though
    you didn't modify any core files. This means that SSAPy's overall coverage
-   has increased since you branched off of develop. This is a good thing!
+   has increased since you branched off of ``main``. This is a good thing!
    If you really want to get the Codecov tests to pass, you can rebase off of
-   the latest develop, but again, this is not required.
+   the latest ``main``, but again, this is not required.
 
 
 -------------
@@ -284,7 +284,7 @@ Git Workflows
 -------------
 
 SSAPy is still in the beta stages of development. Most of our users run off of
-the develop branch, and fixes and new features are constantly being merged. So
+the ``main`` branch, and fixes and new features are constantly being merged. So
 how do you keep up-to-date with upstream while maintaining your own local
 differences and contributing PRs to SSAPy?
 
@@ -293,17 +293,17 @@ Branching
 ^^^^^^^^^
 
 The easiest way to contribute a pull request is to make all of your changes on
-new branches. Make sure your ``develop`` is up-to-date and create a new branch
+new branches. Make sure your ``main`` is up-to-date and create a new branch
 off of it:
 
 .. code-block:: console
 
-   $ git checkout develop
-   $ git pull upstream develop
+   $ git checkout main
+   $ git pull upstream main
    $ git branch <descriptive_branch_name>
    $ git checkout <descriptive_branch_name>
 
-Here we assume that the local ``develop`` branch tracks the upstream develop
+Here we assume that the local ``main`` branch tracks the upstream ``main``
 branch of SSAPy. This is not a requirement and you could also do the same with
 remote branches. But for some it is more convenient to have a local branch that
 tracks upstream.
@@ -313,7 +313,7 @@ a message ``<package-name>: descriptive message``. It is important to add
 descriptive message so that others, who might be looking at your changes later
 (in a year or maybe two), would understand the rationale behind them.
 
-Now, you can make your changes while keeping the ``develop`` branch pure.
+Now, you can make your changes while keeping the ``main`` branch pure.
 Edit a few files and commit them by running:
 
 .. code-block:: console
@@ -328,7 +328,7 @@ Next, push it to your remote fork and create a PR:
    $ git push origin <descriptive_branch_name> --set-upstream
 
 GitHub provides a `tutorial <https://help.github.com/articles/about-pull-requests/>`_
-on how to file a pull request. When you send the request, make ``develop`` the
+on how to file a pull request. When you send the request, make ``main`` the
 destination branch.
 
 If you need this change immediately and don't have time to wait for your PR to
@@ -338,27 +338,27 @@ other branches:
 
 .. code-block:: console
 
-   $ git co develop
-   $ git branch <your_modified_develop_branch>
-   $ git checkout <your_modified_develop_branch>
+   $ git checkout main
+   $ git branch <your_modified_main_branch>
+   $ git checkout <your_modified_main_branch>
    $ git merge <descriptive_branch_name>
 
 This can be done with each new PR you submit. Just make sure to keep this local
-branch up-to-date with upstream ``develop`` too.
+branch up-to-date with upstream ``main`` too.
 
 ^^^^^^^^^^^^^^
 Cherry-Picking
 ^^^^^^^^^^^^^^
 
-What if you made some changes to your local modified develop branch and already
+What if you made some changes to your local modified ``main`` branch and already
 committed them, but later decided to contribute them to SSAPy? You can use
 cherry-picking to create a new branch with only these commits.
 
-First, check out your local modified develop branch:
+First, check out your local modified ``main`` branch:
 
 .. code-block:: console
 
-   $ git checkout <your_modified_develop_branch>
+   $ git checkout <your_modified_main_branch>
 
 Now, get the hashes of the commits you want from the output of:
 
@@ -366,13 +366,13 @@ Now, get the hashes of the commits you want from the output of:
 
    $ git log
 
-Next, create a new branch off of upstream ``develop`` and copy the commits
+Next, create a new branch off of upstream ``main`` and copy the commits
 that you want in your PR:
 
 .. code-block:: console
 
-   $ git checkout develop
-   $ git pull upstream develop
+   $ git checkout main
+   $ git pull upstream main
    $ git branch <descriptive_branch_name>
    $ git checkout <descriptive_branch_name>
    $ git cherry-pick <hash>
@@ -405,22 +405,22 @@ Other developers are constantly making contributions to SSAPy, possibly on the
 same files that your PR changed. If their PR is merged before yours, it can
 create a merge conflict. This means that your PR can no longer be automatically
 merged without a chance of breaking your changes. In this case, you will be
-asked to rebase on top of the latest upstream ``develop``.
+asked to rebase on top of the latest upstream ``main``.
 
-First, make sure your develop branch is up-to-date:
+First, make sure your ``main`` branch is up-to-date:
 
 .. code-block:: console
 
-   $ git checkout develop
-   $ git pull upstream develop
+   $ git checkout main
+   $ git pull upstream main
 
 Now, we need to switch to the branch you submitted for your PR and rebase it
-on top of develop:
+on top of ``main``:
 
 .. code-block:: console
 
    $ git checkout <descriptive_branch_name>
-   $ git rebase develop
+   $ git rebase main
 
 Git will likely ask you to resolve conflicts. Edit the file that it says can't
 be merged automatically and resolve the conflict. Then, run:
@@ -456,16 +456,16 @@ Now, look at the logs and save the hashes of any commits you would like to keep:
 
    $ git log
 
-Next, go back to the original branch and reset it to ``develop``.
-Before doing so, make sure that you local ``develop`` branch is up-to-date
+Next, go back to the original branch and reset it to ``main``.
+Before doing so, make sure that you local ``main`` branch is up-to-date
 with upstream:
 
 .. code-block:: console
 
-   $ git checkout develop
-   $ git pull upstream develop
+   $ git checkout main
+   $ git pull upstream main
    $ git checkout <descriptive_branch_name>
-   $ git reset --hard develop
+   $ git reset --hard main
 
 Now you can cherry-pick relevant commits:
 
@@ -490,20 +490,20 @@ If everything looks good, delete the backup branch:
 Re-writing History
 ^^^^^^^^^^^^^^^^^^
 
-Sometimes you may end up on a branch that has diverged so much from develop
+Sometimes you may end up on a branch that has diverged so much from ``main``
 that it cannot easily be rebased. If the current commits history is more of
 an experimental nature and only the net result is important, you may rewrite
 the history.
 
-First, merge upstream ``develop`` and reset you branch to it. On the branch
+First, merge upstream ``main`` and reset you branch to it. On the branch
 in question, run:
 
 .. code-block:: console
 
-   $ git merge develop
-   $ git reset develop
+   $ git merge main
+   $ git reset main
 
-At this point your branch will point to the same commit as develop and
+At this point your branch will point to the same commit as ``main`` and
 thereby the two are indistinguishable. However, all the files that were
 previously modified will stay as such. In other words, you do not lose the
 changes you made. Changes can be reviewed by looking at diffs:
