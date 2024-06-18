@@ -82,27 +82,27 @@ def test_angular_conversions():
     np.random.seed(seed)
     npts = 10000
     uv = normed(np.random.randn(npts, 3))
-    lb = utils.unit2lb(uv)
-    tp = utils.unit2tp(uv)
+    lb = utils.unit_to_lb(uv)
+    tp = utils.unit_to_tp(uv)
     # round trips
     # 3 systems, back and forth to all other systems -> 6 tests.
     np.testing.assert_allclose(uv,
-                               utils.lb2unit(*utils.unit2lb(uv)),
+                               utils.lb_to_unit(*utils.unit_to_lb(uv)),
                                rtol=0, atol=1e-10)
     np.testing.assert_allclose(uv,
-                               utils.tp2unit(*utils.unit2tp(uv)),
+                               utils.tp_to_unit(*utils.unit_to_tp(uv)),
                                rtol=0, atol=1e-10)
     np.testing.assert_allclose(np.concatenate(tp),
-                               np.concatenate(utils.unit2tp(utils.tp2unit(*tp))),
+                               np.concatenate(utils.unit_to_tp(utils.tp_to_unit(*tp))),
                                rtol=0, atol=1e-10)
     np.testing.assert_allclose(np.concatenate(tp),
-                               np.concatenate(utils.lb2tp(*utils.tp2lb(*tp))),
+                               np.concatenate(utils.lb_to_tp(*utils.tp_to_lb(*tp))),
                                rtol=0, atol=1e-10)
     np.testing.assert_allclose(np.concatenate(lb),
-                               np.concatenate(utils.unit2lb(utils.lb2unit(*lb))),
+                               np.concatenate(utils.unit_to_lb(utils.lb_to_unit(*lb))),
                                rtol=0, atol=1e-10)
     np.testing.assert_allclose(np.concatenate(lb),
-                               np.concatenate(utils.tp2lb(*utils.lb2tp(*lb))),
+                               np.concatenate(utils.tp_to_lb(*utils.lb_to_tp(*lb))),
                                rtol=0, atol=1e-10)
 
     # check tangent plane round tripping.
@@ -111,33 +111,33 @@ def test_angular_conversions():
     # so we need to make up some lcen, bcen to project from.
     noise = np.random.randn(npts, 3)*0.01
     uv2 = normed(uv + noise)
-    lcen, bcen = utils.unit2lb(uv2)
-    xy = utils.lb2tan(*lb, lcen=lcen, bcen=bcen)
+    lcen, bcen = utils.unit_to_lb(uv2)
+    xy = utils.lb_to_tan(*lb, lcen=lcen, bcen=bcen)
 
     # vector lcen, bcen
     np.testing.assert_allclose(
         np.concatenate(lb),
-        np.concatenate(utils.tan2lb(*utils.lb2tan(*lb, lcen=lcen, bcen=bcen),
+        np.concatenate(utils.tan_to_lb(*utils.lb_to_tan(*lb, lcen=lcen, bcen=bcen),
                                      lcen=lcen, bcen=bcen)))
     np.testing.assert_allclose(
         np.concatenate(xy),
-        np.concatenate(utils.lb2tan(*utils.tan2lb(*xy, lcen=lcen, bcen=bcen),
+        np.concatenate(utils.lb_to_tan(*utils.tan_to_lb(*xy, lcen=lcen, bcen=bcen),
                                      lcen=lcen, bcen=bcen)))
 
     # single lcen, bcen; careful to choose all points to be on same hemisphere
     uv2 = uv.copy()
     uv2[:, 0] = np.abs(uv2[:, 0])
     lcen, bcen = (0, 0)
-    lb2 = utils.unit2lb(uv2)
-    xy2 = utils.lb2tan(*lb2, lcen=lcen, bcen=bcen)
+    lb2 = utils.unit_to_lb(uv2)
+    xy2 = utils.lb_to_tan(*lb2, lcen=lcen, bcen=bcen)
 
     np.testing.assert_allclose(
         np.concatenate(lb2),
-        np.concatenate(utils.tan2lb(*utils.lb2tan(*lb2, lcen=lcen, bcen=bcen),
+        np.concatenate(utils.tan_to_lb(*utils.lb_to_tan(*lb2, lcen=lcen, bcen=bcen),
                                      lcen=lcen, bcen=bcen)))
     np.testing.assert_allclose(
         np.concatenate(xy2),
-        np.concatenate(utils.lb2tan(*utils.tan2lb(*xy2, lcen=lcen, bcen=bcen),
+        np.concatenate(utils.lb_to_tan(*utils.tan_to_lb(*xy2, lcen=lcen, bcen=bcen),
                                      lcen=lcen, bcen=bcen)))
 
 

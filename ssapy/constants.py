@@ -1,3 +1,7 @@
+"""
+A collection of physical constants.
+"""
+
 import numpy as np
 
 # GM

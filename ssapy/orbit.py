@@ -1,18 +1,3 @@
-import numpy as np
-from astropy.time import Time
-from .utils import (
-    normSq, normed, lazy_property, unitAngle3, sunPos, _gpsToTT, _wrapToPi,
-    teme_to_gcrf, gcrf_to_teme, iers_interp
-)
-from .constants import EARTH_MU
-from .propagator import KeplerianPropagator
-
-try:
-    import erfa
-except ImportError:
-    # Let this raise
-    import astropy._erfa as erfa
-
 """
 Module to handle Earth satellite state vector manipulation and propagation.
 
@@ -25,6 +10,22 @@ insist on this frame, (e.g., EarthObserver).  We will try to indicate where
 the GCRF frame is required, but make no guarantees that we don't miss any
 such instances.
 """
+
+
+import numpy as np
+import astropy
+from .utils import (
+    normSq, normed, lazy_property as _lazy_property, unitAngle3, sunPos,
+    _gpsToTT, _wrapToPi, teme_to_gcrf, gcrf_to_teme, iers_interp
+)
+from .constants import EARTH_MU
+from .propagator import KeplerianPropagator as _KeplerianPropagator
+
+try:
+    import erfa
+except ImportError:
+    # Let this raise
+    import astropy._erfa as erfa
 
 
 # Conversion routines for anomalies
@@ -667,7 +668,7 @@ class Orbit:
     # Internally use equinoctial elements, calculating cartesian and keplerian
     # on demand.  Main ctor uses cartesian though
     def __init__(self, r, v, t, mu=EARTH_MU, propkw=None):
-        if isinstance(t, Time):
+        if isinstance(t, astropy.time.Time):
             t = t.gps
         self.r, self.v = np.broadcast_arrays(r, v)
         self.propkw = dict() if propkw is None else propkw
@@ -778,7 +779,7 @@ class Orbit:
             The Orbit with given parameters.
         """
         import numbers
-        if isinstance(t, Time):
+        if isinstance(t, astropy.time.Time):
             t = t.gps
         if not all(isinstance(x, numbers.Real) for x in (a, hx, hy, ex, ey, lv, t)):
             a, hx, hy, ex, ey, lv, t = np.broadcast_arrays(
@@ -849,7 +850,7 @@ class Orbit:
             The Orbit with given parameters.
         """
         import numbers
-        if isinstance(t, Time):
+        if isinstance(t, astropy.time.Time):
             t = t.gps
         if not all(isinstance(x, numbers.Real) for x in (a, e, i, pa, raan, trueAnomaly, t)):
             a, e, i, pa, raan, trueAnomaly, t = np.broadcast_arrays(
@@ -945,10 +946,10 @@ class Orbit:
             )
         meanMotion = np.sqrt(mu / np.abs(a**3)) * 60.0  # rad/min
 
-        if not isinstance(t, Time):
-            t = Time(t, format='gps')
+        if not isinstance(t, astropy.time.Time):
+            t = astropy.time.Time(t, format='gps')
         mjd = t.mjd
-        # epoch = mjd - Time("1949-12-31T00:00:00").mjd
+        # epoch = mjd - astropy.time.Time("1949-12-31T00:00:00").mjd
         epoch = mjd - 33281.0
 
         sat = Satrec()
@@ -978,7 +979,7 @@ class Orbit:
         v *= 1e3  # km/s -> m/s
         return Orbit(r, v, t, mu=mu, propkw=propkw)
 
-    @lazy_property
+    @_lazy_property
     def kozaiMeanKeplerianElements(self):
         """Kozai mean Keplerian elements in TEME frame
         (a, e, i, pa, raan, trueAnomaly)
@@ -1077,7 +1078,7 @@ class Orbit:
         obj.propkw = propkw if propkw is not None else dict()
         return obj
 
-    def at(self, t, propagator=KeplerianPropagator()):
+    def at(self, t, propagator=_KeplerianPropagator()):
         """Propagate this orbit to time t.
 
         Parameters
@@ -1451,69 +1452,69 @@ class Orbit:
             -crsp - cosI * srcp, -srsp + cosI * crcp, sinI * cosPa
         ]).T
 
-    @lazy_property
+    @_lazy_property
     def _pEq(self):
         self._setPQEquinoctial()
         return self._pEq
 
-    @lazy_property
+    @_lazy_property
     def _qEq(self):
         self._setPQEquinoctial()
         return self._qEq
 
-    @lazy_property
+    @_lazy_property
     def _pK(self):
         self._setPQKeplerian()
         return self._pK
 
-    @lazy_property
+    @_lazy_property
     def _qK(self):
         self._setPQKeplerian()
         return self._qK
 
-    @lazy_property
+    @_lazy_property
     def a(self):
         """Semimajor axis in meters.
         """
         self._setEquinoctial()
         return self.a
 
-    @lazy_property
+    @_lazy_property
     def hx(self):
         """First component of equinoctial inclination vector.
         """
         self._setEquinoctial()
         return self.hx
 
-    @lazy_property
+    @_lazy_property
     def hy(self):
         """Second component of equinoctial inclination vector.
         """
         self._setEquinoctial()
         return self.hy
 
-    @lazy_property
+    @_lazy_property
     def ex(self):
         """First component of equinoctial eccentricity vector.
         """
         self._setEquinoctial()
         return self.ex
 
-    @lazy_property
+    @_lazy_property
     def ey(self):
         """Second component of equinoctial eccentricity vector.
         """
         self._setEquinoctial()
         return self.ey
 
-    @lazy_property
+    @_lazy_property
     def lv(self):
         """True longitude in radians.
         """
         self._setEquinoctial()
         return self.lv
 
-    @lazy_property
+    @_lazy_property
     def lE(self):
         """Eccentric longitude in radians.
         """
@@ -1540,7 +1541,7 @@ class Orbit:
                 )
             return lE
 
-    @lazy_property
+    @_lazy_property
     def lM(self):
         """Mean longitude in radians.
         """
@@ -1567,48 +1568,48 @@ class Orbit:
                 )
             return lM
 
-    @lazy_property
+    @_lazy_property
     def e(self):
         """Eccentricity.
         """
         return np.sqrt(self.ex * self.ex + self.ey * self.ey)
 
-    @lazy_property
+    @_lazy_property
     def i(self):
         """Inclination in radians.
         """
         self._setKeplerian()
         return self.i
 
-    @lazy_property
+    @_lazy_property
     def pa(self):
         """Periapsis argument in radians.
         """
         self._setKeplerian()
         return self.pa
 
-    @lazy_property
+    @_lazy_property
     def lonPa(self):
         """Longitude of periapsis argument in radians.
         """
         self._setEquinoctial()
         return self.lonPa
 
-    @lazy_property
+    @_lazy_property
     def raan(self):
         """Right ascension of the ascending node in radians.
         """
         self._setKeplerian()
         return self.raan
 
-    @lazy_property
+    @_lazy_property
     def trueAnomaly(self):
         """True anomaly in radians.
         """
         self._setEquinoctial()
         return self.trueAnomaly
 
-    @lazy_property
+    @_lazy_property
     def eccentricAnomaly(self):
         """Eccentric anomaly in radians.
         """
@@ -1635,7 +1636,7 @@ class Orbit:
                 )
             return eccentricAnomaly
 
-    @lazy_property
+    @_lazy_property
     def meanAnomaly(self):
         """Mean anomaly in radians.
         """
@@ -1670,7 +1671,7 @@ class Orbit:
                 )
             return meanAnomaly
 
-    @lazy_property
+    @_lazy_property
     def period(self):
         """Orbital period in seconds.
         """
@@ -1686,7 +1687,7 @@ class Orbit:
                 period[~wBound] = np.inf
             return period
 
-    @lazy_property
+    @_lazy_property
     def meanMotion(self):
         """Mean motion in radians per second.
         """
@@ -1704,31 +1705,31 @@ class Orbit:
         """
         return self.a, self.e, self.i, self.pa, self.raan, self.trueAnomaly
 
-    @lazy_property
+    @_lazy_property
     def p(self):
         """Semi-latus rectum in meters.
         """
         return self.a * (1.0 - self.e**2)
 
-    @lazy_property
+    @_lazy_property
     def angularMomentum(self):
         """(Specific) angular momentum vector in m^2/s.
         """
         return np.cross(self.r, self.v)
 
-    @lazy_property
+    @_lazy_property
     def energy(self):
         """(Specific) orbital energy in m^2/s^2.
         """
         return -0.5 * self.mu / self.a
 
-    @lazy_property
+    @_lazy_property
     def LRL(self):
         """Laplace-Runge-Lenz vector in m^3/s^2.
         """
         return -self.mu * normed(self.r) - np.cross(self.angularMomentum, self.v)
 
-    @lazy_property
+    @_lazy_property
     def periapsis(self):
         """Periapsis coordinate of orbit in meters.
         """
@@ -1739,7 +1740,7 @@ class Orbit:
         else:
             return normed(self.LRL) * pdist[:, None]
 
-    @lazy_property
+    @_lazy_property
     def apoapsis(self):
         """Apoapsis coordinate of orbit in meters.
         """
@@ -1759,7 +1760,7 @@ class Orbit:
                 apoapsis[~wBound] = np.array([np.inf, np.inf, np.inf])
             return apoapsis
 
-    @lazy_property
+    @_lazy_property
     def tle(self):
         """Two line element for this Orbit.
         """
@@ -1844,7 +1845,7 @@ class EarthObserver:
 
         if self.fast:
             import numbers
-            if isinstance(time, Time):
+            if isinstance(time, astropy.time.Time):
                 time = time.gps
             if isinstance(time, numbers.Real):
                 scalar = True
@@ -1879,8 +1880,8 @@ class EarthObserver:
                 return outR[0], outV[0]
             return outR, outV
         else:
-            if not isinstance(time, Time):
-                time = Time(time, format='gps')
+            if not isinstance(time, astropy.time.Time):
+                time = astropy.time.Time(time, format='gps')
             r, v = self._location.get_gcrs_posvel(time)
             return r.xyz.to(u.m).T.value, v.xyz.to(u.m / u.s).T.value
 
@@ -1898,7 +1899,7 @@ class EarthObserver:
         alt : array_like(n,)
             Altitude of sun in radians.
         """
-        if isinstance(time, Time):
+        if isinstance(time, astropy.time.Time):
             time = time.gps
         ro, _ = self.getRV(time)
         r_sun = sunPos(time, fast=False)
@@ -1926,13 +1927,13 @@ class OrbitalObserver:
     getRV(time)
         Get position and velocity at specified time(s).
     """
-    def __init__(self, orbit, propagator=KeplerianPropagator()):
+    def __init__(self, orbit, propagator=_KeplerianPropagator()):
         self.orbit = orbit
         self.propagator = propagator
 
     def __repr__(self):
         out = "OrbitalObserver({!r}".format(self.orbit)
-        if self.propagator != KeplerianPropagator():
+        if self.propagator != _KeplerianPropagator():
             out += ", propagator={!r}".format(self.propagator)
         out += ")"
         return out

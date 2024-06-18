@@ -1,5 +1,9 @@
+"""
+Classes for sampling orbit model parameters.
+"""
+
 import numpy as np
-from .orbit import Orbit
+from .orbit import Orbit as _Orbit
 from .compute import rv
 from . import utils
 
@@ -113,7 +117,7 @@ class Particles:
         """ Get a list of orbits corresponding to each stored particle
         """
         if self._orbits is None:
-            self._orbits = [Orbit(p[0:3], p[3:6], t=self.epoch) for p in self.particles]
+            self._orbits = [_Orbit(p[0:3], p[3:6], t=self.epoch) for p in self.particles]
         return self._orbits
 
     @property
@@ -260,7 +264,7 @@ class Particles:
         prob = utils.get_normed_weights(self.ln_wts)
         particle_ndx = np.random.choice(self.num_particles, size=1, p=prob)
         p = self.particles[particle_ndx, :][0]
-        return [Orbit(p[0:3], p[3:6], t=self.epoch)]
+        return [_Orbit(p[0:3], p[3:6], t=self.epoch)]
 
     def mean(self):
         """ Evaluate the weighted mean of all particles

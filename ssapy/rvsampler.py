@@ -592,7 +592,7 @@ def circular_guess(arc, indices=[0, 1]):
     rRange = sol[0]
     vlos = sgn*np.sqrt(vr2(rRange))
     import ssapy.utils
-    ra, dec = ssapy.utils.unit2lb(np.array([lineOfSight]))
+    ra, dec = ssapy.utils.unit_to_lb(np.array([lineOfSight]))
     rGuess, vGuess = radecRateObsToRV(
         ra[0], dec[0], rRange, muAlpha, muDelta, vlos, rStation, vGroundSky)
     # ignores light-time correction, etc.

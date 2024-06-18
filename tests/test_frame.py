@@ -34,7 +34,7 @@ def test_vallado():
     ddpsi = -0.052195/206265 # arcsec->radians
     ddeps = -0.003875/206265 # arcsec->radians
 
-    rot = ssapy.utils.teme2gcrf(t)
+    rot = ssapy.utils.teme_to_gcrf(t)
 
     # 10 cm precision
     np.testing.assert_allclose(np.dot(rot, rteme), rgcrf, rtol=0, atol=1e-4)
@@ -45,7 +45,7 @@ def test_vallado():
     np.testing.assert_allclose(np.dot(rot.T, rgcrf), rteme, rtol=0, atol=1e-4)
     np.testing.assert_allclose(np.dot(rot.T, vgcrf), vteme, rtol=0, atol=1e-7)
 
-    rotT = ssapy.utils.gcrf2teme(t)
+    rotT = ssapy.utils.gcrf_to_teme(t)
     np.testing.assert_allclose(np.dot(rotT, rgcrf), rteme, rtol=0, atol=1e-4)
     np.testing.assert_allclose(np.dot(rotT, vgcrf), vteme, rtol=0, atol=1e-7)
 
@@ -73,7 +73,7 @@ def test_teme_orekit():
     for _ in range(100):
         rteme = np.random.uniform(low=-1000, high=1000, size=(10, 3))
         t = Time(np.random.uniform(low=0, high=1e8), format='gps')
-        rot = ssapy.utils.teme2gcrf(t)
+        rot = ssapy.utils.teme_to_gcrf(t)
         rgcrf = np.dot(rot, rteme.T).T
 
         oreDate = AbsoluteDate(t.isot, TimeScalesFactory.getUTC())

@@ -1,8 +1,12 @@
+"""
+Classes for gravity-related accelerations.
+"""
+
 # from functools import lru_cache
 
 import numpy as np
 
-from .accel import Accel, _invnorm
+from .accel import Accel as _Accel, _invnorm
 from .utils import find_file, norm
 from . import _ssapy
 
@@ -220,7 +224,7 @@ class HarmonicCoefficients:
         )
 
 
-class AccelThirdBody(Accel):
+class AccelThirdBody(_Accel):
     """Acceleration due to a third body.
 
     Parameters
@@ -254,7 +258,7 @@ class AccelThirdBody(Accel):
         return -self.body.mu * (s / norm(s)**3 - d / norm(d)**3)
 
 
-class AccelHarmonic(Accel):
+class AccelHarmonic(_Accel):
     """Acceleration due to a harmonic potential.
 
     Parameters

@@ -34,7 +34,7 @@ These requirements can be easily installed on most modern macOS and Linux system
        .. code-block:: console
 
           brew update
-          brew install gcc git git-lfs python3 svn graphviz
+          brew install gcc git git-lfs python3 graphviz
 
 Installation
 ------------

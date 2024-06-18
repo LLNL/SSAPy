@@ -1,3 +1,7 @@
+"""
+Classes representing celestial bodies.
+"""
+
 import erfa
 import numpy as np
 from .utils import _gpsToTT, iers_interp

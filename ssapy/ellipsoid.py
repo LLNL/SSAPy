@@ -1,3 +1,11 @@
+"""
+Class to handle transformations between ECEF x,y,z coords and geodetic
+longitude, latitude, and height.
+
+Technically, only handles a one-axis ellipsoid, defined via a flattening
+parameter f, but that's good enough for simple Earth models.
+"""
+
 import numpy as np
 
 from ._ssapy import Ellipsoid

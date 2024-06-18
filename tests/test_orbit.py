@@ -14,7 +14,7 @@ from ssapy.orbit import _ellipticalEccentricToTrueLongitude, _ellipticalTrueToEc
 from ssapy.orbit import _hyperbolicEccentricToTrueLongitude, _hyperbolicTrueToEccentricLongitude
 from ssapy.orbit import _ellipticalEccentricToMeanLongitude, _ellipticalMeanToEccentricLongitude
 from ssapy.orbit import _hyperbolicEccentricToMeanLongitude, _hyperbolicMeanToEccentricLongitude
-from ssapy.utils import normed, norm, teme2gcrf
+from ssapy.utils import normed, norm, teme_to_gcrf
 from ssapy_test_helpers import timer, checkAngle, checkSphere
 
 
@@ -1682,7 +1682,7 @@ def test_sgp4():
             times.append(Time(timestr))
         times = Time(times)
 
-        rot = teme2gcrf(times[0])
+        rot = teme_to_gcrf(times[0])
         x = np.cos(np.deg2rad(b3['azimuthAngle'])) * np.cos(np.deg2rad(b3['polarAngle']))
         y = np.sin(np.deg2rad(b3['azimuthAngle'])) * np.cos(np.deg2rad(b3['polarAngle']))
         z = np.sin(np.deg2rad(b3['polarAngle']))
@@ -1699,7 +1699,7 @@ def test_sgp4():
             vsgp4.append(v)
         rsgp4 = np.array(rsgp4)*1e3
         vsgp4 = np.array(vsgp4)*1e3
-        rot = teme2gcrf(orbit.t)
+        rot = teme_to_gcrf(orbit.t)
         rsgp4 = np.dot(rot, rsgp4.T).T
         vsgp4 = np.dot(rot, vsgp4.T).T
 

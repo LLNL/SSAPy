@@ -1,3 +1,7 @@
+"""
+Classes for propagating orbits.
+"""
+
 from abc import ABC, abstractmethod
 import numpy as np
 from astropy.time import Time
