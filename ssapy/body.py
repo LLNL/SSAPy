@@ -107,7 +107,7 @@ class MoonPosition:
         from jplephem.spk import SPK
         from . import datadir
 
-        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp
+        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp.lbl
         self.kernel = SPK.open(fn)
 
     def __call__(self, t):
@@ -138,7 +138,7 @@ class SunPosition:
         from jplephem.spk import SPK
         from . import datadir
 
-        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp
+        fn = os.path.join(datadir, "de430.bsp")  # https://naif.jpl.nasa.gov/pub/naif/LUCY/kernels/spk/de430s.bsp.lbl
         self.kernel = SPK.open(fn)
 
     def __call__(self, t):
