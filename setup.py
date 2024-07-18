@@ -77,6 +77,7 @@ setup(
         'ipython_genutils',
         'jplephem',
         'docutils<0.21',
+        'pytest',
         'sphinx',
         'sphinx-rtd-theme',
         'sphinx-copybutton',
