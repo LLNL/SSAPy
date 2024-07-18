@@ -1,6 +1,6 @@
 from .body import get_body
-from .compute import groundTrack, lagrange_points_lunar_frame, lagrange_points_lunar_frame_
-from .constants import RGEO, LD, EARTH_RADIUS, MOON_RADIUS
+from .compute import groundTrack, lagrange_points_lunar_frame, calculate_orbital_elements
+from .constants import RGEO, LD, EARTH_RADIUS, MOON_RADIUS, EARTH_MU, MOON_MU
 from .coordinates import gcrf_to_itrf, gcrf_to_lunar_fixed, gcrf_to_lunar
 from .utils import find_file, Time, find_smallest_bounding_cube
 
@@ -11,6 +11,7 @@ import io
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib import mplcolors
 
 from PyPDF2 import PdfMerger
 from matplotlib.backends.backend_pdf import PdfPages
@@ -466,6 +467,240 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
     if save_path:
         save_plot(fig, save_path)
     return fig, ax
+
+
+def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
+    if 'earth' in body.lower():
+        orbital_elements = calculate_orbital_elements(r, v, mu_barycenter=EARTH_MU)
+    else:
+        orbital_elements = calculate_orbital_elements(r, v, mu_barycenter=MOON_MU)
+    fig, ax1 = plt.subplots(dpi=100)
+    ax1.plot([], [], label='semi-major axis [GEO]', c='C0', linestyle='-')
+    ax2 = ax1.twinx()
+    make_white(fig, *[ax1, ax2])
+
+    ax1.plot(Time(t).decimalyear, [x for x in orbital_elements['e']], label='eccentricity', c='C1')
+    ax1.plot(Time(t).decimalyear, [x for x in orbital_elements['i']], label='inclination [rad]', c='C2')
+    ax1.set_xlabel('Year')
+    ax1.set_ylim((0, np.pi / 2))
+    ylabel = ax1.set_ylabel('', color='black')
+    x = ylabel.get_position()[0] + 0.05
+    y = ylabel.get_position()[1]
+    fig.text(x - 0.001, y - 0.225, 'Eccentricity', color='C1', rotation=90)
+    fig.text(x, y - 0.05, '/', color='k', rotation=90)
+    fig.text(x, y - 0.025, 'Inclination [Radians]', color='C2', rotation=90)
+
+    ax1.legend(loc='upper left')
+    a = [x / RGEO for x in orbital_elements['a']]
+    ax2.plot(Time(t).decimalyear, a, label='semi-major axis [GEO]', c='C0', linestyle='-')
+    ax2.set_ylabel('semi-major axis [GEO]', color='C0')
+    ax2.yaxis.label.set_color('C0')
+    ax2.tick_params(axis='y', colors='C0')
+    ax2.spines['right'].set_color('C0')
+    
+    if np.abs(np.max(a) - np.min(a)) < 2:
+        ax2.set_ylim((np.min(a) - 0.5, np.max(a) + 0.5))
+    date_format(t, ax1)
+    
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return fig, ax1
+
+
+def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable cislunar orbits", limits=[1, 50], bins=200, logscale=False, cmap='coolwarm', save_path=False):
+    if logscale or logscale == 'log':
+        norm = mplcolors.LogNorm(limits[0], limits[1])
+    else:
+        norm = mplcolors.Normalize(limits[0], limits[1])
+    fig, axes = plt.subplots(dpi=100, figsize=(10, 8), nrows=3, ncols=3)
+    st = fig.suptitle(title, fontsize=12)
+    st.set_x(0.46)
+    st.set_y(0.9)
+    ax = axes.flat[0]
+    ax.hist2d([x / RGEO for x in stable_data.a], [x for x in stable_data.e], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("")
+    ax.set_ylabel("eccentricity")
+    ax.set_xticks(np.arange(1, 20, 2))
+    ax.set_yticks(np.arange(0, 1, 0.2))
+    ax.set_xlim((1, 18))
+    axes.flat[1].set_axis_off()
+    axes.flat[2].set_axis_off()
+
+    ax = axes.flat[3]
+    ax.hist2d([x / RGEO for x in stable_data.a], [np.degrees(x) for x in stable_data.i], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("")
+    ax.set_ylabel("inclination [deg]")
+    ax.set_xticks(np.arange(1, 20, 2))
+    ax.set_yticks(np.arange(0, 91, 15))
+    ax.set_xlim((1, 18))
+    ax = axes.flat[4]
+    ax.hist2d([x for x in stable_data.e], [np.degrees(x) for x in stable_data.i], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_xticks(np.arange(0, 1, 0.2))
+    ax.set_yticks(np.arange(0, 91, 15))
+    axes.flat[5].set_axis_off()
+
+    ax = axes.flat[6]
+    ax.hist2d([x / RGEO for x in stable_data.a], [np.degrees(x) for x in stable_data.ta], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("semi-major axis [GEO]")
+    ax.set_ylabel("True Anomaly [deg]")
+    ax.set_xticks(np.arange(1, 20, 2))
+    ax.set_yticks(np.arange(0, 361, 60))
+    ax.set_xlim((1, 18))
+    ax = axes.flat[7]
+    ax.hist2d([x for x in stable_data.e], [np.degrees(x) for x in stable_data.ta], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("eccentricity")
+    ax.set_ylabel("")
+    ax.set_xticks(np.arange(0, 1, 0.2))
+    ax.set_yticks(np.arange(0, 361, 60))
+    ax = axes.flat[8]
+    ax.hist2d([np.degrees(x) for x in stable_data.i], [np.degrees(x) for x in stable_data.ta], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("inclination [deg]")
+    ax.set_ylabel("")
+    ax.set_xticks(np.arange(0, 91, 15))
+    ax.set_yticks(np.arange(0, 361, 60))
+
+    im = fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.82, 0.15, 0.01, 0.7])
+    fig.colorbar(im, cax=cbar_ax, norm=norm, cmap=cmap)
+    fig, ax = make_white(fig, ax)
+    if save_path:
+        save_plot(fig, save_path)
+    return fig
+
+
+
+def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize=1, colorsMap='jet', colorscale='linear', colormin=False, colormax=False, save_path=False):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    if colormax is False:
+        colormax = np.max(cs)
+    if colormin is False:
+        colormin = np.min(cs)
+    cm = plt.get_cmap(colorsMap)
+    if colorscale == 'linear':
+        cNorm = mplcolors.Normalize(vmin=colormin, vmax=colormax)
+    elif colorscale == 'log':
+        cNorm = mplcolors.LogNorm(vmin=colormin, vmax=colormax)
+    scalarMap = cm.ScalarMappable(norm=cNorm, cmap=cm)
+    ax.scatter(x, y, c=scalarMap.to_rgba(cs), s=dotsize)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    scalarMap.set_array(cs)
+    fig.colorbar(scalarMap, shrink=.5, label=f'{cbar_label}', pad=0.04)
+    plt.tight_layout()
+    fig, ax = make_black(fig, ax)
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return
+
+
+def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cbar_label='', dotsize=1, colorsMap='jet', title='', save_path=False):
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    if x.ndim > 1:
+        r = x
+        x = r[:, 0]
+        y = r[:, 1]
+        z = r[:, 2]
+    if cs is None:
+        ax.scatter(x, y, z, s=dotsize)
+    else:
+        cm = plt.get_cmap(colorsMap)
+        cNorm = mplcolors.Normalize(vmin=min(cs), vmax=max(cs))
+        scalarMap = cm.ScalarMappable(norm=cNorm, cmap=cm)
+        ax.scatter(x, y, z, c=scalarMap.to_rgba(cs), s=dotsize)
+        scalarMap.set_array(cs)
+        fig.colorbar(scalarMap, shrink=.5, label=f'{cbar_label}', pad=0.075)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_zlabel(zlabel)
+    plt.title(title)
+    plt.tight_layout()
+    fig, ax = make_black(fig, ax)
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return fig, ax
+
+
+def dotcolors_scaled(num_colors):
+    return cm.rainbow(np.linspace(0, 1, num_colors))
+
+
+# Make a plot of multiple cislunar orbit in GCRF frame.
+def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_path=False):
+    if limits is False:
+        limits = np.nanmax(np.linalg.norm(rs, axis=1) / RGEO) * 1.2
+        print(f'limits: {limits}')
+    if np.size(r_moon) < 1:
+        moon = get_body("moon")
+        r_moon = moon.position(t)
+    else:
+        # print('Lunar position(s) provided.')
+        if r_moon.ndim != 2:
+            raise IndexError(f"input moon data shape: {np.shape(r_moon)}, input should be 2 dimensions.")
+            return None
+        if np.shape(r_moon)[1] == 3:
+            r_moon = r_moon.T
+            # print(f"Tranposed input to {np.shape(r_moon)}")
+    fig = plt.figure(dpi=100, figsize=(15, 4))
+    for i in range(rs.shape[-1]):
+        r = rs[:, :, i]
+        x = r[:, 0] / RGEO
+        y = r[:, 1] / RGEO
+        z = r[:, 2] / RGEO
+        xm = r_moon[0] / RGEO
+        ym = r_moon[1] / RGEO
+        zm = r_moon[2] / RGEO
+        dotcolors = cm.rainbow(np.linspace(0, 1, len(x)))
+
+        # Creating plot
+        plt.subplot(1, 3, 1)
+        plt.scatter(x, y, color=dotcolors, s=1)
+        plt.scatter(0, 0, color="blue", s=50)
+        plt.scatter(xm, ym, color="grey", s=5)
+        plt.axis('scaled')
+        plt.xlabel('x [GEO]')
+        plt.ylabel('y [GEO]')
+        plt.xlim((-limits, limits))
+        plt.ylim((-limits, limits))
+        plt.text(x[0], y[0], '$\leftarrow$ start')
+        plt.text(x[-1], y[-1], '$\leftarrow$ end')
+
+        plt.subplot(1, 3, 2)
+        plt.scatter(x, z, color=dotcolors, s=1)
+        plt.scatter(0, 0, color="blue", s=50)
+        plt.scatter(xm, zm, color="grey", s=5)
+        plt.axis('scaled')
+        plt.xlabel('x [GEO]')
+        plt.ylabel('z [GEO]')
+        plt.xlim((-limits, limits))
+        plt.ylim((-limits, limits))
+        plt.text(x[0], z[0], '$\leftarrow$ start')
+        plt.text(x[-1], z[-1], '$\leftarrow$ end')
+        plt.title(f'{title}')
+
+        plt.subplot(1, 3, 3)
+        plt.scatter(y, z, color=dotcolors, s=1)
+        plt.scatter(0, 0, color="blue", s=50)
+        plt.scatter(ym, zm, color="grey", s=5)
+        plt.axis('scaled')
+        plt.xlabel('y [GEO]')
+        plt.ylabel('z [GEO]')
+        plt.xlim((-limits, limits))
+        plt.ylim((-limits, limits))
+        plt.text(y[0], z[0], '$\leftarrow$ start')
+        plt.text(y[-1], z[-1], '$\leftarrow$ end')
+    plt.tight_layout()
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return
 
 
 def make_white(fig, *axes):
