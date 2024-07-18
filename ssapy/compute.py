@@ -3,6 +3,7 @@ from astropy.time import Time
 import astropy.units as u
 
 from .constants import EARTH_RADIUS, EARTH_MU, MOON_RADIUS
+from .coordinates import rotation_matrix_from_vectors
 from .propagator import KeplerianPropagator
 from .utils import (
     norm, normed, unitAngle3, LRU_Cache, lb_to_unit, sunPos, _gpsToTT,
@@ -1336,3 +1337,139 @@ def M_v(r_sat, r_earth, r_sun, r_moon=False, radius=0.4, albedo=0.20, sun_Mag=4.
         return Mag_v, merged_dict
     else:
         return Mag_v
+
+
+def calc_gamma(r, t):
+    """
+    Calculate the gamma angle between position and velocity vectors in the ITRF frame.
+
+    Parameters:
+    r (numpy.ndarray): The position vectors in the GCRF frame, shaped (n, 3), where n is the number of vectors.
+    t (numpy.ndarray or astropy.time.Time): The times corresponding to the position vectors. Can be an array of GPS seconds or an Astropy Time object.
+
+    Returns:
+    numpy.ndarray: An array of gamma angles in degrees between the position and velocity vectors for each time point.
+
+    Notes:
+    - This function first converts the given position vectors from the GCRF frame to the ITRF frame.
+    - It then calculates the angle between the position and velocity vectors at each time point in the ITRF frame.
+    - If the input time array is an Astropy Time object, it converts it to GPS time before processing.
+    """
+    r_itrf, v_itrf = gcrf_to_itrf(r, t, v=True)
+    if isinstance(t[0], Time):
+        t = t.gps
+    gamma = np.degrees(np.apply_along_axis(lambda x: angle_between_vectors(x[:3], x[3:]), 1, np.concatenate((r_itrf, v_itrf), axis=1))) - 90
+    return gamma
+
+
+def moon_normal_vector(t):
+    r = get_body("moon").position(t).T
+    r_random = get_body("moon").position(t.gps + 604800).T
+    return np.cross(r, r_random) / np.linalg.norm(r, axis=-1)
+
+
+def lunar_lagrange_points(t):
+    r = get_body("moon").position(t).T
+    d = np.linalg.norm(r)  # Distance between Earth and Moon
+    unit_vector_moon = r / np.linalg.norm(r, axis=-1)
+    # plane_vector = np.cross(r, r_random)
+    lunar_period_seconds = 2.3605915968e6
+
+    # Coefficients of the quadratic equation
+    a = EARTH_MU - MOON_MU
+    b = 2 * MOON_MU * d
+    c = -MOON_MU * d**2
+
+    # Solve the quadratic equation
+    discriminant = b**2 - 4*a*c
+
+    if discriminant >= 0:
+        L1_from_moon = (-b - np.sqrt(discriminant)) / (2*a) * unit_vector_moon
+        L2_from_moon = (-b + np.sqrt(discriminant)) / (2*a) * unit_vector_moon
+    else:
+        print("Discriminate is less than 0! THAT'S WEIRD FIX IT.")
+        L1_from_moon = None
+        L2_from_moon = None
+
+    return {
+        "L1": L1_from_moon + r,
+        "L2": L2_from_moon + r,
+        "L3": -r,
+        "L4": get_body("moon").position(t.gps + lunar_period_seconds / 6).T,
+        "L5": get_body("moon").position(t.gps - lunar_period_seconds / 6).T
+    }
+
+
+def lunar_lagrange_points_circular(t):
+    r = get_body("moon").position(t).T
+    d = np.linalg.norm(r)  # Distance between Earth and Moon
+    unit_vector_moon = r / np.linalg.norm(r, axis=-1)
+
+    # Coefficients of the quadratic equation
+    a = EARTH_MU - MOON_MU
+    b = 2 * MOON_MU * d
+    c = -MOON_MU * d**2
+
+    # Solve the quadratic equation
+    discriminant = b**2 - 4*a*c
+
+    if discriminant >= 0:
+        L1_from_moon = (-b - np.sqrt(discriminant)) / (2*a) * unit_vector_moon
+        L2_from_moon = (-b + np.sqrt(discriminant)) / (2*a) * unit_vector_moon
+    else:
+        print("Discriminate is less than 0! THAT'S WEIRD FIX IT.")
+        L1_from_moon = None
+        L2_from_moon = None
+
+    # L45
+    # Create the rotation matrix to align z-axis with the normal vector
+    normal_vector = moon_normal_vector(t)
+    rotation_matrix = rotation_matrix_from_vectors(np.array([0, 0, 1]), normal_vector)
+    theta = np.radians(60) + np.arctan2(unit_vector_moon[1], unit_vector_moon[0])
+    L4 = np.vstack((d * np.cos(theta), d * np.sin(theta), np.zeros_like(theta))).T
+    L4 = np.squeeze(L4 @ rotation_matrix.T)
+    theta = -np.radians(60) + np.arctan2(unit_vector_moon[1], unit_vector_moon[0])
+    L5 = np.vstack((d * np.cos(theta), d * np.sin(theta), np.zeros_like(theta))).T
+    L5 = np.squeeze(L5 @ rotation_matrix.T)
+
+    return {
+        "L1": L1_from_moon + r,
+        "L2": L2_from_moon + r,
+        "L3": -r,
+        "L4": L4,
+        "L5": L5
+    }
+
+
+def lagrange_points_lunar_frame():
+    r = np.array([LD / RGEO, 0, 0])
+    d = np.linalg.norm(r)  # Distance between Earth and Moon
+    unit_vector_moon = r / np.linalg.norm(r, axis=-1)
+
+    # Coefficients of the quadratic equation
+    a = EARTH_MU - MOON_MU
+    b = 2 * MOON_MU * d
+    c = -MOON_MU * d**2
+
+    # Solve the quadratic equation
+    discriminant = b**2 - 4*a*c
+
+    if discriminant >= 0:
+        L1_from_moon = (-b - np.sqrt(discriminant)) / (2*a) * unit_vector_moon
+        L2_from_moon = (-b + np.sqrt(discriminant)) / (2*a) * unit_vector_moon
+    else:
+        print("Discriminate is less than 0! THAT'S WEIRD FIX IT.")
+        L1_from_moon = None
+        L2_from_moon = None
+
+    # L45
+    theta = np.radians(60)
+    L4 = np.squeeze(np.vstack((d * np.cos(theta), d * np.sin(theta), np.zeros_like(theta))).T)
+    L5 = np.squeeze(np.vstack((d * np.cos(-theta), d * np.sin(-theta), np.zeros_like(-theta))).T)
+    return {
+        "L1": L1_from_moon + r,
+        "L2": L2_from_moon + r,
+        "L3": -r,
+        "L4": L4,
+        "L5": L5
+    }
