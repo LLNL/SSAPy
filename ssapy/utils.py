@@ -5,7 +5,12 @@ from astropy.time import Time
 import astropy.units as u
 
 from . import datadir
-from .constants import MOON_RADIUS, WGS84_EARTH_OMEGA
+from .accel import AccelKepler
+from .body import get_body, MoonPosition
+from .constants import RGEO, MOON_RADIUS, WGS84_EARTH_OMEGA
+from .compute import groundTrack, rv
+from .orbit import Orbit
+from .propagator import RK78Propagator
 
 try:
     import erfa
@@ -1157,54 +1162,6 @@ def teme_to_gcrf(t):
     return erfa.tr(gcrf_to_teme(t))
 
 
-def gcrf_to_lunar(r, times):
-    from .body import MoonPosition
-
-    class MoonRotator:
-        def __init__(self):
-            self.mpm = MoonPosition()
-
-        def __call__(self, r, t):
-            rmoon = self.mpm(t)
-            vmoon = (self.mpm(t + 5.0) - self.mpm(t - 5.0)) / 10.
-            xhat = normed(rmoon.T).T
-            vpar = np.einsum("ab,ab->b", xhat, vmoon) * xhat
-            vperp = vmoon - vpar
-            yhat = normed(vperp.T).T
-            zhat = np.cross(xhat, yhat, axisa=0, axisb=0).T
-            R = np.empty((3, 3, len(t)))
-            R[0] = xhat
-            R[1] = yhat
-            R[2] = zhat
-            return np.einsum("abc,cb->ca", R, r)
-    rotator = MoonRotator()
-    if isinstance(times, Time):
-        times = times.gps
-    return rotator(r, times)
-
-
-def gcrf_to_stationary_lunar(r, times):
-    from .body import get_body
-    return gcrf_to_lunar(r, times) - gcrf_to_lunar(get_body('moon').position(times).T, times)
-
-
-def gcrf_to_ecef(r_gcrf, t):
-    if isinstance(t, Time):
-        t = t.gps
-    rotation_angles = WGS84_EARTH_OMEGA * (t - t[0])
-    cos_thetas = np.cos(rotation_angles)
-    sin_thetas = np.sin(rotation_angles)
-
-    # Create an array of 3x3 rotation matrices
-    Rz = np.array([[cos_thetas, -sin_thetas, np.zeros_like(cos_thetas)],
-                  [sin_thetas, cos_thetas, np.zeros_like(cos_thetas)],
-                  [np.zeros_like(cos_thetas), np.zeros_like(cos_thetas), np.ones_like(cos_thetas)]]).T
-
-    # Apply the rotation matrices to all rows of r_gcrf simultaneously
-    r_ecef = np.einsum('ijk,ik->ij', Rz, r_gcrf)
-    return r_ecef
-
-
 # Stolen from https://github.com/lsst/utils/blob/main/python/lsst/utils/wrappers.py
 INTRINSIC_SPECIAL_ATTRIBUTES = frozenset(
     (
@@ -1485,3 +1442,36 @@ def integrate_orbit_best_model(r=None, v=None, t=None, koe=None, duration=None, 
     except (RuntimeError, ValueError) as err:
         print(err)
         return np.nan, np.nan
+
+
+def find_smallest_bounding_cube(r):
+    """
+    Find the smallest bounding cube for a set of 3D coordinates.
+
+    Parameters:
+    r (np.ndarray): An array of shape (n, 3) containing the 3D coordinates.
+
+    Returns:
+    tuple: A tuple containing the lower and upper bounds of the bounding cube.
+    """
+    # Find the minimum and maximum coordinates for each axis
+    min_coords = np.min(r, axis=0)
+    max_coords = np.max(r, axis=0)
+
+    # Determine the range for each axis
+    ranges = max_coords - min_coords
+
+    # Calculate the maximum range to ensure the bounding cube
+    max_range = np.max(ranges)
+
+    # Calculate the center of the bounding cube
+    center = (max_coords + min_coords) / 2
+
+    # Calculate the half side length of the cube
+    half_side_length = max_range / 2
+
+    # Find the limits of the cube
+    lower_bound = center - half_side_length
+    upper_bound = center + half_side_length
+
+    return lower_bound, upper_bound
