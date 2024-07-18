@@ -1201,7 +1201,7 @@ def refine_pass(
     }
 
 
-def _nby3shape(arr_):
+def nby3shape(arr_):
     if arr_.ndim == 1:
         return np.reshape(arr_, (1, 3))
     if arr_.ndim == 2:
@@ -1211,12 +1211,12 @@ def _nby3shape(arr_):
             return arr_.T
 
 
-def keplerian_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
+def calculate_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
     # mu_barycenter - all bodies interior to Earth
     # 1.0013415732186798 #All bodies of solar system
     mu_ = mu_barycenter
-    rarr = _nby3shape(r_)
-    varr = _nby3shape(v_)
+    rarr = nby3shape(r_)
+    varr = nby3shape(v_)
     aarr = []
     earr = []
     incarr = []
@@ -1224,6 +1224,7 @@ def keplerian_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
     argument_of_periapsisarr = []
     longitude_of_ascending_nodearr = []
     true_anomalyarr = []
+    hmagarr = []
     for r, v in zip(rarr, varr):
         r = np.array(r)  # print(f'r: {r}')
         v = np.array(v)  # print(f'v: {v}')
@@ -1235,7 +1236,7 @@ def keplerian_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
         hmag = np.sqrt(h.dot(h))
         n = np.cross(np.array([0, 0, 1]), h)
 
-        a = 1 / ((2 / rmag) - (vmag**2) / mu_)
+        a = 1 / ((2 / rmag) - (vmag ** 2) / mu_)
 
         evector = np.cross(v, h) / (mu_) - r / rmag
         e = np.sqrt(evector.dot(evector))
@@ -1263,7 +1264,17 @@ def keplerian_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
         argument_of_periapsisarr.append(argument_of_periapsis)
         longitude_of_ascending_nodearr.append(longitude_of_ascending_node)
         true_anomalyarr.append(true_anomaly)
-    return {'a': aarr, 'e': earr, 'i': incarr, 'lv': true_longitudearr, 'pa': argument_of_periapsisarr, 'raan': longitude_of_ascending_nodearr, 'ta': true_anomalyarr}
+        hmagarr.append(hmag)
+    return {
+        'a': aarr,
+        'e': earr,
+        'i': incarr,
+        'tl': true_longitudearr,
+        'ap': argument_of_periapsisarr,
+        'raan': longitude_of_ascending_nodearr,
+        'ta': true_anomalyarr,
+        'L': hmagarr
+    }
 
 
 ######################################################################################
