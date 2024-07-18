@@ -1329,121 +1329,6 @@ def find_nearest_indices(A, B):
     return nearest_indices
 
 
-def integrate_orbit_best_model(r=None, v=None, t=None, koe=None, duration=None, freq=None, start_date=None, mass=250, area=0.22):
-    """
-    Integrate satellite orbit trajectory using either (r, v) or Keplerian orbital elements.
-
-    Parameters:
-    -----------
-    r : array_like, optional
-        Initial position vector [x, y, z] in meters.
-    v : array_like, optional
-        Initial velocity vector [vx, vy, vz] in meters per second.
-    t : array_like, optional
-        Array of time values for integration in seconds since the start date.
-    koe : dict, optional
-        Dictionary containing Keplerian orbital elements:
-            - 'a': Semi-major axis in meters
-            - 'e': Eccentricity
-            - 'i': Inclination in radians
-            - 'trueAnomaly': True anomaly in radians
-            - 'pa': Argument of perigee in radians
-            - 'raan': Right ascension of ascending node in radians
-    duration : tuple, optional
-        Duration of integration (value, unit), e.g., (30, 'day').
-    freq : tuple, optional
-        Frequency of integration steps (value, unit), e.g., (1, 'hr').
-    start_date : str, optional
-        Start date in the format "YYYY-MM-DD" for time calculations.
-    mass: float, optional
-        Mass of the orbiting object in kg.
-    area: float, optional
-        Cross sectional area of the orbiting object in m^2.
-    Returns:
-    --------
-    r : ndarray
-        Array of position vectors [x, y, z] over the integrated trajectory.
-    v : ndarray
-        Array of velocity vectors [vx, vy, vz] corresponding to the position vectors.
-
-    Notes:
-    ------
-    The function integrates the satellite orbit trajectory using either initial position and
-    velocity vectors or Keplerian orbital elements.
-
-    Either (r, v) or 'koe' must be provided, but not both.
-    If 'koe' are provided, Keplerian-to-Cartesian conversion must be implemented.
-
-    If 't' is not provided, 'duration', 'freq', and 'start_date' must be provided for time calculation.
-    """
-
-    from .accel import AccelKepler, AccelEarthRad, AccelSolRad, AccelDrag
-    from .body import get_body
-    from .compute import rv
-    from .gravity import AccelThirdBody, AccelHarmonic
-    from .orbit import Orbit
-    from .propagator import RK78Propagator
-
-    # Time span of integration #Only takes integer number of days. Unless providing your own time object.
-    if t is None and start_date is None:
-        raise ValueError("Either an array of times 't' or a 'start_date', 'duration' and 'freq' must be provided.")
-    if t is None:
-        t = get_times(duration=duration, freq=freq, t=start_date)
-
-    if (r is None or v is None) and koe is None:
-        raise ValueError("Either (r, v) or 'koe' must be provided.")
-
-    if (r is not None and v is not None) and koe is not None:
-        raise ValueError("Both (r, v) and 'koe' cannot be provided simultaneously.")
-
-    # Properties of sat
-    kwargs = dict(
-        mass=mass,  # [kg] --> was 1e4
-        area=area,  # [m^2]
-        CD=2.3,  # Drag coefficient
-        CR=1.3,  # Radiation pressure coefficient
-    )
-
-    if koe is not None:
-        # Extract Keplerian orbital elements from the dictionary
-        a = koe.get('a', None)
-        e = koe.get('e', None)
-        i = koe.get('i', None)
-        trueAnomaly = koe.get('trueAnomaly', None)
-        pa = koe.get('pa', None)
-        raan = koe.get('raan', None)
-        if None in (a, e, i, trueAnomaly, pa, raan):
-            raise ValueError("Incomplete koe dictionary.")
-        kElements = [a, e, i, pa, raan, trueAnomaly]
-        orbit = Orbit.fromKeplerianElements(*kElements, t[0], propkw=kwargs)
-    elif (r is not None or v is not None):
-        orbit = Orbit(r, v, t[0], propkw=kwargs)
-
-    # Most accurate trajectory
-    earth = get_body("earth")
-    moon = get_body("moon")
-    sun = get_body("sun")
-
-    # Accelerations - pass a body object or string of bo
-    # dy name.
-    aEarth = AccelKepler() + AccelHarmonic(earth)
-    aMoon = AccelThirdBody(moon) + AccelHarmonic(moon)
-    aSun = AccelThirdBody(sun)
-    aSolRad = AccelSolRad()
-    aEarthRad = AccelEarthRad()
-    aDrag = AccelDrag()
-    accel = aEarth + aMoon + aSun + aSolRad + aEarthRad + aDrag
-    prop = RK78Propagator(accel, h=10.0)
-
-    # Calculate entire satellite trajectory
-    try:
-        r, v = rv(orbit, t, prop)
-        return r, v
-    except (RuntimeError, ValueError) as err:
-        print(err)
-        return np.nan, np.nan
-
-
 def find_smallest_bounding_cube(r):
     """
     Find the smallest bounding cube for a set of 3D coordinates.
@@ -1475,3 +1360,42 @@ def find_smallest_bounding_cube(r):
     upper_bound = center + half_side_length
 
     return lower_bound, upper_bound
+
+
+def points_on_circle(r, v, rad, num_points=4):
+    # Convert inputs to numpy arrays
+    r = np.array(r)
+    v = np.array(v)
+
+    # Find the perpendicular vectors to the given vector v
+    if np.all(v[:2] == 0):
+        if np.all(v[2] == 0):
+            raise ValueError("The given vector v must not be the zero vector.")
+        else:
+            u = np.array([1, 0, 0])
+    else:
+        u = np.array([-v[1], v[0], 0])
+    u = u / np.linalg.norm(u)
+    w = np.cross(u, v)
+    w_norm = np.linalg.norm(w)
+    if w_norm < 1e-15:
+        # v is parallel to z-axis
+        w = np.array([0, 1, 0])
+    else:
+        w = w / w_norm
+    # Generate a sequence of angles for equally spaced points
+    angles = np.linspace(0, 2 * np.pi, num_points, endpoint=False)
+
+    # Compute the x, y, z coordinates of each point on the circle
+    x = rad * np.cos(angles) * u[0] + rad * np.sin(angles) * w[0]
+    y = rad * np.cos(angles) * u[1] + rad * np.sin(angles) * w[1]
+    z = rad * np.cos(angles) * u[2] + rad * np.sin(angles) * w[2]
+
+    # Apply rotation about z-axis by 90 degrees
+    rot_matrix = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
+    rotated_points = np.dot(rot_matrix, np.column_stack((x, y, z)).T).T
+
+    # Translate the rotated points to the center point r
+    points_rotated = rotated_points + r.reshape(1, 3)
+
+    return points_rotated
