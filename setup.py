@@ -76,7 +76,7 @@ setup(
         'ipyvolume',
         'ipython_genutils',
         'jplephem',
-        'docutils',
+        'docutils<0.21',
         'sphinx',
         'sphinx-rtd-theme',
         'sphinx-copybutton',
