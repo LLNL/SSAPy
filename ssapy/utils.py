@@ -1193,7 +1193,7 @@ def rotation_matrix_from_vectors(vec1, vec2):
     return rotation_matrix
 
 
-def rotate_vector(v_unit, theta, phi):
+def rotate_vector(v_unit, theta, phi, plot=False, save_idx=False):
     v_unit = v_unit / np.linalg.norm(v_unit, axis=-1)
     if np.all(np.abs(v_unit) != np.max(np.abs(v_unit))):
         perp_vector = np.cross(v_unit, np.array([1, 0, 0]))
@@ -1235,6 +1235,31 @@ def rotate_vector(v_unit, theta, phi):
                     cos_phi + (1 - cos_phi) * v_unit[2]**2]])
 
     v2 = np.dot(R2, v1)
+
+    if plot:
+        import matplotlib.pyplot as plt
+        plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'black'})
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.quiver(0, 0, 0, v_unit[0], v_unit[1], v_unit[2], color='b')
+        ax.quiver(0, 0, 0, v1[0], v1[1], v1[2], color='g')
+        ax.quiver(0, 0, 0, v2[0], v2[1], v2[2], color='r')
+        ax.set_xlabel('X', color='white')
+        ax.set_ylabel('Y', color='white')
+        ax.set_zlabel('Z', color='white')
+        ax.set_facecolor('black')  # Set plot background color to black
+        ax.tick_params(axis='x', colors='white')  # Set x-axis tick color to white
+        ax.tick_params(axis='y', colors='white')  # Set y-axis tick color to white
+        ax.tick_params(axis='z', colors='white')  # Set z-axis tick color to white
+        ax.set_title('Vector Plot', color='white')
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 1)
+        ax.set_zlim(-1, 1)
+        plt.grid(True)
+        if save_idx is not False:
+            from .plotUtils import save_plot
+            ax.set_title(f'Vector Plot\ntheta: {np.degrees(theta):.0f}, phi: {np.degrees(phi):.0f}', color='white')
+            save_plot(fig, f'/p/lustre1/yeager7/plots_gif/rotate_vector_frames/{save_idx}.png')
     return v2 / np.linalg.norm(v2, axis=-1)
 
 
