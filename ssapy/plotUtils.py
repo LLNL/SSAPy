@@ -1,3 +1,8 @@
+"""
+Utility functions for plotting.
+"""
+
+
 from .body import get_body
 from .compute import groundTrack
 from .constants import RGEO, EARTH_RADIUS

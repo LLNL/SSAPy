@@ -1,3 +1,7 @@
+"""
+Classes for modeling accelerations.
+"""
+
 import numpy as np
 
 from . import _ssapy
@@ -101,6 +105,7 @@ class AccelSum(Accel):
 
 
 class AccelProd(Accel):
+    """Acceleration defined as the product of an acceleration with a constant factor."""
     def __init__(self, accel, factor):
         super().__init__()
         self.accel = accel
