@@ -73,6 +73,7 @@ setup(
         'pandas',
         'h5py',
         'pypdf2',
+        'imageio',
         'ipython',
         'ipyvolume',
         'ipython_genutils',
