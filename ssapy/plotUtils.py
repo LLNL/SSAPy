@@ -474,6 +474,7 @@ def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 36
     else:
         orbital_elements = calculate_orbital_elements(r, v, mu_barycenter=MOON_MU)
     fig, ax1 = plt.subplots(dpi=100)
+    fig.patch.set_facecolor('white')
     ax1.plot([], [], label='semi-major axis [GEO]', c='C0', linestyle='-')
     ax2 = ax1.twinx()
     make_white(fig, *[ax1, ax2])
@@ -513,6 +514,7 @@ def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable ci
     else:
         norm = mplcolors.Normalize(limits[0], limits[1])
     fig, axes = plt.subplots(dpi=100, figsize=(10, 8), nrows=3, ncols=3)
+    fig.patch.set_facecolor('white')
     st = fig.suptitle(title, fontsize=12)
     st.set_x(0.46)
     st.set_y(0.9)
@@ -742,6 +744,38 @@ def make_black(fig, *axes):
     return fig, axes
 
 
+def draw_dashed_circle(ax, normal_vector, radius, dashes, dash_length=0.1, label='Dashed Circle'):
+    from .utils import rotation_matrix_from_vectors
+    # Define the circle in the xy-plane
+    theta = np.linspace(0, 2 * np.pi, 1000)
+    x_circle = radius * np.cos(theta)
+    y_circle = radius * np.sin(theta)
+    z_circle = np.zeros_like(theta)
+    
+    # Stack the coordinates into a matrix
+    circle_points = np.vstack((x_circle, y_circle, z_circle)).T
+    
+    # Create the rotation matrix to align z-axis with the normal vector
+    normal_vector = normal_vector / np.linalg.norm(normal_vector)
+    rotation_matrix = rotation_matrix_from_vectors(np.array([0, 0, 1]), normal_vector)
+    
+    # Rotate the circle points
+    rotated_points = circle_points @ rotation_matrix.T
+    
+    # Create dashed effect
+    dash_points = []
+    dash_gap = int(len(theta) / dashes)
+    for i in range(dashes):
+        start_idx = i * dash_gap
+        end_idx = start_idx + int(dash_length * len(theta))
+        dash_points.append(rotated_points[start_idx:end_idx])
+    
+    # Plot the dashed circle in 3D
+    for points in dash_points:
+        ax.plot(points[:, 0], points[:, 1], points[:, 2], 'k--', label=label)
+        label = None  # Only one label
+
+
 # #####################################################################
 # Formatting x axis
 # #####################################################################
@@ -845,7 +879,7 @@ def save_plot(figure, save_path, dpi=200):
         # Save the figure as a PNG image
         figure.savefig(save_path, dpi=dpi, bbox_inches='tight')
         plt.close(figure)  # Close the figure to release resources
-        print(f"Figure saved at: {save_path}")
+        # print(f"Figure saved at: {save_path}")
     except Exception as e:
         print(f"Error occurred while saving the figure: {e}")
 

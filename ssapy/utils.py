@@ -1240,7 +1240,7 @@ def rotate_vector(v_unit, theta, phi, plot_path=False, save_idx=False):
 
     v2 = np.dot(R2, v1)
 
-    if plot_path is False:
+    if plot_path is not False:
         import matplotlib.pyplot as plt
         plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'black'})
         fig = plt.figure()
@@ -2008,6 +2008,7 @@ def interpolate_points_between(r, m):
 
 
 def check_lunar_collision(r, times, m=1000):
+    from .body import get_body
     """
     Checks if the trajectory of a particle intersects with the Moon.
 

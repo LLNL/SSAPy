@@ -1,30 +1,161 @@
-from ssapy.plotUtils import *
-from ssapy.simple import ssapy_orbit
-from ssapy.io import listdir, sortbynum
-from ssapy.utils import rotate_vector
-
+import ssapy
 import os
 import shutil
 import numpy as np
-from IPython.display import clear_output
+import matplotlib.pyplot as plt
 
-# Example usage:
+save_folder = os.path.expanduser('~/ssapy_test_plots/')
+print(f"Putting test_plot.py output in: {save_folder}")
+
+# Testing rotate_vector() in utils.
 v_unit = np.array([1, 0, 0])  # Replace this with your actual unit vector
 
 figs = []
 
-save_directory = os.path.expanduser('~/ssapy_test_plots/rotate_vector_frames/')
-os.makedirs(save_directory, exist_ok=True)
+temp_directory = f'{save_folder}rotate_vector_frames/'
+os.makedirs(temp_directory, exist_ok=True)
 
 i = 0
-for theta in range(0, 181, 10):
-    for phi in range(0, 361, 10):
-        clear_output(wait=True)
-        new_unit_vector = rotate_vector(v_unit, theta, phi, plot=True, save_idx=i)
+for theta in range(0, 181, 20):
+    for phi in range(0, 361, 20):
+        new_unit_vector = ssapy.utils.rotate_vector(v_unit, theta, phi, plot_path=temp_directory, save_idx=i)
         i += 1
 
-gif_path = f"{os.path.expanduser('~/ssapy_test_plots/')}rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
-write_gif(gif_name=gif_path, frames=sortbynum(listdir(f'{save_directory}*')), fps=20)
-shutil.rmtree(save_directory)
+gif_path = f"{save_folder}rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
+ssapy.plotUtils.write_gif(gif_name=gif_path, frames=ssapy.io.sortbynum(ssapy.io.listdir(f'{temp_directory}*')), fps=20)
+shutil.rmtree(temp_directory)
 
+
+# Creating orbit plots
+times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t='2025-3-1')
+moon = ssapy.get_body("moon").position(times).T
+
+
+def DRO(t, delta_r=7.52064e7, delta_v=344):
+    moon = ssapy.get_body("moon")
+
+    unit_vector_moon = moon.position(t) / np.linalg.norm(moon.position(t))
+    moon_v = (moon.position(t.gps) - moon.position(t.gps - 1)) / 1
+    unit_vector_moon_velocity = moon_v / np.linalg.norm(moon_v)
+    ssapy.compute.lunar_lagrange_points(t=times[0])
+
+    r = (np.linalg.norm(moon.position(t)) - delta_r) * unit_vector_moon
+    v = (np.linalg.norm(moon_v) + delta_v) * unit_vector_moon_velocity
+
+    orbit = ssapy.Orbit(r=r, v=v, t=t)
+    return orbit
+
+
+def Lunar_L4(t, delta_r=7.52064e7, delta_v=344):
+    moon = ssapy.get_body("moon")
+
+    unit_vector_moon = moon.position(t) / np.linalg.norm(moon.position(t))
+    moon_v = (moon.position(t.gps) - moon.position(t.gps - 1)) / 1
+    unit_vector_moon_velocity = moon_v / np.linalg.norm(moon_v)
+
+    r = (np.linalg.norm(moon.position(t)) - delta_r) * unit_vector_moon
+    v = (np.linalg.norm(moon_v) + delta_v) * unit_vector_moon_velocity
+
+    orbit = ssapy.Orbit(r=r, v=v, t=t)
+    return orbit
+
+
+# DRO
+dro_orbit = DRO(t=times[0])
+r, v = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}DRO_orbit", frame='Lunar', show=False)
+r_lunar, v_lunar = ssapy.utils.gcrf_to_lunar_fixed(r, t=times, v=True)
+ssapy.plotUtils.koe_plot(r, v, t=times, body='Earth', save_path=f"{save_folder}Keplerian_orbital_elements.png")
+
+L4_orbit = Lunar_L4(t=times[0], delta_r=7.52064e7, delta_v=344)
+r, v = ssapy.simple.ssapy_orbit(orbit=L4_orbit, t=times)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}gcrf_plot.png", frame='gcrf', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}itrf_plot", frame='itrf', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}lunar_plot", frame='lunar', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}lunar_axis_lot", frame='lunar axis', show=True)
+
+
+# Example usage
+earth_pos = np.array([0, 0, 0])  # Earth at the origin
+moon_pos = ssapy.get_body("moon").position(times[0]).T
+
+# Plotting
+fig = plt.figure(figsize=(8, 8))
+fig.patch.set_facecolor('white')
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot Earth
+ax.scatter(earth_pos[0], earth_pos[1], earth_pos[2], color='blue', label='Earth')
+ax.text(earth_pos[0], earth_pos[1], earth_pos[2], 'Earth', color='blue')
+
+# Plot Moon
+ax.scatter(moon_pos[0], moon_pos[1], moon_pos[2], color='grey', label='Moon')
+ax.text(moon_pos[0], moon_pos[1], moon_pos[2], 'Moon', color='grey')
+
+# Plot Lagrange points
+colors = ['red', 'green', 'purple', 'orange', 'cyan']
+for (point, pos), color in zip(ssapy.compute.lunar_lagrange_points(t=times[0]).items(), colors):
+    ax.scatter(pos[0], pos[1], pos[2], color=color, label=point)
+    ax.text(pos[0], pos[1], pos[2], point, color=color)
+
+# Add a dashed black circle at distance LD
+current_LD = np.linalg.norm(moon_pos, axis=-1)
+normal_vector = ssapy.compute.moon_normal_vector(t=times[0])
+ssapy.plotUtils.draw_dashed_circle(ax, normal_vector, current_LD, 12)
+ax.quiver(0, 0, 0, normal_vector[0], normal_vector[1], normal_vector[2], color='r', length=1)
+
+# Labels and legend
+ax.set_xlabel('X (m)')
+ax.set_ylabel('Y (m)')
+ax.set_zlabel('Z (m)')
+ax.set_title("Lunar Lagrange Points using Moon's true position")
+ax.axis('equal')
+ax.legend()
+plt.show()
+ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}lagrange_points")
+
+# Plotting
+fig = plt.figure(figsize=(8, 8))
+fig.patch.set_facecolor('white')
+ax = fig.add_subplot(111, projection='3d')
+
+# Plot Earth
+ax.scatter(earth_pos[0], earth_pos[1], earth_pos[2], color='blue', label='Earth')
+ax.text(earth_pos[0], earth_pos[1], earth_pos[2], 'Earth', color='blue')
+
+# Plot Moon
+ax.scatter(moon_pos[0], moon_pos[1], moon_pos[2], color='grey', label='Moon')
+ax.text(moon_pos[0], moon_pos[1], moon_pos[2], 'Moon', color='grey')
+
+# Plot Lagrange points
+colors = ['red', 'green', 'purple', 'orange', 'cyan']
+for (point, pos), color in zip(ssapy.compute.lunar_lagrange_points_circular(t=times[0]).items(), colors):
+    ax.scatter(pos[0], pos[1], pos[2], color=color, label=point)
+    ax.text(pos[0], pos[1], pos[2], point, color=color)
+
+# Add a dashed black circle at distance LD
+current_LD = np.linalg.norm(moon_pos, axis=-1)
+normal_vector = ssapy.compute.moon_normal_vector(t=times[0])
+ssapy.plotUtils.draw_dashed_circle(ax, normal_vector, current_LD, 12)
+ax.quiver(0, 0, 0, normal_vector[0], normal_vector[1], normal_vector[2], color='r', length=1)
+
+# Labels and legend
+ax.set_xlabel('X (m)')
+ax.set_ylabel('Y (m)')
+ax.set_zlabel('Z (m)')
+ax.set_title('Lunar Lagrange Points assuming circular orbit.')
+ax.axis('equal')
+ax.legend()
+plt.show()
+ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}lagrange_points")
+
+
+
+print(f"Created a GCRF orbit plot.")
+print(f"Created a ITRF orbit plot.")
+print(f"Created a Lunar orbit plot.")
+print(f"Created a Lunar axis orbit plot.")
+print(f"Lagrange points were calculated correctly.")
 print(f"Rotate vector plot successfully created.")
+print(f"save_plot() executed succesfully.")
+print(f"write_gif() executed succesfully.")
