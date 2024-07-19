@@ -92,8 +92,39 @@ def ssapy_prop(integration_timestep=60, propkw=ssapy_kwargs()):
 
 # Uses the current best propagator and acceleration models in ssapy
 def ssapy_orbit(orbit=None, a=None, e=0, i=0, pa=0, raan=0, ta=0, r=None, v=None, duration=(30, 'day'), freq=(1, 'hr'), start_date="2025-01-01", t=None, integration_timestep=10, mass=250, area=0.022, CD=2.3, CR=1.3, prop=ssapy_prop()):
-    # Everything is in SI units, except time.
-    # density #kg/m^3 --> density
+    """
+    Compute the orbit of a spacecraft given either Keplerian elements or position and velocity vectors.
+
+    Parameters:
+    - orbit (Orbit, optional): An Orbit object if you already have an orbit defined.
+    - a (float, optional): Semi-major axis of the orbit in meters.
+    - e (float, optional): Eccentricity of the orbit (default is 0, i.e., circular orbit).
+    - i (float, optional): Inclination of the orbit in degrees.
+    - pa (float, optional): Argument of perigee in degrees.
+    - raan (float, optional): Right ascension of the ascending node in degrees.
+    - ta (float, optional): True anomaly in degrees.
+    - r (array-like, optional): Position vector in meters.
+    - v (array-like, optional): Velocity vector in meters per second.
+    - duration (tuple, optional): Duration of the simulation as a tuple (value, unit), where unit is 'day', 'hour', etc. Default is 30 days.
+    - freq (tuple, optional): Frequency of the output as a tuple (value, unit), where unit is 'day', 'hour', etc. Default is 1 hour.
+    - start_date (str, optional): Start date of the simulation in 'YYYY-MM-DD' format. Default is "2025-01-01".
+    - t (array-like, optional): Specific times at which to compute the orbit. If None, times will be generated based on duration and frequency.
+    - integration_timestep (float, optional): Time step for numerical integration in seconds. Default is 10 seconds.
+    - mass (float, optional): Mass of the spacecraft in kilograms. Default is 250 kg.
+    - area (float, optional): Cross-sectional area of the spacecraft in square meters. Default is 0.022 m².
+    - CD (float, optional): Drag coefficient. Default is 2.3.
+    - CR (float, optional): Reflectivity coefficient. Default is 1.3.
+    - prop (function, optional): A function to compute the perturbation effects. Default is `ssapy_prop()`.
+
+    Returns:
+    - r (array-like): Position vectors of the spacecraft at the specified times.
+    - v (array-like): Velocity vectors of the spacecraft at the specified times.
+    - t (array-like): Times at which the orbit was computed. Returned only if `t` was None.
+
+    Raises:
+    - ValueError: If neither Keplerian elements nor position and velocity vectors are provided.
+    - RuntimeError or ValueError: If an error occurs during computation.
+    """
     t0 = Time(start_date, scale='utc')
     if t is None:
         time_is_None = True
