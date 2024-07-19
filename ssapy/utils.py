@@ -1263,7 +1263,7 @@ def rotate_vector(v_unit, theta, phi, plot=False, save_idx=False):
         if save_idx is not False:
             from .plotUtils import save_plot
             ax.set_title(f'Vector Plot\ntheta: {np.degrees(theta):.0f}, phi: {np.degrees(phi):.0f}', color='white')
-            save_plot(fig, f"{os.path.expanduser('~/ssapy_test/rotate_vector_frames/')}{save_idx}.png")
+            save_plot(fig, f"{os.path.expanduser('~/ssapy_test_plots/rotate_vector_frames/')}{save_idx}.png")
     return v2 / np.linalg.norm(v2, axis=-1)
 
 
@@ -1945,7 +1945,7 @@ def dd_to_hms(degree_decimal):
     return f'{int(_h)}:{int(_m)}:{_s}'
 
 
-def get_times(duration=(30, 'day'), freq=(1, 'hr'), t=Time("2025-01-01", scale='utc')):
+def get_times(duration, freq, t):
     """
     Calculate a list of times spaced equally apart over a specified duration.
 
@@ -1957,7 +1957,8 @@ def get_times(duration=(30, 'day'), freq=(1, 'hr'), t=Time("2025-01-01", scale='
         frequency of time outputs in units provided
     t: ssapy.utils.Time, optional
         The starting time. Default is "2025-01-01".
-
+    example input:
+    duration=(30, 'day'), freq=(1, 'hr'), t=Time("2025-01-01", scale='utc')
     Returns
     -------
     times: array-like
