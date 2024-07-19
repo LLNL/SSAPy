@@ -5,7 +5,7 @@ from astropy.time import Time
 import astropy.units as u
 
 from . import datadir
-from .constants import MOON_RADIUS
+from .constants import RGEO, EARTH_RADIUS, MOON_RADIUS, WGS84_EARTH_OMEGA
 
 try:
     import erfa
@@ -182,6 +182,10 @@ def norm(arr):
 # Faster to not dispatch back to norm
 def normed(arr):
     return arr / np.sqrt(np.einsum("...i,...i", arr, arr))[..., None]
+
+
+def einsum_norm(a, indices='ij,ji->i'):
+    return np.sqrt(np.einsum(indices, a, a))
 
 
 def unitAngle3(r1, r2):
@@ -1259,7 +1263,7 @@ def rotate_vector(v_unit, theta, phi, plot=False, save_idx=False):
         if save_idx is not False:
             from .plotUtils import save_plot
             ax.set_title(f'Vector Plot\ntheta: {np.degrees(theta):.0f}, phi: {np.degrees(phi):.0f}', color='white')
-            save_plot(fig, f'/p/lustre1/yeager7/plots_gif/rotate_vector_frames/{save_idx}.png')
+            save_plot(fig, f"{os.path.expanduser('~/ssapy_test/rotate_vector_frames/')}{save_idx}.png")
     return v2 / np.linalg.norm(v2, axis=-1)
 
 
@@ -1449,6 +1453,7 @@ def sim_lonlatrad(x, y, z, xe, ye, ze, xs, ys, zs):
 
 
 def sun_ra_dec(time_):
+    from .body import get_body
     out = get_body(Time(time_, format='mjd'))
     return out.ra.to('rad').value, out.dec.to('rad').value
 
@@ -1680,6 +1685,7 @@ def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=Non
 
 
 def gcrf_to_lunar(r, t, v=None):
+    from .body import MoonPosition
     class MoonRotator:
         def __init__(self):
             self.mpm = MoonPosition()
@@ -1707,6 +1713,7 @@ def gcrf_to_lunar(r, t, v=None):
 
 
 def gcrf_to_lunar_fixed(r, t, v=None):
+    from .body import get_body
     r_lunar = gcrf_to_lunar(r, t) - gcrf_to_lunar(get_body('moon').position(t).T, t)
     if v is None:
         return r_lunar
@@ -1767,6 +1774,8 @@ def gcrf_to_itrf(r_gcrf, t, v=None):
 def gcrf_to_sim_geo(r_gcrf, t, h=10):
     from .accel import AccelKepler
     from .compute import rv
+    from .orbit import Orbit
+    from .propagator import RK78Propagator
     if np.min(np.diff(t.gps)) < h:
         h = np.min(np.diff(t.gps))
     r_gcrf = np.atleast_2d(r_gcrf)
@@ -1878,6 +1887,64 @@ def continueClass(cls):
     return orig
 
 
+def dms_to_dd(dms):  # Degree minute second to Degree decimal
+    dms, out = [[dms] if type(dms) is str else dms][0], []
+    for i in dms:
+        deg, minute, sec = [float(j) for j in i.split(':')]
+        if deg < 0:
+            minute, sec = float(f'-{minute}'), float(f'-{sec}')
+        out.append(deg + minute / 60 + sec / 3600)
+    return [out[0] if type(dms) is str or len(dms) == 1 else out][0]
+
+
+def dd_to_dms(degree_decimal):
+    _d, __d = np.trunc(degree_decimal), degree_decimal - np.trunc(degree_decimal)
+    __d = [-__d if degree_decimal < 0 else __d][0]
+    _m, __m = np.trunc(__d * 60), __d * 60 - np.trunc(__d * 60)
+    _s = round(__m * 60, 4)
+    _s = [int(_s) if int(_s) == _s else _s][0]
+    if _s == 60:
+        _m, _s = _m + 1, '00'
+    elif _s > 60:
+        _m, _s = _m + 1, _s - 60
+
+    return f'{int(_d)}:{int(_m)}:{_s}'
+
+
+def hms_to_dd(hms):
+    _type = type(hms)
+    hms, out = [[hms] if _type == str else hms][0], []
+    for i in hms:
+        if i[0] != '-':
+            hour, minute, sec = i.split(':')
+            hour, minute, sec = float(hour), float(minute), float(sec)
+            out.append(hour * 15 + (minute / 4) + (sec / 240))
+        else:
+            print('hms cannot be negative.')
+
+    return [out[0] if _type == str or len(hms) == 1 else out][0]
+
+
+def dd_to_hms(degree_decimal):
+    if type(degree_decimal) is str:
+        degree_decimal = dms_to_dd(degree_decimal)
+    if degree_decimal < 0:
+        print('dd for HMS conversion cannot be negative, assuming positive.')
+        _dd = -degree_decimal / 15
+    else:
+        _dd = degree_decimal / 15
+    _h, __h = np.trunc(_dd), _dd - np.trunc(_dd)
+    _m, __m = np.trunc(__h * 60), __h * 60 - np.trunc(__h * 60)
+    _s = round(__m * 60, 4)
+    _s = [int(_s) if int(_s) == _s else _s][0]
+    if _s == 60:
+        _m, _s = _m + 1, '00'
+    elif _s > 60:
+        _m, _s = _m + 1, _s - 60
+
+    return f'{int(_h)}:{int(_m)}:{_s}'
+
+
 def get_times(duration=(30, 'day'), freq=(1, 'hr'), t=Time("2025-01-01", scale='utc')):
     """
     Calculate a list of times spaced equally apart over a specified duration.
@@ -1940,7 +2007,6 @@ def interpolate_points_between(r, m):
 
 
 def check_lunar_collision(r, times, m=1000):
-    from .body import get_body
     """
     Checks if the trajectory of a particle intersects with the Moon.
 
