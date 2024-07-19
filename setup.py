@@ -85,6 +85,7 @@ setup(
         'sphinx-autobuild',
         'sphinx-tabs',
         'sphinx-automodapi',
+        'tqdm',
         'myst-parser',
         'graphviz',
     ],
