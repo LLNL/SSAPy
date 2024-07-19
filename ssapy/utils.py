@@ -1197,7 +1197,7 @@ def rotation_matrix_from_vectors(vec1, vec2):
     return rotation_matrix
 
 
-def rotate_vector(v_unit, theta, phi, plot=False, save_idx=False):
+def rotate_vector(v_unit, theta, phi, plot_path=False, save_idx=False):
     v_unit = v_unit / np.linalg.norm(v_unit, axis=-1)
     if np.all(np.abs(v_unit) != np.max(np.abs(v_unit))):
         perp_vector = np.cross(v_unit, np.array([1, 0, 0]))
@@ -1240,7 +1240,7 @@ def rotate_vector(v_unit, theta, phi, plot=False, save_idx=False):
 
     v2 = np.dot(R2, v1)
 
-    if plot:
+    if plot_path is False:
         import matplotlib.pyplot as plt
         plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'black'})
         fig = plt.figure()
@@ -1263,7 +1263,7 @@ def rotate_vector(v_unit, theta, phi, plot=False, save_idx=False):
         if save_idx is not False:
             from .plotUtils import save_plot
             ax.set_title(f'Vector Plot\ntheta: {np.degrees(theta):.0f}, phi: {np.degrees(phi):.0f}', color='white')
-            save_plot(fig, f"{os.path.expanduser('~/ssapy_test_plots/rotate_vector_frames/')}{save_idx}.png")
+            save_plot(fig, f"{plot_path}{save_idx}.png")
     return v2 / np.linalg.norm(v2, axis=-1)
 
 
