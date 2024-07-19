@@ -4,11 +4,10 @@ import astropy.units as u
 
 from .body import get_body
 from .constants import RGEO, LD, EARTH_RADIUS, EARTH_MU, MOON_RADIUS, MOON_MU
-from .coordinates import rotation_matrix_from_vectors, angle_between_vectors, gcrf_to_itrf
 from .propagator import KeplerianPropagator
 from .utils import (
     norm, normed, unitAngle3, LRU_Cache, lb_to_unit, sunPos, _gpsToTT,
-    iers_interp
+    iers_interp, rotation_matrix_from_vectors, angle_between_vectors, gcrf_to_itrf
 )
 from .orbit import Orbit
 from .ellipsoid import Ellipsoid
