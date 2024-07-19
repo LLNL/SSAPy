@@ -1,5 +1,5 @@
 """
-Classes to solve for Keplerina orbital parameters from different initial inputs
+Classes to solve for Keplerian orbital parameters from different initial inputs
 
 # TODO: Provide overview of different solvers
 

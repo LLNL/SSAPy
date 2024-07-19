@@ -1,3 +1,7 @@
+"""
+Collection of functions to read from and write to various file formats.
+"""
+
 import datetime
 import numpy as np
 from astropy.time import Time

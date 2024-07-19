@@ -49,6 +49,8 @@ cover/
 
 # Sphinx documentation
 docs/_build/
+docs/source/api
+docs/source/modules
 
 # Jupyter Notebook
 **/*.ipynb_checkpoints

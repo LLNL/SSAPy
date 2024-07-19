@@ -2012,7 +2012,7 @@ def summarize_tracklet(arc):
     pmra, pmdec: the proper motion in right ascension and declination
     dpmra, dpmdec: the uncertainty in the proper motion in RA and declination
     """
-    unit = ssapy.utils.lb2unit(arc['ra'].to(u.rad).value,
+    unit = ssapy.utils.lb_to_unit(arc['ra'].to(u.rad).value,
                                arc['dec'].to(u.rad).value)
     meanunit = np.mean(unit, axis=0)
     # defines tangent plane
@@ -2033,7 +2033,7 @@ def summarize_tracklet(arc):
     rasig = np.sqrt(np.diag(racovar))
     decp, deccovar = np.polyfit(dt, dectp, 1, w=1./dpos, cov='unscaled')
     decsig = np.sqrt(np.diag(deccovar))
-    meanra, meandec = ssapy.utils.unit2lb(meanunit[None, :])
+    meanra, meandec = ssapy.utils.unit_to_lb(meanunit[None, :])
     rap[1] += meanra[0]
     decp[1] += meandec[0]
     out = [(rap[1]*u.rad, decp[1]*u.rad),
