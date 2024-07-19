@@ -1,8 +1,7 @@
 from .body import get_body
 from .compute import groundTrack, lagrange_points_lunar_frame, calculate_orbital_elements
 from .constants import RGEO, LD, EARTH_RADIUS, MOON_RADIUS, EARTH_MU, MOON_MU
-from .coordinates import gcrf_to_itrf, gcrf_to_lunar_fixed, gcrf_to_lunar
-from .utils import find_file, Time, find_smallest_bounding_cube
+from .utils import find_file, Time, find_smallest_bounding_cube, gcrf_to_itrf, gcrf_to_lunar_fixed, gcrf_to_lunar
 
 import numpy as np
 import os
@@ -11,7 +10,7 @@ import io
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from matplotlib import mplcolors
+from matplotlib import colors as mplcolors
 
 from PyPDF2 import PdfMerger
 from matplotlib.backends.backend_pdf import PdfPages
@@ -849,3 +848,14 @@ def save_plot(figure, save_path, dpi=200):
         print(f"Figure saved at: {save_path}")
     except Exception as e:
         print(f"Error occurred while saving the figure: {e}")
+
+
+def write_gif(gif_name, frames, fps=30):
+    import imageio
+    print(f'Writing gif: {gif_name}')
+    with imageio.get_writer(gif_name, mode='I', duration=1 / fps) as writer:
+        for i, filename in enumerate(frames):
+            image = imageio.imread(filename)
+            writer.append_data(image)
+    print(f'Wrote {gif_name}')
+    return
