@@ -593,12 +593,38 @@ def load_b3obs_file(file_name):
 # File Handling Functions
 # =============================================================================
 def file_exists(filename):
+    """
+    Check if a file with the given name and any extension exists.
+
+    Parameters:
+    ----------
+    filename : str
+        The name of the file to check, without extension.
+
+    Returns:
+    -------
+    bool
+        True if a file with the given name and any extension exists, False otherwise.
+    """
     from glob import glob
     name, _ = os.path.splitext(filename)
     return bool(glob(f"{name}.*"))
 
 
 def exists(pathname):
+    """
+    Check if a file or directory exists.
+
+    Parameters:
+    ----------
+    pathname : str
+        The path to the file or directory.
+
+    Returns:
+    -------
+    bool
+        True if the path exists as either a file or a directory, False otherwise.
+    """
     if os.path.isdir(pathname):
         exists = True
     elif os.path.isfile(pathname):
@@ -609,6 +635,14 @@ def exists(pathname):
 
 
 def mkdir(pathname):
+    """
+    Creates a directory if it does not exist.
+
+    Parameters:
+    ----------
+    pathname : str
+        The path to the directory to be created.
+    """
     if not exists(pathname):
         os.makedirs(pathname)
         print("Directory '%s' created" % pathname)        
@@ -616,6 +650,14 @@ def mkdir(pathname):
 
 
 def rmdir(source_):
+    """
+    Deletes a directory and its contents if it exists.
+
+    Parameters:
+    ----------
+    source_ : str
+        The path to the directory to be deleted.
+    """
     if not exists(source_):
         print(f'{source_}, does not exist, no delete.')
     else:
@@ -626,6 +668,14 @@ def rmdir(source_):
 
 
 def rmfile(pathname):
+    """
+    Deletes a file if it exists.
+
+    Parameters:
+    ----------
+    pathname : str
+        The path to the file to be deleted.
+    """
     if exists(pathname):
         os.remove(pathname)
         print("File: '%s' deleted." % pathname)        
@@ -633,6 +683,19 @@ def rmfile(pathname):
 
 
 def sortbynum(files):
+    """
+    Sorts a list of file paths based on numeric values in the filenames.
+
+    Parameters:
+    ----------
+    files : list
+        List of file paths to be sorted.
+
+    Returns:
+    -------
+    list
+        List of file paths sorted by numeric values in their filenames.
+    """
     import re
     if len(files[0].split('/')) > 1:
         files_shortened = []
@@ -649,6 +712,25 @@ def sortbynum(files):
 
 
 def listdir(dir_path='*', files_only=False, exclude=None, sorted=False):
+    """
+    Lists files and directories in a specified path with optional filtering and sorting.
+
+    Parameters:
+    ----------
+    dir_path : str, default='*'
+        The directory path or pattern to match files and directories.
+    files_only : bool, default=False
+        If True, only returns files, excluding directories.
+    exclude : str or None, optional
+        If specified, excludes files and directories whose base name contains this string.
+    sorted : bool, default=False
+        If True, sorts the resulting list by numeric values in filenames.
+
+    Returns:
+    -------
+    list
+        A list of file or directory paths based on the specified filters and sorting.
+    """
     from glob import glob
     if '*' not in dir_path:
         dir_path = os.path.join(dir_path, '*')
@@ -1425,6 +1507,27 @@ def save_csv_line(file_name, df, sep='\t', dtypes=None):
 
 _column_data = None
 def exists_in_csv(csv_file, column, number, sep='\t'):
+    """
+    Checks if a number exists in a specific column of a CSV file.
+
+    This function reads a specified column from a CSV file and checks if a given number is present in that column.
+
+    Parameters:
+    ----------
+    csv_file : str
+        Path to the CSV file.
+    column : str or int
+        The column to search in.
+    number : int or float
+        The number to check for existence in the column.
+    sep : str, default='\t'
+        Delimiter used in the CSV file.
+
+    Returns:
+    -------
+    bool
+        True if the number exists in the column, False otherwise.
+    """
     try:
         global _column_data
         if _column_data is None:
