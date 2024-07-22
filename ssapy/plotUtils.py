@@ -210,15 +210,52 @@ def check_numpy_array(variable):
 
 def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
     """
-    Parameters
-    ----------
-    r : (n,3) or array of [(n,3), ..., (n,3)] array_like
-        Position of orbiting object(s) in meters.
-    t: optional - t when r was calculated.
-    limits: optional - x and y limits of the plot
-    title: optional - title of the plot
-    """
+    Plot 2D and 3D projections of the orbit of one or more objects.
 
+    Parameters:
+    ----------
+    r : (n,3) or list of [(n,3), ..., (n,3)] array_like
+        Position of orbiting object(s) in meters. If a list is provided, each element represents the orbit of a different object.
+    t : array_like, optional
+        Time array corresponding to the position vectors. Required for frames "itrf", "lunar", or "lunar fixed".
+    limits : float or tuple, optional
+        Limits for the x and y axes of the 2D plots. If not provided, it is calculated based on the data.
+    title : str, optional
+        Title of the plot. Default is an empty string.
+    figsize : tuple of int, optional
+        Size of the figure (width, height) in inches. Default is (7, 7).
+    save_path : str, optional
+        Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+    frame : str, optional
+        The coordinate frame for the plot. Accepted values are "gcrf", "itrf", "lunar", "lunar fixed".
+    show : bool, optional
+        Whether to display the plot. Default is False.
+
+    Returns:
+    -------
+    fig : matplotlib.figure.Figure
+        The figure object containing the plot.
+    ax : list of matplotlib.axes.Axes
+        The list of axes objects used in the plot. Includes 2D axes (ax1, ax2, ax3) and 3D axis (ax4).
+
+    Notes:
+    ------
+    - The function creates a set of subplots showing the projection of the orbit data in 2D (x-y, x-z, y-z) and 3D (x-y-z).
+    - For the "lunar" and "lunar fixed" frames, the plot also includes the positions of Lagrange points.
+    - If a list of orbits is provided, each orbit is plotted with a different color.
+    - The plot background is set to black, and axis labels and ticks are set to white.
+
+    Example usage:
+    ----------
+    import numpy as np
+    from your_module import orbit_plot
+
+    # Example data
+    r = np.array([[1e7, 2e7, 3e7], [4e7, 5e7, 6e7]])  # Replace with actual data
+    t = np.linspace(0, 10, len(r))  # Replace with actual time data
+
+    fig, axes = orbit_plot(r, t, limits=1e8, title='Orbit Plot', frame='gcrf', show=True)
+    """
     def _make_scatter(fig, ax1, ax2, ax3, ax4, r, t, limits, title='', orbit_index='', num_orbits=1, frame=False):
         if np.size(t) < 1:
             if frame in ["itrf", "lunar", "lunar_fixed"]:
@@ -427,6 +464,38 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
 
 
 def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el=30, az=0, scale=1):
+    """
+    Plot a 3D scatter plot of position vectors on a globe representation.
+
+    Parameters:
+    - r (array-like): Position vectors with shape (n, 3), where n is the number of points.
+    - t (array-like): Time array corresponding to the position vectors. This parameter is not used in the current function implementation but is included for consistency.
+    - limits (float, optional): The limit for the plot axes. If not provided, it is calculated based on the data. Default is False.
+    - title (str, optional): Title of the plot. Default is an empty string.
+    - figsize (tuple of int, optional): Figure size (width, height) in inches. Default is (7, 8).
+    - save_path (str, optional): Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+    - el (int, optional): Elevation angle (in degrees) for the view of the plot. Default is 30.
+    - az (int, optional): Azimuth angle (in degrees) for the view of the plot. Default is 0.
+    - scale (int, optional): Scale factor for resizing the Earth image. Default is 1.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object containing the plot.
+    - ax (matplotlib.axes._subplots.Axes3DSubplot): The 3D axis object used in the plot.
+
+    The function creates a 3D scatter plot of the position vectors on a globe. The globe is represented using a textured Earth image, and the scatter points are colored using a rainbow colormap. The plot's background is set to black, and the plot is displayed with customizable elevation and azimuth angles.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import globe_plot
+
+    # Example data
+    r = np.array([[1, 2, 3], [4, 5, 6]])  # Replace with actual data
+    t = np.arange(len(r))  # Replace with actual time data
+    
+    globe_plot(r, t, save_path='globe_plot.png')
+    ```
+    """
     x = r[:, 0] / RGEO
     y = r[:, 1] / RGEO
     z = r[:, 2] / RGEO
@@ -469,6 +538,37 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
 
 
 def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
+    """
+    Plot orbital elements over time for a given trajectory.
+
+    Parameters:
+    - r (array-like): Position vectors for the orbit.
+    - v (array-like): Velocity vectors for the orbit.
+    - t (array-like, optional): Time array for the plot, given as a sequence of `astropy.time.Time` objects or a `Time` object with `np.linspace`. Default is one year of hourly intervals starting from "2025-01-01".
+    - elements (list of str, optional): List of orbital elements to plot. Options include 'a' (semi-major axis), 'e' (eccentricity), and 'i' (inclination). Default is ['a', 'e', 'i'].
+    - save_path (str, optional): Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+    - body (str, optional): The celestial body for which to calculate the orbital elements. Options are 'Earth' or 'Moon'. Default is 'Earth'.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object containing the plot.
+    - ax1 (matplotlib.axes.Axes): The primary axis object used in the plot.
+
+    The function calculates orbital elements for the given position and velocity vectors, and plots these elements over time. It creates a plot with two y-axes: one for the eccentricity and inclination, and the other for the semi-major axis. The x-axis represents time in decimal years. 
+
+    Example usage:
+    ```
+    import numpy as np
+    from astropy.time import Time
+    from your_module import koe_plot
+
+    # Example data
+    r = np.array([[[1, 0, 0], [0, 1, 0]]])  # Replace with actual data
+    v = np.array([[[0, 1, 0], [-1, 0, 0]]])  # Replace with actual data
+    t = Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24))
+    
+    koe_plot(r, v, t, save_path='orbital_elements_plot.png')
+    ```
+    """
     if 'earth' in body.lower():
         orbital_elements = calculate_orbital_elements(r, v, mu_barycenter=EARTH_MU)
     else:
@@ -509,6 +609,40 @@ def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 36
 
 
 def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable cislunar orbits", limits=[1, 50], bins=200, logscale=False, cmap='coolwarm', save_path=False):
+    """
+    Create a 2D histogram plot for various orbital elements of stable cislunar orbits.
+
+    Parameters:
+    - stable_data (object): An object with attributes `a`, `e`, `i`, and `ta`, which are arrays of semi-major axis, eccentricity, inclination, and true anomaly, respectively.
+    - title (str, optional): Title of the figure. Default is "Initial orbital elements of\n1 year stable cislunar orbits".
+    - limits (list, optional): Color scale limits for the histogram. Default is [1, 50].
+    - bins (int, optional): Number of bins for the 2D histograms. Default is 200.
+    - logscale (bool or str, optional): Whether to use logarithmic scaling for the color bar. Default is False. Can also be 'log' to apply logarithmic scaling.
+    - cmap (str, optional): Colormap to use for the histograms. Default is 'coolwarm'.
+    - save_path (str, optional): Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object containing the 2D histograms.
+
+    This function creates a 3x3 grid of 2D histograms showing the relationships between various orbital elements, including semi-major axis, eccentricity, inclination, and true anomaly. The color scale of the histograms can be adjusted with a logarithmic or linear normalization. The plot is customized with labels and a color bar.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import koe_2dhist
+
+    # Example data
+    class StableData:
+        def __init__(self):
+            self.a = np.random.uniform(1, 20, 1000)
+            self.e = np.random.uniform(0, 1, 1000)
+            self.i = np.radians(np.random.uniform(0, 90, 1000))
+            self.ta = np.radians(np.random.uniform(0, 360, 1000))
+
+    stable_data = StableData()
+    koe_2dhist(stable_data, save_path='orbit_histograms.pdf')
+    ```
+    """
     if logscale or logscale == 'log':
         norm = mplcolors.LogNorm(limits[0], limits[1])
     else:
@@ -574,6 +708,45 @@ def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable ci
 
 
 def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize=1, colorsMap='jet', colorscale='linear', colormin=False, colormax=False, save_path=False):
+    """
+    Create a 2D scatter plot with optional color mapping.
+
+    Parameters:
+    - x (numpy.ndarray): Array of x-coordinates.
+    - y (numpy.ndarray): Array of y-coordinates.
+    - cs (numpy.ndarray): Array of values for color mapping.
+    - xlabel (str, optional): Label for the x-axis. Default is 'x'.
+    - ylabel (str, optional): Label for the y-axis. Default is 'y'.
+    - title (str, optional): Title of the plot. Default is an empty string.
+    - cbar_label (str, optional): Label for the color bar. Default is an empty string.
+    - dotsize (int, optional): Size of the dots in the scatter plot. Default is 1.
+    - colorsMap (str, optional): Colormap to use for the color mapping. Default is 'jet'.
+    - colorscale (str, optional): Scale for the color mapping, either 'linear' or 'log'. Default is 'linear'.
+    - colormin (float, optional): Minimum value for color scaling. If False, it is set to the minimum value of `cs`. Default is False.
+    - colormax (float, optional): Maximum value for color scaling. If False, it is set to the maximum value of `cs`. Default is False.
+    - save_path (str, optional): File path to save the plot. If not provided, the plot is not saved. Default is False.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object.
+    - ax (matplotlib.axes._subplots.AxesSubplot): The 2D axis object.
+
+    This function creates a 2D scatter plot with optional color mapping based on the values provided in `cs`. 
+    The color mapping can be adjusted using either a linear or logarithmic scale. The plot can be customized with axis labels, title, and colormap. 
+    The plot can also be saved to a specified file path.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import scatter2d
+
+    # Example data
+    x = np.random.rand(100)
+    y = np.random.rand(100)
+    cs = np.random.rand(100)
+
+    scatter2d(x, y, cs, xlabel='X-axis', ylabel='Y-axis', cbar_label='Color Scale', title='2D Scatter Plot')
+    ```
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     if colormax is False:
@@ -601,6 +774,44 @@ def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize
 
 
 def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cbar_label='', dotsize=1, colorsMap='jet', title='', save_path=False):
+    """
+    Create a 3D scatter plot with optional color mapping.
+
+    Parameters:
+    - x (numpy.ndarray): Array of x-coordinates or a 2D array with shape (n, 3) representing the x, y, z coordinates.
+    - y (numpy.ndarray, optional): Array of y-coordinates. Required if `x` is not a 2D array with shape (n, 3). Default is None.
+    - z (numpy.ndarray, optional): Array of z-coordinates. Required if `x` is not a 2D array with shape (n, 3). Default is None.
+    - cs (numpy.ndarray, optional): Array of values for color mapping. Default is None.
+    - xlabel (str, optional): Label for the x-axis. Default is 'x'.
+    - ylabel (str, optional): Label for the y-axis. Default is 'y'.
+    - zlabel (str, optional): Label for the z-axis. Default is 'z'.
+    - cbar_label (str, optional): Label for the color bar. Default is an empty string.
+    - dotsize (int, optional): Size of the dots in the scatter plot. Default is 1.
+    - colorsMap (str, optional): Colormap to use for the color mapping. Default is 'jet'.
+    - title (str, optional): Title of the plot. Default is an empty string.
+    - save_path (str, optional): File path to save the plot. If not provided, the plot is not saved. Default is False.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object.
+    - ax (matplotlib.axes._subplots.Axes3DSubplot): The 3D axis object.
+
+    This function creates a 3D scatter plot with optional color mapping based on the values provided in `cs`. 
+    The plot can be customized with axis labels, title, and colormap. The plot can also be saved to a specified file path.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import scatter3d
+
+    # Example data
+    x = np.random.rand(100)
+    y = np.random.rand(100)
+    z = np.random.rand(100)
+    cs = np.random.rand(100)
+
+    scatter3d(x, y, z, cs, xlabel='X-axis', ylabel='Y-axis', zlabel='Z-axis', cbar_label='Color Scale', title='3D Scatter Plot')
+    ```
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     if x.ndim > 1:
@@ -635,6 +846,38 @@ def dotcolors_scaled(num_colors):
 
 # Make a plot of multiple cislunar orbit in GCRF frame.
 def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_path=False):
+    """
+    Plot multiple cislunar orbits in the GCRF frame with respect to the Earth and Moon.
+
+    Parameters:
+    - rs (numpy.ndarray): A 3D array of shape (n, 3, m) where n is the number of time steps, 
+                          3 represents the x, y, z coordinates, and m is the number of orbits.
+    - r_moon (numpy.ndarray, optional): A 2D array of shape (3, n) representing the Moon's position at each time step.
+                                        If not provided, it is calculated based on the time `t`.
+    - t (astropy.time.Time, optional): The time at which to calculate the Moon's position if `r_moon` is not provided. Default is False.
+    - limits (float, optional): The plot limits in units of Earth's radius (GEO). If not provided, it is calculated as 1.2 times the maximum norm of `rs`. Default is False.
+    - title (str, optional): The title of the plot. Default is an empty string.
+    - save_path (str, optional): The file path to save the plot. If not provided, the plot is not saved. Default is False.
+
+    Returns:
+    None
+
+    This function creates a 3-panel plot of multiple cislunar orbits in the GCRF frame. Each panel represents a different plane (xy, xz, yz) with Earth at the center.
+    The orbits are plotted with color gradients to indicate progression. The Moon's position is also plotted if provided or calculated.
+
+    Example usage:
+    ```
+    import numpy as np
+    from astropy.time import Time
+    from your_module import orbit_divergence_plot
+
+    # Example data
+    rs = np.random.randn(100, 3, 5)  # 5 orbits with 100 time steps each
+    t = Time("2025-01-01")
+
+    orbit_divergence_plot(rs, t=t, title='Cislunar Orbits')
+    ```
+    """
     if limits is False:
         limits = np.nanmax(np.linalg.norm(rs, axis=1) / RGEO) * 1.2
         print(f'limits: {limits}')
@@ -705,6 +948,30 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
 
 
 def make_white(fig, *axes):
+    """
+    Set the background color of the figure and axes to white and the text color to black.
+
+    Parameters:
+    - fig (matplotlib.figure.Figure): The figure to modify.
+    - axes (list of matplotlib.axes._subplots.AxesSubplot): One or more axes to modify.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The modified figure.
+    - axes (tuple of matplotlib.axes._subplots.AxesSubplot): The modified axes.
+
+    This function changes the background color of the given figure and its axes to white. 
+    It also sets the color of all text items (title, labels, tick labels) to black.
+
+    Example usage:
+    ```
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [4, 5, 6])
+    make_white(fig, ax)
+    plt.show()
+    ```
+    """
     fig.patch.set_facecolor('white')
 
     for ax in axes:
@@ -725,6 +992,30 @@ def make_white(fig, *axes):
 
 
 def make_black(fig, *axes):
+    """
+    Set the background color of the figure and axes to black and the text color to white.
+
+    Parameters:
+    - fig (matplotlib.figure.Figure): The figure to modify.
+    - axes (list of matplotlib.axes._subplots.AxesSubplot): One or more axes to modify.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The modified figure.
+    - axes (tuple of matplotlib.axes._subplots.AxesSubplot): The modified axes.
+
+    This function changes the background color of the given figure and its axes to black. 
+    It also sets the color of all text items (title, labels, tick labels) to white.
+
+    Example usage:
+    ```
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [4, 5, 6])
+    make_black(fig, ax)
+    plt.show()
+    ```
+    """
     fig.patch.set_facecolor('black')
 
     for ax in axes:
@@ -745,6 +1036,40 @@ def make_black(fig, *axes):
 
 
 def draw_dashed_circle(ax, normal_vector, radius, dashes, dash_length=0.1, label='Dashed Circle'):
+    """
+    Draw a dashed circle on a 3D axis with a given normal vector.
+
+    Parameters:
+    - ax (matplotlib.axes._subplots.Axes3DSubplot): The 3D axis on which to draw the circle.
+    - normal_vector (array-like): A 3-element array representing the normal vector to the plane of the circle.
+    - radius (float): The radius of the circle.
+    - dashes (int): The number of dashes to be used in drawing the circle.
+    - dash_length (float, optional): The relative length of each dash, as a fraction of the circle's circumference. Default is 0.1.
+    - label (str, optional): The label for the circle. Default is 'Dashed Circle'.
+
+    Returns:
+    None
+
+    This function draws a dashed circle on a 3D axis. The circle is defined in the xy-plane, then rotated to align with the given normal vector. The circle is divided into dashes to create the dashed effect.
+
+    Example usage:
+    ```
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    from your_module import draw_dashed_circle
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    normal_vector = [0, 0, 1]
+    radius = 5
+    dashes = 20
+
+    draw_dashed_circle(ax, normal_vector, radius, dashes)
+
+    plt.show()
+    ```
+    """
     from .utils import rotation_matrix_from_vectors
     # Define the circle in the xy-plane
     theta = np.linspace(0, 2 * np.pi, 1000)
@@ -780,6 +1105,43 @@ def draw_dashed_circle(ax, normal_vector, radius, dashes, dash_length=0.1, label
 # Formatting x axis
 # #####################################################################
 def date_format(time_array, ax):
+    """
+    Format the x-axis of a plot with time-based labels depending on the span of the time array.
+
+    Parameters:
+    - time_array (array-like): An array of time objects (e.g., astropy.time.Time) to be used for the x-axis labels.
+    - ax (matplotlib.axes.Axes): The matplotlib axes object on which to set the x-axis labels.
+
+    Returns:
+    None
+
+    This function formats the x-axis labels of a plot based on the span of the provided time array. The labels are 
+    set to show either hours and day-month or month-year formats, depending on the time span.
+
+    The function performs the following steps:
+    1. If the time span is less than one month:
+        - If the time span is less than a day, the labels show 'HH:MM dd-Mon'.
+        - Otherwise, the labels show 'dd-Mon-YYYY'.
+    2. If the time span is more than one month, the labels show 'Mon-YYYY'.
+
+    The function selects six nearly evenly spaced points in the time array to set the x-axis labels.
+
+    Example usage:
+    ```
+    import matplotlib.pyplot as plt
+    from astropy.time import Time
+    import numpy as np
+
+    # Example time array
+    time_array = Time(['2024-07-01T00:00:00', '2024-07-01T06:00:00', '2024-07-01T12:00:00', 
+                       '2024-07-01T18:00:00', '2024-07-02T00:00:00'])
+
+    fig, ax = plt.subplots()
+    ax.plot(time_array.decimalyear, np.random.rand(len(time_array)))
+    date_format(time_array, ax)
+    plt.show()
+    ```
+    """
     n = 6  # Number of nearly evenly spaced points to select
     time_span_in_months = (time_array[-1].datetime - time_array[0].datetime).days / 30
     if time_span_in_months < 1:
@@ -814,12 +1176,47 @@ def date_format(time_array, ax):
 
     # Optional: Rotate the tick labels for better visibility
     plt.xticks(rotation=0)
+    return
 
 
 save_plot_to_pdf_call_count = 0
 
 
 def save_plot_to_pdf(figure, pdf_path):
+    """
+    Save a Matplotlib figure to a PDF file, with support for merging with existing PDFs.
+
+    Parameters:
+    - figure (matplotlib.figure.Figure): The Matplotlib figure to be saved.
+    - pdf_path (str): The path to the PDF file. If the file exists, the figure will be appended to it.
+
+    Returns:
+    None
+
+    This function saves a Matplotlib figure as a PNG in-memory and then converts it to a PDF.
+    If the specified PDF file already exists, the new figure is appended to it. Otherwise,
+    a new PDF file is created. The function also keeps track of how many times it has been called
+    using a global variable `save_plot_to_pdf_call_count`.
+
+    The function performs the following steps:
+    1. Expands the user directory if the path starts with `~`.
+    2. Generates a temporary PDF path by appending "_temp.pdf" to the original path.
+    3. Saves the figure as a PNG in-memory using a BytesIO buffer.
+    4. Opens the in-memory PNG using PIL and creates a new figure to display the image.
+    5. Saves the new figure with the image into a temporary PDF.
+    6. If the specified PDF file exists, merges the temporary PDF with the existing one.
+       Otherwise, renames the temporary PDF to the specified path.
+    7. Closes the original and temporary figures and prints a message indicating the save location.
+
+    Example usage:
+    ```
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [4, 5, 6])
+    save_plot_to_pdf(fig, '~/Desktop/my_plot.pdf')
+    ```
+    """
     global save_plot_to_pdf_call_count
     save_plot_to_pdf_call_count += 1
     if '~' == pdf_path[0]:
@@ -885,6 +1282,25 @@ def save_plot(figure, save_path, dpi=200):
 
 
 def write_gif(gif_name, frames, fps=30):
+    """
+    Create a GIF from a sequence of image frames.
+
+    Parameters:
+    - gif_name (str): The name of the output GIF file, including the .gif extension.
+    - frames (list of str): A list of file paths to the image frames to be included in the GIF.
+    - fps (int, optional): Frames per second for the GIF. Default is 30.
+
+    Returns:
+    None
+
+    This function uses the imageio library to write a GIF file. It prints messages indicating
+    the start and completion of the GIF writing process. Each frame is read from the provided
+    file paths and appended to the GIF.
+
+    Example usage:
+    frames = ['frame1.png', 'frame2.png', 'frame3.png']
+    write_gif('output.gif', frames, fps=24)
+    """
     import imageio
     print(f'Writing gif: {gif_name}')
     with imageio.get_writer(gif_name, mode='I', duration=1 / fps) as writer:
