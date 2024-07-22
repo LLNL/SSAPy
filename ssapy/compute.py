@@ -1934,9 +1934,7 @@ def lunar_lagrange_points_circular(t):
 
 def lagrange_points_lunar_frame():
     """
-    Calculate the positions of the Lagrange points in the Lunar frame.
-
-    The Lagrange points are positions in the three-body problem where a small object, under the influence of gravity from two larger bodies, can maintain a stable position relative to the two larger bodies. This function calculates the positions of the five Lagrange points (L1, L2, L3, L4, and L5) relative to the Earth-Moon system.
+    Calculate the positions of the Lunar Lagrange points in the Lunar frame.
 
     Returns:
     -------
