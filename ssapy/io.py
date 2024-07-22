@@ -720,6 +720,28 @@ def merge_dicts(file_names, save_path):
 
 
 def npsave(filename_, data_):
+    """
+    Save a NumPy array to a binary file.
+
+    This function saves a NumPy array to a file in .npy format. If the file cannot be created or written to, it handles common exceptions and prints an error message.
+
+    Parameters:
+    ----------
+    filename_ : str
+        The path to the file where the NumPy array will be saved.
+    data_ : numpy.ndarray
+        The NumPy array to be saved.
+
+    Returns:
+    -------
+    None
+        The function does not return any value. It handles exceptions internally and prints error messages if any issues occur.
+
+    Examples:
+    --------
+    >>> arr = np.array([1, 2, 3, 4, 5])
+    >>> npsave('array.npy', arr)
+    """
     try:
         with open(filename_, 'wb') as f:
             np.save(filename_, data_, allow_pickle=True)
@@ -730,6 +752,27 @@ def npsave(filename_, data_):
 
 
 def npload(filename_):
+    """
+    Load a NumPy array from a binary file.
+
+    This function loads a NumPy array from a file in .npy format. If the file cannot be read, it handles common exceptions and prints an error message. If loading fails, it returns an empty list.
+
+    Parameters:
+    ----------
+    filename_ : str
+        The path to the file from which the NumPy array will be loaded.
+
+    Returns:
+    -------
+    numpy.ndarray or list
+        The loaded NumPy array. If an error occurs during loading, returns an empty list.
+
+    Examples:
+    --------
+    >>> arr = npload('array.npy')
+    >>> print(arr)
+    [1 2 3 4 5]
+    """
     try:
         with open(filename_, 'rb') as f:
             data = np.load(filename_, allow_pickle=True)
@@ -866,6 +909,29 @@ def read_h5(filename, pathname):
 
 
 def read_h5_all(file_path):
+    """
+    Read all datasets from an HDF5 file into a dictionary.
+
+    This function recursively traverses an HDF5 file and extracts all datasets into a dictionary. The keys of the dictionary are the paths to the datasets, and the values are the dataset contents. 
+
+    Parameters:
+    ----------
+    file_path : str
+        The path to the HDF5 file from which datasets will be read.
+
+    Returns:
+    -------
+    dict
+        A dictionary where keys are the paths to datasets within the HDF5 file, and values are the contents of these datasets.
+
+    Examples:
+    --------
+    >>> data = read_h5_all('example.h5')
+    >>> print(data.keys())
+    dict_keys(['/group1/dataset1', '/group2/dataset2'])
+    >>> print(data['/group1/dataset1'])
+    [1, 2, 3, 4, 5]
+    """
     data_dict = {}
 
     with h5py.File(file_path, 'r') as file:
@@ -884,6 +950,34 @@ def read_h5_all(file_path):
 
 
 def combine_h5(filename, files, verbose=False, overwrite=False):
+    """
+    Combine multiple HDF5 files into a single HDF5 file.
+
+    This function reads datasets from a list of HDF5 files and writes them to a specified output HDF5 file. If `overwrite` is `True`, it will remove any existing file at the specified `filename` before combining the files. The `verbose` parameter, if set to `True`, will display progress bars during the process.
+
+    Parameters:
+    ----------
+    filename : str
+        The path to the output HDF5 file where the combined datasets will be stored.
+    
+    files : list of str
+        A list of paths to the HDF5 files to be combined.
+
+    verbose : bool, optional
+        If `True`, progress bars will be displayed for the file and key processing. Default is `False`.
+
+    overwrite : bool, optional
+        If `True`, any existing file at `filename` will be removed before writing the new combined file. Default is `False`.
+
+    Returns:
+    -------
+    None
+        The function performs file operations and does not return any value.
+
+    Examples:
+    --------
+    >>> combine_h5('combined.h5', ['file1.h5', 'file2.h5'], verbose=True, overwrite=True)
+    """
     if verbose:
         from tqdm import tqdm
         iterable = enumerate(tqdm(files))
@@ -932,6 +1026,21 @@ def h5_keys(file_path):
 
 
 def h5_root_keys(file_path):
+    """
+    Retrieve the keys in the root group of an HDF5 file.
+
+    This function opens an HDF5 file and returns a list of keys (dataset or group names) located in the root group of the file.
+
+    Parameters:
+    ----------
+    file_path : str
+        The path to the HDF5 file from which the root group keys are to be retrieved.
+
+    Returns:
+    -------
+    list of str
+        A list of keys in the root group of the HDF5 file. These keys represent the names of datasets or groups present at the root level of the file.
+    """
     with h5py.File(file_path, 'r') as file:
         keys_in_root = list(file.keys())
         # print("Keys in the root group:", keys_in_root)
@@ -963,6 +1072,21 @@ def h5_key_exists(filename, key):
 
 
 def makedf(df):
+    """
+    Convert an input into a pandas DataFrame.
+
+    This function takes an input which can be a list or a dictionary and converts it into a pandas DataFrame. If the input is already a DataFrame, it returns it unchanged.
+
+    Parameters:
+    ----------
+    df : list, dict, or pd.DataFrame
+        The input data to be converted into a DataFrame. This can be a list or dictionary to be transformed into a DataFrame, or an existing DataFrame which will be returned as is.
+
+    Returns:
+    -------
+    pd.DataFrame
+        A DataFrame created from the input data if the input is a list or dictionary. If the input is already a DataFrame, the original DataFrame is returned unchanged.
+    """
     if isinstance(df, (list, dict)):
         return pd.DataFrame.from_dict(df)
     else:
@@ -1040,6 +1164,41 @@ def read_csv(file_name, sep=None, dtypes=None, col=False, to_np=False, drop_nan=
 
 
 def append_dict_to_csv(file_name, data_dict, delimiter='\t'):
+    """
+    Append data from a dictionary to a CSV file.
+
+    This function appends rows of data to a CSV file, where each key-value pair in the dictionary represents a column. If the CSV file does not already exist, it creates the file and writes the header row using the dictionary keys.
+
+    Parameters:
+    ----------
+    file_name : str
+        Path to the CSV file where data will be appended.
+    data_dict : dict
+        Dictionary where keys are column headers and values are lists of data to be written to the CSV file. All lists should be of the same length.
+    delimiter : str, optional
+        The delimiter used in the CSV file (default is tab `\t`).
+
+    Notes:
+    ------
+    - The function assumes that all lists in the dictionary `data_dict` have the same length.
+    - If the CSV file already exists, only the data rows are appended. If it doesn't exist, a new file is created with the header row based on the dictionary keys.
+    - The `delimiter` parameter allows specifying the delimiter used in the CSV file. Common values are `,` for commas and `\t` for tabs.
+
+    Example:
+    --------
+    >>> data_dict = {
+    >>>     'Name': ['Alice', 'Bob', 'Charlie'],
+    >>>     'Age': [25, 30, 35],
+    >>>     'City': ['New York', 'Los Angeles', 'Chicago']
+    >>> }
+    >>> append_dict_to_csv('people.csv', data_dict, delimiter=',')
+    This will append data to 'people.csv', creating it if it does not exist, with columns 'Name', 'Age', 'City'.
+
+    Dependencies:
+    --------------
+    - `os.path.exists`: Used to check if the file already exists.
+    - `csv`: Standard library module used for reading and writing CSV files.
+    """
     # Extract keys and values from the dictionary
     keys = list(data_dict.keys())
     values = list(data_dict.values())
@@ -1149,6 +1308,36 @@ def append_csv(file_names, save_path='combined_data.csv', sep=None, dtypes=False
 
 
 def append_csv_on_disk(csv_files, output_file):
+    """
+    Append multiple CSV files into a single CSV file.
+
+    This function merges multiple CSV files into one output CSV file. The output file will contain the header row from the first CSV file and data rows from all input CSV files. 
+
+    Parameters:
+    ----------
+    csv_files : list of str
+        List of file paths to the CSV files to be merged. All CSV files should have the same delimiter and structure.
+    output_file : str
+        Path to the output CSV file where the merged data will be written.
+
+    Notes:
+    ------
+    - The function assumes all input CSV files have the same delimiter. It determines the delimiter from the first CSV file using the `guess_csv_delimiter` function.
+    - Only the header row from the first CSV file is included in the output file. Headers from subsequent files are ignored.
+    - This function overwrites the output file if it already exists.
+
+    Example:
+    --------
+    >>> csv_files = ['file1.csv', 'file2.csv', 'file3.csv']
+    >>> output_file = 'merged_output.csv'
+    >>> append_csv_on_disk(csv_files, output_file)
+    Completed appending of: merged_output.csv.
+
+    Dependencies:
+    --------------
+    - `guess_csv_delimiter` function: A utility function used to guess the delimiter of the CSV files.
+    - `csv` module: Standard library module used for reading and writing CSV files.
+    """
     # Assumes each file has the same delimiters
     delimiter = guess_csv_delimiter(csv_files[0])
     # Open the output file for writing
