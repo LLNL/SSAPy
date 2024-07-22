@@ -46,6 +46,8 @@ coverage.xml
 pytest.xml
 pytest_session.txt
 cover/
+# Ignore ssapy_test_plots folder in tests subfolder
+tests/ssapy_test_plots/
 
 # Sphinx documentation
 docs/_build/
