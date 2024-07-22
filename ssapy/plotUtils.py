@@ -132,7 +132,7 @@ def drawMoon(time, ngrid=100, R=MOON_RADIUS, rfactor=1):
     )
 
 
-def groundTrackPlot(r, time, ground_stations=None, save_path=False):
+def groundTrackPlot(r, t, ground_stations=None, save_path=False):
     """
     Parameters
     ----------
@@ -141,7 +141,7 @@ def groundTrackPlot(r, time, ground_stations=None, save_path=False):
 
     optional - ground_stations: (n,2) array of of ground station (lat,lon) in degrees
     """
-    lon, lat, height = groundTrack(r, time)
+    lon, lat, height = groundTrack(r, t)
 
     fig = plt.figure(figsize=(15, 12))
     plt.imshow(load_earth_file(), extent=[-180, 180, -90, 90])
