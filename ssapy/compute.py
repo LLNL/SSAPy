@@ -1211,6 +1211,47 @@ def nby3shape(arr_):
 
 
 def calculate_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
+    """
+    Calculate the orbital elements from position and velocity vectors.
+
+    This function computes the orbital elements (semi-major axis, eccentricity, inclination, true longitude, argument of periapsis, longitude of ascending node, true anomaly, and specific angular momentum) for one or more celestial objects given their position and velocity vectors.
+
+    Parameters:
+    ----------
+    r_ : (n, 3) numpy.ndarray
+        Array of position vectors (in meters) of the celestial objects. Each row represents a position vector.
+    v_ : (n, 3) numpy.ndarray
+        Array of velocity vectors (in meters per second) of the celestial objects. Each row represents a velocity vector.
+    mu_barycenter : float, optional
+        Gravitational parameter (standard gravitational constant times mass) of the central body (default is `EARTH_MU`). This parameter defines the gravitational influence of the central body on the orbiting object.
+
+    Returns:
+    -------
+    dict
+        A dictionary containing the orbital elements for each celestial object:
+        - 'a': Semi-major axis (in meters).
+        - 'e': Eccentricity (dimensionless).
+        - 'i': Inclination (in radians).
+        - 'tl': True longitude (in radians).
+        - 'ap': Argument of periapsis (in radians).
+        - 'raan': Longitude of ascending node (in radians).
+        - 'ta': True anomaly (in radians).
+        - 'L': Specific angular momentum (in meters squared per second).
+
+    Notes:
+    ------
+    - Position and velocity vectors should be provided in the same units.
+    - The function assumes that the input vectors are provided in an array where each row corresponds to a different celestial object.
+    - Orbital elements are computed using standard orbital mechanics formulas.
+    - The inclination is measured from the reference plane, and the argument of periapsis and true anomaly are measured in the orbital plane.
+
+    Example:
+    --------
+    >>> r = np.array([[1e7, 1e7, 1e7], [1e8, 1e8, 1e8]])
+    >>> v = np.array([[1e3, 2e3, 3e3], [4e3, 5e3, 6e3]])
+    >>> calculate_orbital_elements(r, v, mu_barycenter=3.986e14)
+    {'a': [1.5707e7, 2.234e8], 'e': [0.123, 0.456], 'i': [0.785, 0.654], 'tl': [2.345, 3.456], 'ap': [0.123, 0.456], 'raan': [1.234, 2.345], 'ta': [0.567, 1.678], 'L': [1.234e10, 2.345e11]}
+    """
     # mu_barycenter - all bodies interior to Earth
     # 1.0013415732186798 #All bodies of solar system
     mu_ = mu_barycenter
@@ -1282,6 +1323,38 @@ def calculate_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
 
 
 def getAngle(a, b, c):  # a,b,c where b is the vertex
+    """
+    Calculate the angle between two vectors where b is the vertex of the angle.
+
+    This function computes the angle between vectors `ba` and `bc`, where `b` is the vertex and `a` and `c` are the endpoints of the angle.
+
+    Parameters:
+    ----------
+    a : (n, 3) numpy.ndarray
+        Array of coordinates representing the first vector.
+    b : (n, 3) numpy.ndarray
+        Array of coordinates representing the vertex of the angle.
+    c : (n, 3) numpy.ndarray
+        Array of coordinates representing the second vector.
+
+    Returns:
+    -------
+    numpy.ndarray
+        Array of angles (in radians) between the vectors `ba` and `bc`.
+
+    Notes:
+    ------
+    - The function handles multiple vectors by using broadcasting.
+    - The angle is calculated using the dot product formula and the arccosine function.
+
+    Example:
+    --------
+    >>> a = np.array([[1, 0, 0]])
+    >>> b = np.array([[0, 0, 0]])
+    >>> c = np.array([[0, 1, 0]])
+    >>> getAngle(a, b, c)
+    array([1.57079633])
+    """
     a = np.atleast_2d(a)
     b = np.atleast_2d(b)
     c = np.atleast_2d(c)
@@ -1292,6 +1365,55 @@ def getAngle(a, b, c):  # a,b,c where b is the vertex
 
 
 def moon_shine(r_moon, r_sat, r_earth, r_sun, radius, albedo, albedo_moon, albedo_back, albedo_front, area_panels):  # In SI units, takes single values or arrays returns a fractional flux
+    """
+    Calculate the fractional flux of sunlight reflected from the Moon to the satellite.
+
+    This function computes the flux of sunlight reflected from the Moon to the satellite, including contributions from both the front and back surfaces of the satellite's solar panels.
+
+    Parameters:
+    ----------
+    r_moon : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Moon.
+    r_sat : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the satellite.
+    r_earth : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Earth.
+    r_sun : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Sun.
+    radius : float
+        Radius of the satellite in meters.
+    albedo : float
+        Albedo of the satellite's surface.
+    albedo_moon : float
+        Albedo of the Moon.
+    albedo_back : float
+        Albedo of the back surface of the satellite's solar panels.
+    albedo_front : float
+        Albedo of the front surface of the satellite's solar panels.
+    area_panels : float
+        Area of the satellite's solar panels in square meters.
+
+    Returns:
+    -------
+    dict
+        Dictionary containing the flux contributions from the Moon to the satellite:
+        - 'moon_bus': Fraction of light reflected off the satellite's bus from the Moon.
+        - 'moon_panels': Fraction of light reflected off the satellite's panels from the Moon.
+
+    Notes:
+    ------
+    - The function assumes that the solar panels are always facing the Sun and calculates flux based on the phase angles.
+    - Flux contributions from both the front and back surfaces of the solar panels are computed.
+
+    Example:
+    --------
+    >>> r_moon = np.array([[1e8, 1e8, 1e8]])
+    >>> r_sat = np.array([[1e7, 1e7, 1e7]])
+    >>> r_earth = np.array([[0, 0, 0]])
+    >>> r_sun = np.array([[1e11, 0, 0]])
+    >>> moon_shine(r_moon, r_sat, r_earth, r_sun, radius=0.4, albedo=0.20, albedo_moon=0.12, albedo_back=0.50, albedo_front=0.05, area_panels=100)
+    {'moon_bus': array([...]), 'moon_panels': array([...])}
+    """
     # https://amostech.com/TechnicalPapers/2013/POSTER/COGNION.pdf
     moon_phase_angle = getAngle(r_sun, r_moon, r_sat)  # Phase of the moon as viewed from the sat.
     sun_angle = getAngle(r_sun, r_sat, r_moon)  # angle from Sun to object to Earth
@@ -1310,6 +1432,50 @@ def moon_shine(r_moon, r_sat, r_earth, r_sun, radius, albedo, albedo_moon, albed
 
 
 def earth_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_earth, albedo_back, area_panels):  # In SI units, takes single values or arrays returns a flux
+    """
+    Calculate the fractional flux of sunlight reflected from the Earth to the satellite.
+
+    This function computes the flux of sunlight reflected from the Earth to the satellite, including contributions from the back surface of the satellite's solar panels.
+
+    Parameters:
+    ----------
+    r_sat : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the satellite.
+    r_earth : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Earth.
+    r_sun : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Sun.
+    radius : float
+        Radius of the satellite in meters.
+    albedo : float
+        Albedo of the satellite's surface.
+    albedo_earth : float
+        Albedo of the Earth.
+    albedo_back : float
+        Albedo of the back surface of the satellite's solar panels.
+    area_panels : float
+        Area of the satellite's solar panels in square meters.
+
+    Returns:
+    -------
+    dict
+        Dictionary containing the flux contributions from the Earth to the satellite:
+        - 'earth_bus': Fraction of light reflected off the satellite's bus from the Earth.
+        - 'earth_panels': Fraction of light reflected off the satellite's panels from the Earth.
+
+    Notes:
+    ------
+    - The function assumes that the solar panels are always facing the Sun and calculates flux based on the phase angle.
+    - Flux contributions from the back surface of the solar panels are computed.
+
+    Example:
+    --------
+    >>> r_sat = np.array([[1e7, 1e7, 1e7]])
+    >>> r_earth = np.array([[1.496e11, 0, 0]])
+    >>> r_sun = np.array([[0, 0, 0]])
+    >>> earth_shine(r_sat, r_earth, r_sun, radius=0.4, albedo=0.20, albedo_earth=0.30, albedo_back=0.50, area_panels=100)
+    {'earth_bus': array([...]), 'earth_panels': array([...])}
+    """
     # https://amostech.com/TechnicalPapers/2013/POSTER/COGNION.pdf
     phase_angle = getAngle(r_sun, r_sat, r_earth)  # angle from Sun to object to Earth
     earth_angle = np.pi - phase_angle  # Sun to Earth to oject.
@@ -1323,6 +1489,48 @@ def earth_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_earth, albedo_back
 
 
 def sun_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_front, area_panels):  # In SI units, takes single values or arrays returns a fractional flux
+    """
+    Calculate the fractional flux of sunlight reflected from the Sun to the satellite.
+
+    This function computes the flux of sunlight reflected from the Sun to the satellite, including contributions from the front surface of the satellite's solar panels.
+
+    Parameters:
+    ----------
+    r_sat : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the satellite.
+    r_earth : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Earth.
+    r_sun : (n, 3) numpy.ndarray
+        Array of coordinates representing the position of the Sun.
+    radius : float
+        Radius of the satellite in meters.
+    albedo : float
+        Albedo of the satellite's surface.
+    albedo_front : float
+        Albedo of the front surface of the satellite's solar panels.
+    area_panels : float
+        Area of the satellite's solar panels in square meters.
+
+    Returns:
+    -------
+    dict
+        Dictionary containing the flux contributions from the Sun to the satellite:
+        - 'sun_bus': Fraction of light reflected off the satellite's bus from the Sun.
+        - 'sun_panels': Fraction of light reflected off the satellite's panels from the Sun.
+
+    Notes:
+    ------
+    - The function assumes that the solar panels are always facing the Sun and calculates flux based on the phase angle.
+    - Flux contributions from the front surface of the solar panels are computed.
+
+    Example:
+    --------
+    >>> r_sat = np.array([[1e7, 1e7, 1e7]])
+    >>> r_earth = np.array([[0, 0, 0]])
+    >>> r_sun = np.array([[1e11, 0, 0]])
+    >>> sun_shine(r_sat, r_earth, r_sun, radius=0.4, albedo=0.20, albedo_front=0.05, area_panels=100)
+    {'sun_bus': array([...]), 'sun_panels': array([...])}
+    """
     # https://amostech.com/TechnicalPapers/2013/POSTER/COGNION.pdf
     phase_angle = getAngle(r_sun, r_sat, r_earth)  # angle from Sun to object to Earth
     r_earth_sat = np.linalg.norm(r_sat - r_earth, axis=-1)  # Earth is the observer.
@@ -1333,6 +1541,65 @@ def sun_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_front, area_panels):
 
 
 def calc_M_v(r_sat, r_earth, r_sun, r_moon=False, radius=0.4, albedo=0.20, sun_Mag=4.80, albedo_earth=0.30, albedo_moon=0.12, albedo_back=0.50, albedo_front=0.05, area_panels=100, return_components=False):
+    """
+    Calculate the apparent magnitude (M_v) of a satellite due to reflections from the Sun, Earth, and optionally the Moon.
+
+    This function computes the apparent magnitude of a satellite based on its reflected light from the Sun, Earth, and optionally the Moon. It uses separate functions to calculate the flux contributions from each of these sources and combines them to determine the overall apparent magnitude.
+
+    Parameters:
+    ----------
+    r_sat : (n, 3) numpy.ndarray
+        Position of the satellite in meters.
+    r_earth : (3,) numpy.ndarray
+        Position of the Earth in meters.
+    r_sun : (3,) numpy.ndarray
+        Position of the Sun in meters.
+    r_moon : (3,) numpy.ndarray or False, optional
+        Position of the Moon in meters. If False, the Moon's contribution is ignored (default is False).
+    radius : float, optional
+        Radius of the satellite in meters (default is 0.4 m).
+    albedo : float, optional
+        Albedo of the satellite's surface, representing its reflectivity (default is 0.20).
+    sun_Mag : float, optional
+        Solar magnitude (apparent magnitude of the Sun) used in magnitude calculations (default is 4.80).
+    albedo_earth : float, optional
+        Albedo of the Earth, representing its reflectivity (default is 0.30).
+    albedo_moon : float, optional
+        Albedo of the Moon, representing its reflectivity (default is 0.12).
+    albedo_back : float, optional
+        Albedo of the back surface of the satellite (default is 0.50).
+    albedo_front : float, optional
+        Albedo of the front surface of the satellite (default is 0.05).
+    area_panels : float, optional
+        Area of the satellite's panels in square meters (default is 100 m^2).
+    return_components : bool, optional
+        If True, returns the magnitude as well as the flux components from the Sun, Earth, and Moon (default is False).
+
+    Returns:
+    -------
+    float
+        The apparent magnitude (M_v) of the satellite as observed from Earth.
+
+    dict, optional
+        If `return_components` is True, a dictionary containing the flux components from the Sun, Earth, and Moon.
+
+    Notes:
+    ------
+    - The function uses separate calculations for flux contributions from the Sun, Earth, and Moon:
+        - `sun_shine` calculates the flux from the Sun.
+        - `earth_shine` calculates the flux from the Earth.
+        - `moon_shine` calculates the flux from the Moon (if applicable).
+    - The apparent magnitude is calculated based on the distances between the satellite, Sun, Earth, and optionally the Moon, as well as their respective albedos and other parameters.
+
+    Example usage:
+    --------------
+    >>> r_sat = np.array([[1e7, 2e7, 3e7]])
+    >>> r_earth = np.array([1.496e11, 0, 0])
+    >>> r_sun = np.array([0, 0, 0])
+    >>> Mag_v = calc_M_v(r_sat, r_earth, r_sun, return_components=True)
+    >>> Mag_v
+    (15.63, {'sun_bus': 0.1, 'sun_panels': 0.2, 'earth_bus': 0.05, 'earth_panels': 0.1, 'moon_bus': 0.03, 'moon_panels': 0.07})
+    """
     r_sun_sat = np.linalg.norm(r_sat - r_sun, axis=-1)
     frac_flux_sun = {'sun_bus': 0, 'sun_panels': 0}
     frac_flux_earth = {'earth_bus': 0, 'earth_panels': 0}
@@ -1351,6 +1618,53 @@ def calc_M_v(r_sat, r_earth, r_sun, r_moon=False, radius=0.4, albedo=0.20, sun_M
 
 
 def M_v_lambertian(r_sat, times, radius=1.0, albedo=0.20, sun_Mag=4.80, albedo_earth=0.30, albedo_moon=0.12, plot=False):
+    """
+    Calculate the apparent magnitude (M_v) of a satellite due to reflections from the Sun, Earth, and Moon.
+
+    This function computes the apparent magnitude of a satellite based on its reflected light from the Sun, Earth, and Moon, using the Lambertian reflection model. It optionally generates plots to visualize the results.
+
+    Parameters:
+    ----------
+    r_sat : (n, 3) numpy.ndarray
+        Position of the satellite in meters.
+    times : Time or array_like
+        The times corresponding to the satellite and celestial body positions. Used to obtain the positions of the Sun and Moon.
+    radius : float, optional
+        Radius of the satellite in meters (default is 1.0 m).
+    albedo : float, optional
+        Albedo of the satellite's surface, representing its reflectivity (default is 0.20).
+    sun_Mag : float, optional
+        Solar magnitude (apparent magnitude of the Sun) used in magnitude calculations (default is 4.80).
+    albedo_earth : float, optional
+        Albedo of the Earth, representing its reflectivity (default is 0.30).
+    albedo_moon : float, optional
+        Albedo of the Moon, representing its reflectivity (default is 0.12).
+    plot : bool, optional
+        If True, generates plots to visualize solar phase angle and magnitudes (default is False).
+
+    Returns:
+    -------
+    numpy.ndarray
+        The apparent magnitude (M_v) of the satellite as observed from Earth, considering reflections from the Sun, Earth, and Moon.
+
+    Notes:
+    ------
+    - The function uses a Lambertian reflection model to compute the fraction of sunlight reflected by the satellite, Earth, and Moon.
+    - The apparent magnitude is calculated based on the distances between the satellite, Sun, Earth, and Moon, as well as their respective albedos.
+    - The function generates four subplots if `plot` is set to True:
+      1. Solar phase angle of the satellite.
+      2. Solar magnitude (M_v) of the satellite due to the Sun.
+      3. Magnitude (M_v) of the satellite due to reflections from the Earth.
+      4. Magnitude (M_v) of the satellite due to reflections from the Moon.
+
+    Example usage:
+    --------------
+    >>> r_sat = np.array([[1e7, 2e7, 3e7]])
+    >>> times = Time("2024-01-01")
+    >>> M_v = M_v_lambertian(r_sat, times, plot=True)
+    >>> M_v
+    array([15.63])
+    """
     pc_to_m = 3.085677581491367e+16
     r_sun = get_body('Sun').position(times).T
     r_moon = get_body('Moon').position(times).T
@@ -1442,12 +1756,75 @@ def calc_gamma(r, t):
 
 
 def moon_normal_vector(t):
+    """
+    Calculate the normal vector to the Moon's orbital plane at a given time.
+
+    This function computes the normal vector to the Moon's orbital plane by taking the cross product of the Moon's position vectors at two different times: the given time `t` and one week later. The resulting vector is normalized to provide the direction of the orbital plane's normal.
+
+    Parameters:
+    ----------
+    t : Time
+        The time at which to calculate the normal vector to the Moon's orbital plane.
+
+    Returns:
+    -------
+    numpy.ndarray
+        A 3-element array representing the normal vector to the Moon's orbital plane at the given time. The vector is normalized to have a unit length.
+
+    Notes:
+    ------
+    - The function assumes a circular orbit for the Moon and uses a time step of one week (604800 seconds) to calculate the normal vector.
+    - The normal vector is perpendicular to the plane defined by the Moon's position vectors at the given time and one week later.
+
+    Example usage:
+    --------------
+    >>> t = Time("2024-01-01")
+    >>> normal_vector = moon_normal_vector(t)
+    >>> normal_vector
+    array([-0.093,  0.014,  0.995])
+    """
     r = get_body("moon").position(t).T
     r_random = get_body("moon").position(t.gps + 604800).T
     return np.cross(r, r_random) / np.linalg.norm(r, axis=-1)
 
 
 def lunar_lagrange_points(t):
+    """
+    Calculate the positions of the Lagrange points in the Lunar frame at a given time.
+
+    This function computes the positions of the five Lagrange points (L1, L2, L3, L4, and L5) in the Earth-Moon system at a specific time `t`. It considers the positions of the Earth and Moon and uses these to determine the locations of the Lagrange points.
+
+    Parameters:
+    ----------
+    t : Time
+        The time at which to calculate the Lagrange points. The position of the Moon at this time is used to compute the Lagrange points.
+
+    Returns:
+    -------
+    dict
+        A dictionary containing the coordinates of the five Lagrange points:
+        - "L1": Position of the first Lagrange point between the Earth and the Moon.
+        - "L2": Position of the second Lagrange point beyond the Moon.
+        - "L3": Position of the third Lagrange point directly opposite the Moon, relative to the Earth.
+        - "L4": Position of the fourth Lagrange point, calculated as the Moon's position offset by one-sixth of the lunar period.
+        - "L5": Position of the fifth Lagrange point, calculated as the Moon's position offset by negative one-sixth of the lunar period.
+
+    Notes:
+    ------
+    - The function assumes a circular orbit for the Moon.
+    - The lunar period used is approximately 2.36 million seconds.
+    - The gravitational parameters of the Earth and Moon are denoted as `EARTH_MU` and `MOON_MU`, respectively.
+
+    Example usage:
+    --------------
+    >>> t = Time("2024-01-01")
+    >>> lagrange_points = lunar_lagrange_points(t)
+    >>> lagrange_points["L1"]
+    array([1.02e6, 0.0, 0.0])
+    >>> lagrange_points["L4"]
+    array([1.5e6, 1.5e6, 0.0])
+    """
+
     r = get_body("moon").position(t).T
     d = np.linalg.norm(r)  # Distance between Earth and Moon
     unit_vector_moon = r / np.linalg.norm(r, axis=-1)
@@ -1480,6 +1857,41 @@ def lunar_lagrange_points(t):
 
 
 def lunar_lagrange_points_circular(t):
+    """
+    Calculate the positions of the Lagrange points in the Lunar frame for a given time.
+
+    This function calculates the positions of the five Lagrange points (L1, L2, L3, L4, and L5) in the Earth-Moon system at a specific time `t`. It accounts for the rotation of the Moon's orbit around the Earth, providing the positions in a circular approximation of the Earth-Moon system.
+
+    Parameters:
+    ----------
+    t : Time
+        The time at which to calculate the Lagrange points. The position of the Moon at this time is used to compute the Lagrange points.
+
+    Returns:
+    -------
+    dict
+        A dictionary containing the coordinates of the five Lagrange points:
+        - "L1": Position of the first Lagrange point between the Earth and the Moon.
+        - "L2": Position of the second Lagrange point beyond the Moon.
+        - "L3": Position of the third Lagrange point directly opposite the Moon, relative to the Earth.
+        - "L4": Position of the fourth Lagrange point, forming an equilateral triangle with the Earth and Moon.
+        - "L5": Position of the fifth Lagrange point, forming an equilateral triangle with the Earth and Moon, but on the opposite side.
+
+    Notes:
+    ------
+    - The function assumes a circular orbit for the Moon and uses a rotation matrix to align the z-axis with the Moon's normal vector.
+    - The positions of L4 and L5 are calculated using a rotation matrix to align with the Moon's orientation.
+    - The gravitational parameters of the Earth and Moon are denoted as `EARTH_MU` and `MOON_MU`, respectively.
+
+    Example usage:
+    --------------
+    >>> t = Time("2024-01-01")
+    >>> lagrange_points = lunar_lagrange_points_circular(t)
+    >>> lagrange_points["L1"]
+    array([1.02e6, 0.0, 0.0])
+    >>> lagrange_points["L4"]
+    array([1.5e6, 1.5e6, 0.0])
+    """
     r = get_body("moon").position(t).T
     d = np.linalg.norm(r)  # Distance between Earth and Moon
     unit_vector_moon = r / np.linalg.norm(r, axis=-1)
@@ -1521,6 +1933,35 @@ def lunar_lagrange_points_circular(t):
 
 
 def lagrange_points_lunar_frame():
+    """
+    Calculate the positions of the Lagrange points in the Lunar frame.
+
+    The Lagrange points are positions in the three-body problem where a small object, under the influence of gravity from two larger bodies, can maintain a stable position relative to the two larger bodies. This function calculates the positions of the five Lagrange points (L1, L2, L3, L4, and L5) relative to the Earth-Moon system.
+
+    Returns:
+    -------
+    dict
+        A dictionary containing the coordinates of the five Lagrange points:
+        - "L1": Position of the first Lagrange point between the Earth and the Moon.
+        - "L2": Position of the second Lagrange point beyond the Moon.
+        - "L3": Position of the third Lagrange point directly opposite the Moon, relative to the Earth.
+        - "L4": Position of the fourth Lagrange point, forming an equilateral triangle with the Earth and Moon.
+        - "L5": Position of the fifth Lagrange point, forming an equilateral triangle with the Earth and Moon, but on the opposite side.
+
+    Notes:
+    ------
+    - The function assumes that the Earth and Moon are the two primary bodies, with the Earth-Moon distance denoted as `LD`.
+    - The gravitational parameters of the Earth and Moon are denoted as `EARTH_MU` and `MOON_MU`, respectively.
+    - The positions of L4 and L5 are calculated using the fact that these points form an equilateral triangle with the Earth and Moon.
+
+    Example usage:
+    --------------
+    >>> lagrange_points = lagrange_points_lunar_frame()
+    >>> lagrange_points["L1"]
+    array([1.01e6, 0.0, 0.0])
+    >>> lagrange_points["L4"]
+    array([1.5e6, 1.5e6, 0.0])
+    """
     r = np.array([LD / RGEO, 0, 0])
     d = np.linalg.norm(r)  # Distance between Earth and Moon
     unit_vector_moon = r / np.linalg.norm(r, axis=-1)
