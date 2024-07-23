@@ -32,6 +32,23 @@ moon = ssapy.get_body("moon").position(times).T
 
 
 def DRO(t, delta_r=7.52064e7, delta_v=344):
+    """
+    Calculate an orbit with adjustments based on the Moon's position and velocity.
+
+    Parameters:
+    ----------
+    t : Time
+        The time at which to calculate the orbit.
+    delta_r : float, optional
+        The adjustment to the Moon's position (default is 7.52064e7 meters).
+    delta_v : float, optional
+        The adjustment to the Moon's velocity (default is 344 meters/second).
+
+    Returns:
+    -------
+    Orbit
+        SSAPy Orbit object.
+    """
     moon = ssapy.get_body("moon")
 
     unit_vector_moon = moon.position(t) / np.linalg.norm(moon.position(t))
