@@ -16,12 +16,42 @@ from astropy.time import Time
 import numpy as np
 
 
-def keplerian_prop(integration_timestep=10):
+def keplerian_prop(integration_timestep: float = 10) -> RK78Propagator:
+    """
+    Create and return an RK78Propagator for a Keplerian orbit.
+
+    This propagator uses only the Keplerian acceleration for a two-body problem.
+
+    Parameters:
+    ----------
+    integration_timestep : float, optional
+        The time step for the RK78Propagator integration (default is 10 seconds).
+
+    Returns:
+    -------
+    RK78Propagator
+        An instance of RK78Propagator configured with Keplerian acceleration.
+    """
     return RK78Propagator(AccelKepler(), h=integration_timestep)
 
 
 accel_3_cache = None
-def threebody_prop(integration_timestep=10):
+def threebody_prop(integration_timestep: float = 10) -> RK78Propagator:
+    """
+    Create and return an RK78Propagator with a set of accelerations for a three-body problem.
+
+    The three bodies considered are Earth (Keplerian effect), Moon, and the Earth itself.
+
+    Parameters:
+    ----------
+    integration_timestep : float, optional
+        The time step for the RK78Propagator integration (default is 10 seconds).
+
+    Returns:
+    -------
+    RK78Propagator
+        An instance of RK78Propagator configured with the three-body accelerations.
+    """
     global accel_3_cache
     if accel_3_cache is None:
         accel_3_cache = AccelKepler() + AccelThirdBody(get_body("moon"))
@@ -29,7 +59,22 @@ def threebody_prop(integration_timestep=10):
 
 
 accel_4_cache = None
-def fourbody_prop(integration_timestep=10):
+def fourbody_prop(integration_timestep: float = 10) -> RK78Propagator:
+    """
+    Create and return an RK78Propagator with a set of accelerations for a four-body problem.
+
+    The four bodies considered are Earth (Keplerian effect), Moon, Sun, and the Earth itself.
+
+    Parameters:
+    ----------
+    integration_timestep : float, optional
+        The time step for the RK78Propagator integration (default is 10 seconds).
+
+    Returns:
+    -------
+    RK78Propagator
+        An instance of RK78Propagator configured with the four-body accelerations.
+    """
     global accel_4_cache
     if accel_4_cache is None:
         accel_4_cache = AccelKepler() + AccelThirdBody(get_body("moon")) + AccelThirdBody(get_body("Sun"))
@@ -38,6 +83,22 @@ def fourbody_prop(integration_timestep=10):
 
 accel_best_cache = None
 def best_prop(integration_timestep=10, kwargs=dict(mass=250, area=.022, CD=2.3, CR=1.3)):
+    """
+    Create and return an RK78Propagator with a comprehensive set of accelerations.
+
+    Parameters:
+    ----------
+    integration_timestep : float, optional
+        The time step for the RK78Propagator integration (default is 10 seconds).
+    kwargs : dict, optional
+        Dictionary of parameters for non-conservative forces (mass, area, CD, CR).
+        If not provided, defaults are used.
+
+    Returns:
+    -------
+    RK78Propagator
+        An instance of RK78Propagator configured with cached accelerations.
+    """
     global accel_best_cache
     if accel_best_cache is None:
         aEarth = AccelKepler() + AccelHarmonic(get_body("Earth", model="EGM2008"), 140, 140)
@@ -57,6 +118,25 @@ def best_prop(integration_timestep=10, kwargs=dict(mass=250, area=.022, CD=2.3, 
 
 
 def ssapy_kwargs(mass=250, area=0.022, CD=2.3, CR=1.3):
+    """
+    Generate a dictionary of default parameters for a space object used in simulations.
+
+    Parameters:
+    ----------
+    mass : float, optional
+        Mass of the object in kilograms (default is 250 kg).
+    area : float, optional
+        Cross-sectional area of the object in square meters (default is 0.022 m^2).
+    CD : float, optional
+        Drag coefficient of the object (default is 2.3).
+    CR : float, optional
+        Radiation pressure coefficient of the object (default is 1.3).
+
+    Returns:
+    -------
+    dict
+        A dictionary containing the parameters for the space object.
+    """
     # Asteroid parameters
     kwargs = dict(
         mass=mass,  # [kg]
@@ -68,6 +148,21 @@ def ssapy_kwargs(mass=250, area=0.022, CD=2.3, CR=1.3):
 
 
 def ssapy_prop(integration_timestep=60, propkw=ssapy_kwargs()):
+    """
+    Setup and return an RK78 propagator with specified accelerations and radiation pressure effects.
+
+    Parameters:
+    ----------
+    integration_timestep : int
+        Time step for the numerical integration (in seconds).
+    propkw : dict, optional
+        Keyword arguments for radiation pressure accelerations. If None, default arguments are used.
+
+    Returns:
+    -------
+    RK78Propagator
+        An RK78 propagator configured with the specified accelerations and time step.
+    """
     # Accelerations - pass a body object or string of body name.
     moon = get_body("moon")
     sun = get_body("Sun")
@@ -143,6 +238,33 @@ def ssapy_orbit(orbit=None, a=None, e=0, i=0, pa=0, raan=0, ta=0, r=None, v=None
 
 # Generate orbits near stable orbit.
 def get_similar_orbits(r0, v0, rad=1e5, num_orbits=4, duration=(90, 'days'), freq=(1, 'hour'), start_date="2025-1-1", mass=250):
+    """
+    Generate similar orbits by varying the initial position.
+
+    Parameters:
+    ----------
+    r0 : array_like
+        Initial position vector of shape (3,).
+    v0 : array_like
+        Initial velocity vector of shape (3,).
+    rad : float
+        Radius of the circle around the initial position to generate similar orbits.
+    num_orbits : int
+        Number of similar orbits to generate.
+    duration : tuple
+        Duration of the orbit simulation.
+    freq : tuple
+        Frequency of output data.
+    start_date : str
+        Start date for the simulation.
+    mass : float
+        Mass of the satellite.
+
+    Returns:
+    -------
+    trajectories : ndarray
+        Stacked array of shape (3, n_times, num_orbits) containing the trajectories.
+    """
     r0 = np.reshape(r0, (1, 3))
     v0 = np.reshape(v0, (1, 3))
     print(r0, v0)
