@@ -12,7 +12,7 @@ v_unit = np.array([1, 0, 0])  # Replace this with your actual unit vector
 
 figs = []
 
-temp_directory = f'{save_folder}rotate_vector_frames/'
+temp_directory = f'{save_folder}/rotate_vector_frames/'
 os.makedirs(temp_directory, exist_ok=True)
 
 i = 0
@@ -21,7 +21,7 @@ for theta in range(0, 181, 20):
         new_unit_vector = ssapy.utils.rotate_vector(v_unit, theta, phi, plot_path=temp_directory, save_idx=i)
         i += 1
 
-gif_path = f"{save_folder}rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
+gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
 ssapy.plotUtils.write_gif(gif_name=gif_path, frames=ssapy.io.sortbynum(ssapy.io.listdir(f'{temp_directory}*')), fps=20)
 shutil.rmtree(temp_directory)
 
@@ -49,15 +49,15 @@ def DRO(t, delta_r=7.52064e7, delta_v=344):
 # DRO
 dro_orbit = DRO(t=times[0])
 r, v, t = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
-ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}DRO_orbit", frame='Lunar', show=False)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/DRO_orbit", frame='Lunar', show=False)
 r_lunar, v_lunar = ssapy.utils.gcrf_to_lunar_fixed(r, t=times, v=True)
 print("Succesfully converted gcrf to lunar frame.")
 ssapy.plotUtils.koe_plot(r, v, t=times, body='Earth', save_path=f"{save_folder}Keplerian_orbital_elements.png")
 
-ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}gcrf_plot.png", frame='gcrf', show=True)
-ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}itrf_plot", frame='itrf', show=True)
-ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}lunar_plot", frame='lunar', show=True)
-ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}lunar_axis_lot", frame='lunar axis', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/gcrf_plot.png", frame='gcrf', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/itrf_plot", frame='itrf', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/lunar_plot", frame='lunar', show=True)
+ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/lunar_axis_lot", frame='lunar axis', show=True)
 print(f"Created a GCRF orbit plot.")
 print(f"Created a ITRF orbit plot.")
 print(f"Created a Lunar orbit plot.")
@@ -65,10 +65,10 @@ print(f"Created a Lunar axis orbit plot.")
 
 # Globe plot of GTO Orbit
 r_geo, _, t_geo = ssapy.simple.ssapy_orbit(a=ssapy.constants.RGEO, e=0.3, t=times)
-ssapy.plotUtils.globe_plot(r=r_geo, t=t_geo, save_path=f"{save_folder}globe_plot", scale=5)
+ssapy.plotUtils.globe_plot(r=r_geo, t=t_geo, save_path=f"{save_folder}/globe_plot", scale=5)
 print('Created a globe plot.')
 
-ssapy.plotUtils.groundTrackPlot(r=r_geo, t=t_geo, ground_stations=None, save_path=f"{save_folder}ground_track_plot")
+ssapy.plotUtils.groundTrackPlot(r=r_geo, t=t_geo, ground_stations=None, save_path=f"{save_folder}/ground_track_plot")
 print('Created a ground track plot.')
 
 # Example usage
@@ -108,7 +108,7 @@ ax.set_title("Lunar Lagrange Points using Moon's true position")
 ax.axis('equal')
 ax.legend()
 plt.show()
-ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}lagrange_points")
+ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}/lagrange_points")
 
 # Plotting
 fig = plt.figure(figsize=(8, 8))
@@ -143,7 +143,7 @@ ax.set_title('Lunar Lagrange Points assuming circular orbit.')
 ax.axis('equal')
 ax.legend()
 plt.show()
-ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}lagrange_points")
+ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}/lagrange_points")
 
 print(f"Lagrange points were calculated correctly.")
 print(f"Rotate vector plot successfully created.")
