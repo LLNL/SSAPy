@@ -1748,9 +1748,9 @@ def moon_normal_vector(t):
 
 def lunar_lagrange_points(t):
     """
-    Calculate the positions of the Lagrange points in the Lunar frame at a given time.
+    Calculate the positions of the Lagrange points in the GCRF frame at a given time.
 
-    This function computes the positions of the five Lagrange points (L1, L2, L3, L4, and L5) in the Earth-Moon system at a specific time `t`. It considers the positions of the Earth and Moon and uses these to determine the locations of the Lagrange points.
+    This function computes the positions of the five Lagrange points (L1, L2, L3, L4, and L5) in the Earth-Moon system at a specific time `t`. It considers the positions of the Earth and Moon and uses the orbital period of the Moon to find the Lagrange points.
 
     Parameters:
     ----------
@@ -1816,7 +1816,7 @@ def lunar_lagrange_points(t):
 
 def lunar_lagrange_points_circular(t):
     """
-    Calculate the positions of the Lagrange points in the Lunar frame for a given time.
+    Calculate the positions of the Lagrange points in the GCRF frame for a given time.
 
     This function calculates the positions of the five Lagrange points (L1, L2, L3, L4, and L5) in the Earth-Moon system at a specific time `t`. It accounts for the rotation of the Moon's orbit around the Earth, providing the positions in a circular approximation of the Earth-Moon system.
 
@@ -1892,7 +1892,7 @@ def lunar_lagrange_points_circular(t):
 
 def lagrange_points_lunar_frame():
     """
-    Calculate the positions of the Lunar Lagrange points in the Lunar frame.
+    Calculate the positions of the Lunar Lagrange points in the Lunar frame, This frame is defined by the coordinate transformation in utils.py gcrf_to_lunar().
 
     Returns:
     -------
