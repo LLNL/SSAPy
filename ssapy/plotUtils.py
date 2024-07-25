@@ -132,7 +132,7 @@ def drawMoon(time, ngrid=100, R=MOON_RADIUS, rfactor=1):
     )
 
 
-def groundTrackPlot(r, t, ground_stations=None, save_path=False):
+def ground_track_plot(r, t, ground_stations=None, save_path=False):
     """
     Parameters
     ----------
@@ -331,12 +331,12 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
 
         if orbit_index == '':
             angle = 0
-            dotcolors = cm.rainbow(np.linspace(0, 1, len(x)))
+            scatter_dot_colors = cm.rainbow(np.linspace(0, 1, len(x)))
         else:
             angle = orbit_index * 10
-            dotcolors = cm.rainbow(np.linspace(0, 1, num_orbits))[orbit_index]
+            scatter_dot_colors = cm.rainbow(np.linspace(0, 1, num_orbits))[orbit_index]
         ax1.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
-        ax1.scatter(x, y, color=dotcolors, s=1)
+        ax1.scatter(x, y, color=scatter_dot_colors, s=1)
         ax1.scatter(0, 0, color=stn[0], s=stn[1])
         if xm is not False:
             ax1.scatter(stn[3], stn[4], color=stn[6], s=5)
@@ -357,7 +357,7 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                 ax1.text(pos[0], pos[1], point, color=color)
 
         ax2.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
-        ax2.scatter(x, z, color=dotcolors, s=1)
+        ax2.scatter(x, z, color=scatter_dot_colors, s=1)
         ax2.scatter(0, 0, color=stn[0], s=stn[1])
         if xm is not False:
             ax2.scatter(stn[3], stn[5], color=stn[6], s=5)
@@ -378,7 +378,7 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                 ax2.text(pos[0], pos[2], point, color=color)
 
         ax3.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
-        ax3.scatter(y, z, color=dotcolors, s=1)
+        ax3.scatter(y, z, color=scatter_dot_colors, s=1)
         ax3.scatter(0, 0, color=stn[0], s=stn[1])
         if xm is not False:
             ax3.scatter(stn[4], stn[5], color=stn[6], s=5)
@@ -398,7 +398,7 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                 ax3.scatter(pos[1], pos[2], color=color, label=point)
                 ax3.text(pos[1], pos[2], point, color=color)
 
-        ax4.scatter3D(x, y, z, color=dotcolors, s=1)
+        ax4.scatter3D(x, y, z, color=scatter_dot_colors, s=1)
         ax4.scatter3D(0, 0, 0, color=stn[0], s=stn[1])
         if xm is not False:
             ax4.scatter3D(stn[3], stn[4], stn[5], color=stn[6], s=5)
@@ -511,14 +511,14 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
     mesh_y = np.outer(np.sin(lons), np.cos(lats)).T * EARTH_RADIUS / RGEO
     mesh_z = np.outer(np.ones(np.size(lons)), np.sin(lats)).T * EARTH_RADIUS / RGEO
 
-    dotcolors = plt.cm.rainbow(np.linspace(0, 1, len(x)))
+    scatter_dot_colors = plt.cm.rainbow(np.linspace(0, 1, len(x)))
     fig = plt.figure(dpi=100, figsize=figsize)
     ax = fig.add_subplot(111, projection='3d')
     fig.patch.set_facecolor('black')
     ax.tick_params(axis='both', colors='white')
     ax.grid(True, color='grey', linestyle='--', linewidth=0.5)
     ax.set_facecolor('black')  # Set plot background color to black
-    ax.scatter(x, y, z, color=dotcolors, s=1)
+    ax.scatter(x, y, z, color=scatter_dot_colors, s=1)
     ax.plot_surface(mesh_x, mesh_y, mesh_z, rstride=4, cstride=4, facecolors=bm, shade=False)
     ax.view_init(elev=el, azim=az)
     ax.set_xlim([-limits, limits])
@@ -539,7 +539,7 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
 
 def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
     """
-    Plot orbital elements over time for a given trajectory.
+    Plot Keplerian orbital elements over time for a given trajectory.
 
     Parameters:
     - r (array-like): Position vectors for the orbit.
@@ -608,9 +608,9 @@ def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 36
     return fig, ax1
 
 
-def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable cislunar orbits", limits=[1, 50], bins=200, logscale=False, cmap='coolwarm', save_path=False):
+def koe_hist_2d(stable_data, title="Initial orbital elements of\n1 year stable cislunar orbits", limits=[1, 50], bins=200, logscale=False, cmap='coolwarm', save_path=False):
     """
-    Create a 2D histogram plot for various orbital elements of stable cislunar orbits.
+    Create a 2D histogram plot for various Keplerian orbital elements of stable cislunar orbits.
 
     Parameters:
     - stable_data (object): An object with attributes `a`, `e`, `i`, and `ta`, which are arrays of semi-major axis, eccentricity, inclination, and true anomaly, respectively.
@@ -629,7 +629,7 @@ def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable ci
     Example usage:
     ```
     import numpy as np
-    from your_module import koe_2dhist
+    from your_module import koe_hist_2d
 
     # Example data
     class StableData:
@@ -640,7 +640,7 @@ def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable ci
             self.ta = np.radians(np.random.uniform(0, 360, 1000))
 
     stable_data = StableData()
-    koe_2dhist(stable_data, save_path='orbit_histograms.pdf')
+    koe_hist_2d(stable_data, save_path='orbit_histograms.pdf')
     ```
     """
     if logscale or logscale == 'log':
@@ -707,7 +707,7 @@ def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable ci
 
 
 
-def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize=1, colorsMap='jet', colorscale='linear', colormin=False, colormax=False, save_path=False):
+def scatter_2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize=1, colorsMap='jet', colorscale='linear', colormin=False, colormax=False, save_path=False):
     """
     Create a 2D scatter plot with optional color mapping.
 
@@ -737,14 +737,14 @@ def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize
     Example usage:
     ```
     import numpy as np
-    from your_module import scatter2d
+    from your_module import scatter_2d
 
     # Example data
     x = np.random.rand(100)
     y = np.random.rand(100)
     cs = np.random.rand(100)
 
-    scatter2d(x, y, cs, xlabel='X-axis', ylabel='Y-axis', cbar_label='Color Scale', title='2D Scatter Plot')
+    scatter_2d(x, y, cs, xlabel='X-axis', ylabel='Y-axis', cbar_label='Color Scale', title='2D Scatter Plot')
     ```
     """
     fig = plt.figure()
@@ -773,7 +773,7 @@ def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize
     return
 
 
-def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cbar_label='', dotsize=1, colorsMap='jet', title='', save_path=False):
+def scatter_3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cbar_label='', dotsize=1, colorsMap='jet', title='', save_path=False):
     """
     Create a 3D scatter plot with optional color mapping.
 
@@ -801,7 +801,7 @@ def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cb
     Example usage:
     ```
     import numpy as np
-    from your_module import scatter3d
+    from your_module import scatter_3d
 
     # Example data
     x = np.random.rand(100)
@@ -809,7 +809,7 @@ def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cb
     z = np.random.rand(100)
     cs = np.random.rand(100)
 
-    scatter3d(x, y, z, cs, xlabel='X-axis', ylabel='Y-axis', zlabel='Z-axis', cbar_label='Color Scale', title='3D Scatter Plot')
+    scatter_3d(x, y, z, cs, xlabel='X-axis', ylabel='Y-axis', zlabel='Z-axis', cbar_label='Color Scale', title='3D Scatter Plot')
     ```
     """
     fig = plt.figure()
@@ -840,11 +840,10 @@ def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cb
     return fig, ax
 
 
-def dotcolors_scaled(num_colors):
+def scatter_dot_colors_scaled(num_colors):
     return cm.rainbow(np.linspace(0, 1, num_colors))
 
 
-# Make a plot of multiple cislunar orbit in GCRF frame.
 def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_path=False):
     """
     Plot multiple cislunar orbits in the GCRF frame with respect to the Earth and Moon.
@@ -901,11 +900,11 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
         xm = r_moon[0] / RGEO
         ym = r_moon[1] / RGEO
         zm = r_moon[2] / RGEO
-        dotcolors = cm.rainbow(np.linspace(0, 1, len(x)))
+        scatter_dot_colors = cm.rainbow(np.linspace(0, 1, len(x)))
 
         # Creating plot
         plt.subplot(1, 3, 1)
-        plt.scatter(x, y, color=dotcolors, s=1)
+        plt.scatter(x, y, color=scatter_dot_colors, s=1)
         plt.scatter(0, 0, color="blue", s=50)
         plt.scatter(xm, ym, color="grey", s=5)
         plt.axis('scaled')
@@ -917,7 +916,7 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
         plt.text(x[-1], y[-1], '$\leftarrow$ end')
 
         plt.subplot(1, 3, 2)
-        plt.scatter(x, z, color=dotcolors, s=1)
+        plt.scatter(x, z, color=scatter_dot_colors, s=1)
         plt.scatter(0, 0, color="blue", s=50)
         plt.scatter(xm, zm, color="grey", s=5)
         plt.axis('scaled')
@@ -930,7 +929,7 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
         plt.title(f'{title}')
 
         plt.subplot(1, 3, 3)
-        plt.scatter(y, z, color=dotcolors, s=1)
+        plt.scatter(y, z, color=scatter_dot_colors, s=1)
         plt.scatter(0, 0, color="blue", s=50)
         plt.scatter(ym, zm, color="grey", s=5)
         plt.axis('scaled')

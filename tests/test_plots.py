@@ -85,7 +85,7 @@ r_geo, _, t_geo = ssapy.simple.ssapy_orbit(a=ssapy.constants.RGEO, e=0.3, t=time
 ssapy.plotUtils.globe_plot(r=r_geo, t=t_geo, save_path=f"{save_folder}/globe_plot", scale=5)
 print('Created a globe plot.')
 
-ssapy.plotUtils.groundTrackPlot(r=r_geo, t=t_geo, ground_stations=None, save_path=f"{save_folder}/ground_track_plot")
+ssapy.plotUtils.ground_track_plot(r=r_geo, t=t_geo, ground_stations=None, save_path=f"{save_folder}/ground_track_plot")
 print('Created a ground track plot.')
 
 # Example usage
