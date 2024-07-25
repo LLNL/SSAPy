@@ -1212,9 +1212,9 @@ def nby3shape(arr_):
 
 def calculate_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
     """
-    Calculate the orbital elements from position and velocity vectors.
+    Calculate the Keplerian orbital elements from position and velocity vectors.
 
-    This function computes the orbital elements (semi-major axis, eccentricity, inclination, true longitude, argument of periapsis, longitude of ascending node, true anomaly, and specific angular momentum) for one or more celestial objects given their position and velocity vectors.
+    This function computes the Keplerian orbital elements (semi-major axis, eccentricity, inclination, true longitude, argument of periapsis, longitude of ascending node, true anomaly, and specific angular momentum) for one or more celestial objects given their position and velocity vectors.
 
     Parameters:
     ----------
