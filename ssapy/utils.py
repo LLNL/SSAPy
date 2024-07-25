@@ -1168,7 +1168,39 @@ def unit_vector(vector):
     return vector / np.linalg.norm(vector)
 
 
-def getAngle(a, b, c):  # a,b,c where b is the vertex
+def get_angle(a, b, c):  # a,b,c where b is the vertex
+    """
+    Calculate the angle between two vectors where b is the vertex of the angle.
+
+    This function computes the angle between vectors `ba` and `bc`, where `b` is the vertex and `a` and `c` are the endpoints of the angle.
+
+    Parameters:
+    ----------
+    a : (n, 3) numpy.ndarray
+        Array of coordinates representing the first vector.
+    b : (n, 3) numpy.ndarray
+        Array of coordinates representing the vertex of the angle.
+    c : (n, 3) numpy.ndarray
+        Array of coordinates representing the second vector.
+
+    Returns:
+    -------
+    numpy.ndarray
+        Array of angles (in radians) between the vectors `ba` and `bc`.
+
+    Notes:
+    ------
+    - The function handles multiple vectors by using broadcasting.
+    - The angle is calculated using the dot product formula and the arccosine function.
+
+    Example:
+    --------
+    >>> a = np.array([[1, 0, 0]])
+    >>> b = np.array([[0, 0, 0]])
+    >>> c = np.array([[0, 1, 0]])
+    >>> get_angle(a, b, c)
+    array([1.57079633])
+    """
     a = np.atleast_2d(a)
     b = np.atleast_2d(b)
     c = np.atleast_2d(c)
