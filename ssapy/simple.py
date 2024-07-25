@@ -236,7 +236,6 @@ def ssapy_orbit(orbit=None, a=None, e=0, i=0, pa=0, raan=0, ta=0, r=None, v=None
         return np.nan, np.nan, np.nan
 
 
-# Generate orbits near stable orbit.
 def get_similar_orbits(r0, v0, rad=1e5, num_orbits=4, duration=(90, 'days'), freq=(1, 'hour'), start_date="2025-1-1", mass=250):
     """
     Generate similar orbits by varying the initial position.
