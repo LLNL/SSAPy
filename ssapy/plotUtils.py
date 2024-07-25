@@ -24,7 +24,7 @@ def load_earth_file():
     return earth
 
 
-def drawEarth(time, ngrid=100, R=EARTH_RADIUS, rfactor=1):
+def draw_earth(time, ngrid=100, R=EARTH_RADIUS, rfactor=1):
     """
     Parameters
     ----------
@@ -81,7 +81,7 @@ def load_moon_file():
     return moon
 
 
-def drawMoon(time, ngrid=100, R=MOON_RADIUS, rfactor=1):
+def draw_moon(time, ngrid=100, R=MOON_RADIUS, rfactor=1):
     """
     Parameters
     ----------
@@ -171,7 +171,7 @@ def groundTrackVideo(r, time):
     ipv.style.box_off()
     ipv.style.axes_off()
     widgets = []
-    widgets.append(drawEarth(time))
+    widgets.append(draw_earth(time))
     widgets.append(
         ipv.scatter(
             r[:, 0, None],
