@@ -592,7 +592,7 @@ def load_b3obs_file(file_name):
 # =============================================================================
 # File Handling Functions
 # =============================================================================
-def file_exists(filename):
+def file_exists_extension_agnostic(filename):
     """
     Check if a file with the given name and any extension exists.
 
