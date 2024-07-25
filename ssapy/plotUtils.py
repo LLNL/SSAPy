@@ -531,7 +531,7 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
     ax.tick_params(axis='y', colors='white')  # Set y-axis tick color to white
     ax.tick_params(axis='z', colors='white')  # Set z-axis tick color to white
     ax.set_aspect('equal')
-    fig, ax = make_black(fig, ax)
+    fig, ax = set_color_theme(fig, ax, theme='black')
     if save_path:
         save_plot(fig, save_path)
     return fig, ax
@@ -577,7 +577,7 @@ def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 36
     fig.patch.set_facecolor('white')
     ax1.plot([], [], label='semi-major axis [GEO]', c='C0', linestyle='-')
     ax2 = ax1.twinx()
-    make_white(fig, *[ax1, ax2])
+    set_color_theme(fig, *[ax1, ax2], theme='white')
 
     ax1.plot(Time(t).decimalyear, [x for x in orbital_elements['e']], label='eccentricity', c='C1')
     ax1.plot(Time(t).decimalyear, [x for x in orbital_elements['i']], label='inclination [rad]', c='C2')
@@ -700,7 +700,7 @@ def koe_2dhist(stable_data, title="Initial orbital elements of\n1 year stable ci
     im = fig.subplots_adjust(right=0.8)
     cbar_ax = fig.add_axes([0.82, 0.15, 0.01, 0.7])
     fig.colorbar(im, cax=cbar_ax, norm=norm, cmap=cmap)
-    fig, ax = make_white(fig, ax)
+    fig, ax = set_color_theme(fig, ax, theme='white')
     if save_path:
         save_plot(fig, save_path)
     return fig
@@ -766,7 +766,7 @@ def scatter2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize
     scalarMap.set_array(cs)
     fig.colorbar(scalarMap, shrink=.5, label=f'{cbar_label}', pad=0.04)
     plt.tight_layout()
-    fig, ax = make_black(fig, ax)
+    fig, ax = set_color_theme(fig, ax, theme='black')
     plt.show(block=False)
     if save_path:
         save_plot(fig, save_path)
@@ -833,7 +833,7 @@ def scatter3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cb
     ax.set_zlabel(zlabel)
     plt.title(title)
     plt.tight_layout()
-    fig, ax = make_black(fig, ax)
+    fig, ax = set_color_theme(fig, ax, theme='black')
     plt.show(block=False)
     if save_path:
         save_plot(fig, save_path)
@@ -947,20 +947,21 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
     return
 
 
-def make_white(fig, *axes):
+def set_color_theme(fig, *axes, theme):
     """
-    Set the background color of the figure and axes to white and the text color to black.
+    Set the color theme of the figure and axes to white or black and the text color to white or black.
 
     Parameters:
     - fig (matplotlib.figure.Figure): The figure to modify.
     - axes (list of matplotlib.axes._subplots.AxesSubplot): One or more axes to modify.
-
+    - theme (str) either black/dark or white.
+    
     Returns:
     - fig (matplotlib.figure.Figure): The modified figure.
     - axes (tuple of matplotlib.axes._subplots.AxesSubplot): The modified axes.
 
-    This function changes the background color of the given figure and its axes to white. 
-    It also sets the color of all text items (title, labels, tick labels) to black.
+    This function changes the background color of the given figure and its axes to black or white. 
+    It also sets the color of all text items (title, labels, tick labels) to white or black.
 
     Example usage:
     ```
@@ -968,14 +969,21 @@ def make_white(fig, *axes):
 
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [4, 5, 6])
-    make_white(fig, ax)
+    set_color_theme(fig, ax, theme='black')
     plt.show()
     ```
     """
-    fig.patch.set_facecolor('white')
+    if theme == 'black' or theme == 'dark':
+        background = 'black'
+        secondary = 'white'
+    else:
+        background = 'white'
+        secondary = 'black'
+    
+    fig.patch.set_facecolor(background)
 
     for ax in axes:
-        ax.set_facecolor('white')
+        ax.set_facecolor(background)
         ax_items = [ax.title, ax.xaxis.label, ax.yaxis.label]
         if hasattr(ax, 'zaxis'):
             ax_items.append(ax.zaxis.label)
@@ -986,51 +994,7 @@ def make_white(fig, *axes):
         if hasattr(ax, 'get_zticklines'):
             ax_items += ax.get_zticklines()
         for item in ax_items:
-            item.set_color('black')
-
-    return fig, axes
-
-
-def make_black(fig, *axes):
-    """
-    Set the background color of the figure and axes to black and the text color to white.
-
-    Parameters:
-    - fig (matplotlib.figure.Figure): The figure to modify.
-    - axes (list of matplotlib.axes._subplots.AxesSubplot): One or more axes to modify.
-
-    Returns:
-    - fig (matplotlib.figure.Figure): The modified figure.
-    - axes (tuple of matplotlib.axes._subplots.AxesSubplot): The modified axes.
-
-    This function changes the background color of the given figure and its axes to black. 
-    It also sets the color of all text items (title, labels, tick labels) to white.
-
-    Example usage:
-    ```
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-    ax.plot([1, 2, 3], [4, 5, 6])
-    make_black(fig, ax)
-    plt.show()
-    ```
-    """
-    fig.patch.set_facecolor('black')
-
-    for ax in axes:
-        ax.set_facecolor('black')
-        ax_items = [ax.title, ax.xaxis.label, ax.yaxis.label]
-        if hasattr(ax, 'zaxis'):
-            ax_items.append(ax.zaxis.label)
-        ax_items += ax.get_xticklabels() + ax.get_yticklabels()
-        if hasattr(ax, 'get_zticklabels'):
-            ax_items += ax.get_zticklabels()
-        ax_items += ax.get_xticklines() + ax.get_yticklines()
-        if hasattr(ax, 'get_zticklines'):
-            ax_items += ax.get_zticklines()
-        for item in ax_items:
-            item.set_color('white')
+            item.set_color(secondary)
 
     return fig, axes
 
