@@ -679,7 +679,7 @@ def rmfile(pathname):
     return
 
 
-def sortbynum(files):
+def sortbynum(files, index=0):
     """
     Sorts a list of file paths based on numeric values in the filenames.
 
@@ -690,6 +690,8 @@ def sortbynum(files):
     ----------
     files : list
         List of file paths to be sorted. Each file path can be a full path or just a filename.
+    index: int
+        Index of the number in the string do you want to sort on.
 
     Returns:
     -------
@@ -722,12 +724,12 @@ def sortbynum(files):
         file_prefix = '/'.join(files[0].split('/')[:-1])
         for file in files:
             files_shortened.append(file.split('/')[-1])
-        files_sorted = sorted(files_shortened, key=lambda x: float(re.findall("(\d+)", x)[0]))
+        files_sorted = sorted(files_shortened, key=lambda x: float(re.findall("(\d+)", x)[index]))
         sorted_files = []
         for file in files_sorted:
             sorted_files.append(f'{file_prefix}/{file}')
     else:
-        sorted_files = sorted(files, key=lambda x: float(re.findall("(\d+)", x)[0]))
+        sorted_files = sorted(files, key=lambda x: float(re.findall("(\d+)", x)[index]))
     return sorted_files
 
 
