@@ -4,6 +4,9 @@ Collection of functions to read from and write to various file formats.
 
 import datetime
 import numpy as np
+import os
+import csv
+import pandas as pd
 from astropy.time import Time
 import astropy.units as u
 from .constants import EARTH_MU
@@ -590,100 +593,57 @@ def load_b3obs_file(file_name):
     }
     return catalog
 
-######################################################################
-# MPI
-######################################################################
-
-
-def mpi_scatter(scatter_array):
-    from mpi4py import MPI
-
-    comm = MPI.COMM_WORLD  # Defines the default communicator
-    num_procs = comm.Get_size()  # Stores the number of processes in size.
-    rank = comm.Get_rank()  # Stores the rank (pid) of the current process
-    # stat = MPI.Status()
-    print(f'Number of procs: {num_procs}, rank: {rank}')
-    remainder = np.size(scatter_array) % num_procs
-    base_load = np.size(scatter_array) // num_procs
-    if rank == 0:
-        print('All processors will process at least {0} simulations.'.format(
-            base_load))
-        print('{0} processors will process an additional simulations'.format(
-            remainder))
-    load_list = np.concatenate((np.ones(remainder) * (base_load + 1),
-                                np.ones(num_procs - remainder) * base_load))
-    if rank == 0:
-        print('load_list={0}'.format(load_list))
-    if rank < remainder:
-        scatter_array_local = np.zeros(base_load + 1, dtype=np.int64)
-    else:
-        scatter_array_local = np.zeros(base_load, dtype=np.int64)
-    disp = np.zeros(num_procs)
-    for i in range(np.size(load_list)):
-        if i == 0:
-            disp[i] = 0
-        else:
-            disp[i] = disp[i - 1] + load_list[i - 1]
-    comm.Scatterv([scatter_array, load_list, disp, MPI.DOUBLE], scatter_array_local)
-    print(f"Process {rank} received the scattered arrays: {scatter_array_local}")
-    return scatter_array_local, rank
-
-
-def mpi_scatter_exclude_rank_0(scatter_array):
-    # Function is for rank 0 to be used as a saving processor - all other processors will complete tasks.
-    from mpi4py import MPI
-
-    comm = MPI.COMM_WORLD
-    num_procs = comm.Get_size()
-    rank = comm.Get_rank()
-    print(f'Number of procs: {num_procs}, rank: {rank}')
-
-    num_workers = num_procs - 1
-    remainder = np.size(scatter_array) % num_workers
-    base_load = np.size(scatter_array) // num_workers
-
-    if rank == 0:
-        print(f'All processors will process at least {base_load} simulations.')
-        print(f'{remainder} processors will process an additional simulation.')
-
-    load_list = np.concatenate((np.zeros(1), np.ones(remainder) * (base_load + 1),
-                                np.ones(num_workers - remainder) * base_load))
-
-    if rank == 0:
-        print(f'load_list={load_list}')
-
-    scatter_array_local = np.zeros(int(load_list[rank]), dtype=np.int64)
-
-    disp = np.zeros(num_procs)
-    for i in range(1, num_procs):
-        disp[i] = disp[i - 1] + load_list[i - 1]
-
-    if rank == 0:
-        dummy_recvbuf = np.zeros(1, dtype=np.int64)
-        comm.Scatterv([scatter_array, load_list, disp, MPI.INT64_T], dummy_recvbuf)
-    else:
-        comm.Scatterv([scatter_array, load_list, disp, MPI.INT64_T], scatter_array_local)
-        print(f"Process {rank} received the {len(scatter_array_local)} element scattered array: {scatter_array_local}")
-
-    return scatter_array_local, rank
-
 # =============================================================================
 # File Handling Functions
 # =============================================================================
-import os
+def file_exists_extension_agnostic(filename):
+    """
+    Check if a file with the given name and any extension exists.
+
+    Parameters:
+    ----------
+    filename : str
+        The name of the file to check, without extension.
+
+    Returns:
+    -------
+    bool
+        True if a file with the given name and any extension exists, False otherwise.
+    """
+    from glob import glob
+    name, _ = os.path.splitext(filename)
+    return bool(glob(f"{name}.*"))
 
 
 def exists(pathname):
-    if os.path.isdir(pathname):
-        exists = True
-    elif os.path.isfile(pathname):
-        exists = True
+    """
+    Check if a file or directory exists.
+
+    Parameters:
+    ----------
+    pathname : str
+        The path to the file or directory.
+
+    Returns:
+    -------
+    bool
+        True if the path exists as either a file or a directory, False otherwise.
+    """
+    if os.path.isdir(pathname) or os.path.isfile(pathname):
+        return True
     else:
-        exists = False
-    return exists
+        return False
 
 
 def mkdir(pathname):
+    """
+    Creates a directory if it does not exist.
+
+    Parameters:
+    ----------
+    pathname : str
+        The path to the directory to be created.
+    """
     if not exists(pathname):
         os.makedirs(pathname)
         print("Directory '%s' created" % pathname)        
@@ -691,6 +651,14 @@ def mkdir(pathname):
 
 
 def rmdir(source_):
+    """
+    Deletes a directory and its contents if it exists.
+
+    Parameters:
+    ----------
+    source_ : str
+        The path to the directory to be deleted.
+    """
     if not exists(source_):
         print(f'{source_}, does not exist, no delete.')
     else:
@@ -701,14 +669,99 @@ def rmdir(source_):
 
 
 def rmfile(pathname):
+    """
+    Deletes a file if it exists.
+
+    Parameters:
+    ----------
+    pathname : str
+        The path to the file to be deleted.
+    """
     if exists(pathname):
         os.remove(pathname)
         print("File: '%s' deleted." % pathname)        
     return
 
 
-def listdir(dir_path='*', files_only=False, exclude=None):
+def _sortbynum(files, index=0):
+    """
+    Sorts a list of file paths based on numeric values in the filenames.
+
+    This function assumes that each filename contains at least one numeric value
+    and sorts the files based on the first numeric value found in the filename.
+
+    Parameters:
+    ----------
+    files : list
+        List of file paths to be sorted. Each file path can be a full path or just a filename.
+    index: int
+        Index of the number in the string do you want to sort on.
+
+    Returns:
+    -------
+    list
+        List of file paths sorted by numeric values in their filenames.
+
+    Notes:
+    -----
+    - This function extracts the first numeric value it encounters in each filename.
+    - If no numeric value is found in a filename, the function may raise an error.
+    - The numeric value can appear anywhere in the filename.
+    - The function does not handle cases where filenames have different directory prefixes.
+    
+    Raises:
+    ------
+    ValueError:
+        If a filename does not contain any numeric value.
+
+    Examples:
+    --------
+    >>> _sortbynum(['file2.txt', 'file10.txt', 'file1.txt'])
+    ['file1.txt', 'file2.txt', 'file10.txt']
+
+    >>> _sortbynum(['/path/to/file2.txt', '/path/to/file10.txt', '/path/to/file1.txt'])
+    ['/path/to/file1.txt', '/path/to/file2.txt', '/path/to/file10.txt']
+    """
+    import re
+    if len(files[0].split('/')) > 1:
+        files_shortened = []
+        file_prefix = '/'.join(files[0].split('/')[:-1])
+        for file in files:
+            files_shortened.append(file.split('/')[-1])
+        files_sorted = sorted(files_shortened, key=lambda x: float(re.findall("(\d+)", x)[index]))
+        sorted_files = []
+        for file in files_sorted:
+            sorted_files.append(f'{file_prefix}/{file}')
+    else:
+        sorted_files = sorted(files, key=lambda x: float(re.findall("(\d+)", x)[index]))
+    return sorted_files
+
+
+def listdir(dir_path='*', files_only=False, exclude=None, sorted=False, index=0):
+    """
+    Lists files and directories in a specified path with optional filtering and sorting.
+
+    Parameters:
+    ----------
+    dir_path : str, default='*'
+        The directory path or pattern to match files and directories.
+    files_only : bool, default=False
+        If True, only returns files, excluding directories.
+    exclude : str or None, optional
+        If specified, excludes files and directories whose base name contains this string.
+    sorted : bool, default=False
+        If True, sorts the resulting list by numeric values in filenames.
+    index : int, default=0
+        sorted required to be true. Index of the digit used for sorting.
+
+    Returns:
+    -------
+    list
+        A list of file or directory paths based on the specified filters and sorting.
+    """
     from glob import glob
+    if '*' not in dir_path:
+        dir_path = os.path.join(dir_path, '*')
     expanded_paths = glob(dir_path)
 
     if files_only:
@@ -721,7 +774,10 @@ def listdir(dir_path='*', files_only=False, exclude=None):
     if exclude:
         new_files = [file for file in files if exclude not in os.path.basename(file)]
         files = new_files
-    return sorted(files)
+    if sorted:
+        return _sortbynum(files, index=index)
+    else:
+        return files
 
 
 def get_memory_usage():
@@ -737,7 +793,7 @@ def get_memory_usage():
 ######################################################################
 
 
-def psave(filename_, data_):
+def save_pickle(filename_, data_):
     from six.moves import cPickle as pickle  # for performance
     with open(filename_, 'wb') as f:
         pickle.dump(data_, f)
@@ -745,7 +801,7 @@ def psave(filename_, data_):
     return
 
 
-def pload(filename_):
+def load_pickle(filename_):
     from six.moves import cPickle as pickle  # for performance
     try:
         # print('Openning: ' + current_filename)
@@ -762,16 +818,40 @@ def merge_dicts(file_names, save_path):
     number_of_files = len(file_names); master_dict = {}
     for count, file in enumerate(file_names):
         print(f'Merging dict: {count+1} of {number_of_files}, name: {file}, num of master keys: {len(master_dict.keys())}, num of new keys: {len(master_dict.keys())}')
-        master_dict.update(pload(file))
+        master_dict.update(load_pickle(file))
     print('Beginning final save.')
-    psave(save_path, master_dict)
+    save_pickle(save_path, master_dict)
     return
+
+
 ######################################################################
 # Sliceable Numpys save and load
 ######################################################################
 
 
-def npsave(filename_, data_):
+def save_np(filename_, data_):
+    """
+    Save a NumPy array to a binary file.
+
+    This function saves a NumPy array to a file in .npy format. If the file cannot be created or written to, it handles common exceptions and prints an error message.
+
+    Parameters:
+    ----------
+    filename_ : str
+        The path to the file where the NumPy array will be saved.
+    data_ : numpy.ndarray
+        The NumPy array to be saved.
+
+    Returns:
+    -------
+    None
+        The function does not return any value. It handles exceptions internally and prints error messages if any issues occur.
+
+    Examples:
+    --------
+    >>> arr = np.array([1, 2, 3, 4, 5])
+    >>> save_np('array.npy', arr)
+    """
     try:
         with open(filename_, 'wb') as f:
             np.save(filename_, data_, allow_pickle=True)
@@ -781,7 +861,28 @@ def npsave(filename_, data_):
         return
 
 
-def npload(filename_):
+def load_np(filename_):
+    """
+    Load a NumPy array from a binary file.
+
+    This function loads a NumPy array from a file in .npy format. If the file cannot be read, it handles common exceptions and prints an error message. If loading fails, it returns an empty list.
+
+    Parameters:
+    ----------
+    filename_ : str
+        The path to the file from which the NumPy array will be loaded.
+
+    Returns:
+    -------
+    numpy.ndarray or list
+        The loaded NumPy array. If an error occurs during loading, returns an empty list.
+
+    Examples:
+    --------
+    >>> arr = load_np('array.npy')
+    >>> print(arr)
+    [1 2 3 4 5]
+    """
     try:
         with open(filename_, 'rb') as f:
             data = np.load(filename_, allow_pickle=True)
@@ -798,7 +899,7 @@ import h5py
 ######################################################################
 
 
-def h5append(filename, pathname, append_data):
+def append_h5(filename, pathname, append_data):
     """
     Append data to key in HDF5 file.
 
@@ -811,20 +912,21 @@ def h5append(filename, pathname, append_data):
         None
     """
     try:
-        with h5py.File(filename, "r+") as f:
+        with h5py.File(filename, "a") as f:
             if pathname in f:
                 path_data_old = np.array(f.get(pathname))
-                new_data = np.append(path_data_old, np.array(append_data))
-                f[pathname] = new_data
-            else:
-                f.create_dataset(pathname, data=np.array(append_data), maxshape=None)
+                append_data = np.append(path_data_old, np.array(append_data))
+                del f[pathname]
+            f.create_dataset(pathname, data=np.array(append_data), maxshape=None)
     except FileNotFoundError:
-        print(f"File not found: {filename}")
+        print(f"File not found: {filename}\nCreating new dataset: {filename}")
+        save_h5(filename, pathname, append_data)
+
     except (ValueError, KeyError) as err:
         print(f"Error: {err}")
 
 
-def h5overwrite(filename, pathname, new_data):
+def overwrite_h5(filename, pathname, new_data):
     """
     Overwrite key in HDF5 file.
 
@@ -836,93 +938,223 @@ def h5overwrite(filename, pathname, new_data):
     Returns:
         None
     """
+
     try:
-        with h5py.File(filename, "a") as f:
-            f.create_dataset(pathname, data=new_data, maxshape=None)
-        f.close()
-    except (FileNotFoundError, ValueError, KeyError):
-        try:
-            with h5py.File(filename, 'r+') as f:
-                del f[pathname]
-            f.close()
-        except (FileNotFoundError, ValueError, KeyError) as err:
-            print(f'Error: {err}')
         try:
             with h5py.File(filename, "a") as f:
                 f.create_dataset(pathname, data=new_data, maxshape=None)
             f.close()
-        except (FileNotFoundError, ValueError, KeyError) as err:
-            print(f'File: {filename}{pathname}, Error: {err}')
+        except (FileNotFoundError, ValueError, KeyError):
+            try:
+                with h5py.File(filename, 'r+') as f:
+                    del f[pathname]
+                f.close()
+            except (FileNotFoundError, ValueError, KeyError) as err:
+                print(f'Error: {err}')
+            try:
+                with h5py.File(filename, "a") as f:
+                    f.create_dataset(pathname, data=new_data, maxshape=None)
+                f.close()
+            except (FileNotFoundError, ValueError, KeyError) as err:
+                print(f'File: {filename}{pathname}, Error: {err}')
+    except (BlockingIOError, OSError) as err:
+        print(f"\n{err}\nPath: {pathname}\nFile: {filename}\n")
+        return None
+            
 
-
-def h5save(filename, pathname, data):
+def save_h5(filename, pathname, data):
     """
-    Save data to HDF5 file.
+    Save data to HDF5 file with recursive attempt in case of write errors.
 
     Args:
         filename (str): The filename of the HDF5 file.
         pathname (str): The path to the data in the HDF5 file.
         data (any): The data to be saved.
+        max_retries (int): Maximum number of recursive retries in case of write errors.
+        retry_delay (tuple): A tuple representing the range of delay (in seconds) between retries.
 
     Returns:
         None
     """
-    with h5py.File(filename, "a") as f:
+    try:
         try:
-            f.create_dataset(pathname, data=data, maxshape=None)
+            with h5py.File(filename, "a") as f:
+                f.create_dataset(pathname, data=data, maxshape=None)
+                f.flush()
+            return
         except ValueError as err:
             print(f"Did not save, key: {pathname} exists in file: {filename}. {err}")
+            return # If the key already exists, no need to retry
+    except (BlockingIOError, OSError) as err:
+        print(f"\n{err}\nPath: {pathname}\nFile: {filename}\n")
+        return None
 
 
-def h5load(filename, pathname):
+def read_h5(filename, pathname):
     """
     Load data from HDF5 file.
 
     Args:
-        filename_ (str): The filename of the HDF5 file.
-        pathname_ (str): The path to the data in the HDF5 file.
+        filename (str): The filename of the HDF5 file.
+        pathname (str): The path to the data in the HDF5 file.
 
     Returns:
         The data loaded from the HDF5 file.
     """
-    with h5py.File(filename, 'r') as f:
-        data = np.array(f.get(pathname))
-    f.close()
-    return data
+    try:
+        with h5py.File(filename, 'r') as f:
+            data = f.get(pathname)
+            if data is None:
+                return None
+            else:
+                return np.array(data)
+    except (ValueError, KeyError, TypeError):
+        return None
+    except FileNotFoundError:
+        print(f'File not found. {filename}')
+        raise
+    except (BlockingIOError, OSError) as err:
+        print(f"\n{err}\nPath: {pathname}\nFile: {filename}\n")
+        raise
 
 
-def h5loadall(filename_):
+def read_h5_all(file_path):
     """
-    Load all data from HDF5 file.
+    Read all datasets from an HDF5 file into a dictionary.
 
-    Args:
-        filename_ (str): The filename of the HDF5 file.
+    This function recursively traverses an HDF5 file and extracts all datasets into a dictionary. The keys of the dictionary are the paths to the datasets, and the values are the dataset contents. 
+
+    Parameters:
+    ----------
+    file_path : str
+        The path to the HDF5 file from which datasets will be read.
 
     Returns:
-        A dictionary of data loaded from the HDF5 file.
+    -------
+    dict
+        A dictionary where keys are the paths to datasets within the HDF5 file, and values are the contents of these datasets.
+
+    Examples:
+    --------
+    >>> data = read_h5_all('example.h5')
+    >>> print(data.keys())
+    dict_keys(['/group1/dataset1', '/group2/dataset2'])
+    >>> print(data['/group1/dataset1'])
+    [1, 2, 3, 4, 5]
     """
-    with h5py.File(filename_, "r") as f:
-        # List all groups
-        keys = list(f.keys())
-        return_data = {key: np.array(f.get(key)) for key in keys}
+    data_dict = {}
 
-    return return_data, keys
+    with h5py.File(file_path, 'r') as file:
+        # Recursive function to traverse the HDF5 file and populate the dictionary
+        def traverse(group, path=''):
+            for key, item in group.items():
+                new_path = f"{path}/{key}" if path else key
+
+                if isinstance(item, h5py.Group):
+                    traverse(item, path=new_path)
+                else:
+                    data_dict[new_path] = item[()]
+
+        traverse(file)
+    return data_dict
 
 
-def h5keys(filename):
+def combine_h5(filename, files, verbose=False, overwrite=False):
+    """
+    Combine multiple HDF5 files into a single HDF5 file.
+
+    This function reads datasets from a list of HDF5 files and writes them to a specified output HDF5 file. If `overwrite` is `True`, it will remove any existing file at the specified `filename` before combining the files. The `verbose` parameter, if set to `True`, will display progress bars during the process.
+
+    Parameters:
+    ----------
+    filename : str
+        The path to the output HDF5 file where the combined datasets will be stored.
+    
+    files : list of str
+        A list of paths to the HDF5 files to be combined.
+
+    verbose : bool, optional
+        If `True`, progress bars will be displayed for the file and key processing. Default is `False`.
+
+    overwrite : bool, optional
+        If `True`, any existing file at `filename` will be removed before writing the new combined file. Default is `False`.
+
+    Returns:
+    -------
+    None
+        The function performs file operations and does not return any value.
+
+    Examples:
+    --------
+    >>> combine_h5('combined.h5', ['file1.h5', 'file2.h5'], verbose=True, overwrite=True)
+    """
+    if verbose:
+        from tqdm import tqdm
+        iterable = enumerate(tqdm(files))
+    else:
+        iterable = enumerate(files)
+    if overwrite:
+        rmfile(filename)
+    for idx, file in iterable:
+        if verbose:
+            iterable2 = tqdm(h5_keys(file))
+        else:
+            iterable2 = files
+        for key in iterable2:
+            try:
+                if h5_key_exists(filename, key):
+                    continue
+                save_h5(filename, key, read_h5(file, key))
+            except TypeError as err:
+                print(read_h5(file, key))
+                print(f'{err}, key: {key}, file: {file}')
+    print('Completed HDF5 merge.')
+
+
+def h5_keys(file_path):
     """
     List all groups in HDF5 file.
 
     Args:
-        filename_ (str): The filename of the HDF5 file.
+        file_path (str): The file_path of the HDF5 file.
 
     Returns:
         A list of group keys in the HDF5 file.
     """
-    with h5py.File(filename, "r") as f:
-        # List all groups
-        group_keys = list(f.keys())
-    return group_keys
+    keys_list = []
+    with h5py.File(file_path, 'r') as file:
+        # Recursive function to traverse the HDF5 file and collect keys
+        def traverse(group, path=''):
+            for key, item in group.items():
+                new_path = f"{path}/{key}" if path else key
+                if isinstance(item, h5py.Group):
+                    traverse(item, path=new_path)
+                else:
+                    keys_list.append(new_path)
+        traverse(file)
+    return keys_list
+
+
+def h5_root_keys(file_path):
+    """
+    Retrieve the keys in the root group of an HDF5 file.
+
+    This function opens an HDF5 file and returns a list of keys (dataset or group names) located in the root group of the file.
+
+    Parameters:
+    ----------
+    file_path : str
+        The path to the HDF5 file from which the root group keys are to be retrieved.
+
+    Returns:
+    -------
+    list of str
+        A list of keys in the root group of the HDF5 file. These keys represent the names of datasets or groups present at the root level of the file.
+    """
+    with h5py.File(file_path, 'r') as file:
+        keys_in_root = list(file.keys())
+        # print("Keys in the root group:", keys_in_root)
+        return keys_in_root
 
 
 def h5_key_exists(filename, key):
@@ -944,20 +1176,34 @@ def h5_key_exists(filename, key):
         return False
 
 
-import pandas as pd
 ######################################################################
 # CSV
 ######################################################################
 
 
 def makedf(df):
+    """
+    Convert an input into a pandas DataFrame.
+
+    This function takes an input which can be a list or a dictionary and converts it into a pandas DataFrame. If the input is already a DataFrame, it returns it unchanged.
+
+    Parameters:
+    ----------
+    df : list, dict, or pd.DataFrame
+        The input data to be converted into a DataFrame. This can be a list or dictionary to be transformed into a DataFrame, or an existing DataFrame which will be returned as is.
+
+    Returns:
+    -------
+    pd.DataFrame
+        A DataFrame created from the input data if the input is a list or dictionary. If the input is already a DataFrame, the original DataFrame is returned unchanged.
+    """
     if isinstance(df, (list, dict)):
         return pd.DataFrame.from_dict(df)
     else:
         return df
 
 
-def header_csv(file_name, sep=None):
+def read_csv_header(file_name, sep=None):
     """
     Get the header of a CSV file.
 
@@ -968,7 +1214,6 @@ def header_csv(file_name, sep=None):
     Returns:
         A list of the header fields.
     """
-    import csv
     if sep is None:
         sep = guess_csv_delimiter(file_name)  # Guess the delimiter
     with open(file_name, 'r') as infile:
@@ -1028,8 +1273,67 @@ def read_csv(file_name, sep=None, dtypes=None, col=False, to_np=False, drop_nan=
         return df
 
 
+def append_dict_to_csv(file_name, data_dict, delimiter='\t'):
+    """
+    Append data from a dictionary to a CSV file.
+
+    This function appends rows of data to a CSV file, where each key-value pair in the dictionary represents a column. If the CSV file does not already exist, it creates the file and writes the header row using the dictionary keys.
+
+    Parameters:
+    ----------
+    file_name : str
+        Path to the CSV file where data will be appended.
+    data_dict : dict
+        Dictionary where keys are column headers and values are lists of data to be written to the CSV file. All lists should be of the same length.
+    delimiter : str, optional
+        The delimiter used in the CSV file (default is tab `\t`).
+
+    Notes:
+    ------
+    - The function assumes that all lists in the dictionary `data_dict` have the same length.
+    - If the CSV file already exists, only the data rows are appended. If it doesn't exist, a new file is created with the header row based on the dictionary keys.
+    - The `delimiter` parameter allows specifying the delimiter used in the CSV file. Common values are `,` for commas and `\t` for tabs.
+
+    Example:
+    --------
+    >>> data_dict = {
+    >>>     'Name': ['Alice', 'Bob', 'Charlie'],
+    >>>     'Age': [25, 30, 35],
+    >>>     'City': ['New York', 'Los Angeles', 'Chicago']
+    >>> }
+    >>> append_dict_to_csv('people.csv', data_dict, delimiter=',')
+    This will append data to 'people.csv', creating it if it does not exist, with columns 'Name', 'Age', 'City'.
+
+    Dependencies:
+    --------------
+    - `os.path.exists`: Used to check if the file already exists.
+    - `csv`: Standard library module used for reading and writing CSV files.
+    """
+    # Extract keys and values from the dictionary
+    keys = list(data_dict.keys())
+    values = list(data_dict.values())
+
+    # Determine the length of the arrays
+    array_length = len(values[0])
+
+    # Determine if file exists
+    file_exists = os.path.exists(file_name)
+
+    # Open the CSV file in append mode
+    with open(file_name, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=delimiter)
+
+        # Write header if file doesn't exist
+        if not file_exists:
+            writer.writerow(keys)
+
+        # Write each element from arrays as a new row
+        for i in range(array_length):
+            row = [values[j][i] for j in range(len(keys))]
+            writer.writerow(row)
+
+
 def guess_csv_delimiter(file_name):
-    import csv
     """
     Guess the delimiter used in a CSV file.
 
@@ -1069,7 +1373,7 @@ def save_csv(file_name, df, sep='\t', dtypes=None):
     return
 
 
-def append_csv(file_names, save_path='combined_data.csv', sep=None, dtypes=None, progress=None):
+def append_csv(file_names, save_path='combined_data.csv', sep=None, dtypes=False, progress=None):
     """
     Appends multiple CSV files into a single CSV file.
 
@@ -1094,11 +1398,11 @@ def append_csv(file_names, save_path='combined_data.csv', sep=None, dtypes=None,
             if progress is not None:
                 get_memory_usage()
                 print(f"Appended {i+1} of {len(file_names)}.")
-        except FileNotFoundError:
+        except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError) as e:
             error_files.append(file)
+            print(f"Error processing file {file}: {e}")
 
     combined_df = pd.concat(dataframes, ignore_index=True)
-
     if dtypes:
         combined_df = combined_df.astype(dtypes)
 
@@ -1109,11 +1413,41 @@ def append_csv(file_names, save_path='combined_data.csv', sep=None, dtypes=None,
 
     print(f'The final dataframe has {combined_df.shape[0]} rows and {combined_df.shape[1]} columns.')
     if error_files:
-        print(f'The following files could not be found: {error_files}')
+        print(f'The following files ERRORED and were not included: {error_files}')
+    return
 
 
 def append_csv_on_disk(csv_files, output_file):
-    import csv
+    """
+    Append multiple CSV files into a single CSV file.
+
+    This function merges multiple CSV files into one output CSV file. The output file will contain the header row from the first CSV file and data rows from all input CSV files. 
+
+    Parameters:
+    ----------
+    csv_files : list of str
+        List of file paths to the CSV files to be merged. All CSV files should have the same delimiter and structure.
+    output_file : str
+        Path to the output CSV file where the merged data will be written.
+
+    Notes:
+    ------
+    - The function assumes all input CSV files have the same delimiter. It determines the delimiter from the first CSV file using the `guess_csv_delimiter` function.
+    - Only the header row from the first CSV file is included in the output file. Headers from subsequent files are ignored.
+    - This function overwrites the output file if it already exists.
+
+    Example:
+    --------
+    >>> csv_files = ['file1.csv', 'file2.csv', 'file3.csv']
+    >>> output_file = 'merged_output.csv'
+    >>> append_csv_on_disk(csv_files, output_file)
+    Completed appending of: merged_output.csv.
+
+    Dependencies:
+    --------------
+    - `guess_csv_delimiter` function: A utility function used to guess the delimiter of the CSV files.
+    - `csv` module: Standard library module used for reading and writing CSV files.
+    """
     # Assumes each file has the same delimiters
     delimiter = guess_csv_delimiter(csv_files[0])
     # Open the output file for writing
@@ -1141,6 +1475,42 @@ def append_csv_on_disk(csv_files, output_file):
     print(f'Completed appending of: {output_file}.')
 
 
+def save_csv_header(filename, header, delimiter='\t'):
+    """
+    Saves a header row to a CSV file with a specified delimiter.
+
+    Parameters:
+    filename (str): The name of the file where the header will be saved.
+    header (list): A list of strings representing the column names.
+    delimiter (str, optional): The delimiter to use between columns in the CSV file. 
+                               Default is tab ('\t').
+
+    Example:
+    save_csv_header('output.csv', ['Name', 'Age', 'City'], delimiter=',')
+    """
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=delimiter)
+        writer.writerow(header)
+
+
+def save_csv_array_to_line(filename, array, delimiter='\t'):
+    """
+    Appends a single row of data to a CSV file with a specified delimiter.
+
+    Parameters:
+    filename (str): The name of the file to which the row will be appended.
+    array (list): A list of values representing a single row of data to be appended to the CSV file.
+    delimiter (str, optional): The delimiter to use between columns in the CSV file. 
+                               Default is tab ('\t').
+
+    Example:
+    save_csv_array_to_line('output.csv', ['Alice', 30, 'New York'], delimiter=',')
+    """
+    with open(filename, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimiter=delimiter)
+        writer.writerow(array)
+
+
 def save_csv_line(file_name, df, sep='\t', dtypes=None):
     """
     Save a Pandas DataFrame to a CSV file, appending the DataFrame to the file if it exists.
@@ -1163,23 +1533,47 @@ def save_csv_line(file_name, df, sep='\t', dtypes=None):
     return
 
 
-# Create a lock to synchronize access to the file
-import threading
-file_lock = threading.Lock()
+_column_data = None
+def exists_in_csv(csv_file, column, number, sep='\t'):
+    """
+    Checks if a number exists in a specific column of a CSV file.
+
+    This function reads a specified column from a CSV file and checks if a given number is present in that column.
+
+    Parameters:
+    ----------
+    csv_file : str
+        Path to the CSV file.
+    column : str or int
+        The column to search in.
+    number : int or float
+        The number to check for existence in the column.
+    sep : str, default='\t'
+        Delimiter used in the CSV file.
+
+    Returns:
+    -------
+    bool
+        True if the number exists in the column, False otherwise.
+    """
+    try:
+        global _column_data
+        if _column_data is None:
+            _column_data = read_csv(csv_file, sep=sep, col=column, to_np=True)
+        return np.isin(number, _column_data)
+    except IOError:
+        return False
 
 
-def exists_in_csv(csv_file, column_name, number, sep='\t'):
-    import csv
-    with file_lock:
-        try:
-            with open(csv_file, 'r') as f:
-                reader = csv.DictReader(f, delimiter=sep)
-                for row in reader:
-                    if row[column_name] == str(number):
-                        return True
-        except IOError:
-            return False
-    return False
+def exists_in_csv_old(csv_file, column, number, sep='\t'):
+    try:
+        with open(csv_file, 'r') as f:
+            reader = csv.DictReader(f, delimiter=sep)
+            for row in reader:
+                if row[column] == str(number):
+                    return True
+    except IOError:
+        return False
 
 
 def pd_flatten(data, factor=1):
@@ -1202,3 +1596,11 @@ def str_to_array(s):
 
 def pdstr_to_arrays(df):
     return df.apply(str_to_array).to_numpy()
+
+
+def get_all_files_recursive(path_name=os.getcwd()):
+    # Get the list of all files in directory tree at given path
+    listOfFiles = list()
+    for (dirpath, dirnames, filenames) in os.walk(path_name):
+        listOfFiles += [os.path.join(dirpath, file) for file in filenames]
+    return listOfFiles

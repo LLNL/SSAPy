@@ -4,14 +4,18 @@ Utility functions for plotting.
 
 
 from .body import get_body
-from .compute import groundTrack
-from .constants import RGEO, EARTH_RADIUS
-from .utils import find_file, Time, norm, gcrf_to_ecef, gcrf_to_lunar, gcrf_to_stationary_lunar
+from .compute import groundTrack, lagrange_points_lunar_frame, calculate_orbital_elements
+from .constants import RGEO, LD, EARTH_RADIUS, MOON_RADIUS, EARTH_MU, MOON_MU
+from .utils import find_file, Time, find_smallest_bounding_cube, gcrf_to_itrf, gcrf_to_lunar_fixed, gcrf_to_lunar
 
 import numpy as np
+import os
+import re
+import io
 
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from matplotlib import colors as mplcolors
 
 from PyPDF2 import PdfMerger
 from matplotlib.backends.backend_pdf import PdfPages
@@ -25,7 +29,7 @@ def load_earth_file():
     return earth
 
 
-def drawEarth(time, ngrid=100, R=EARTH_RADIUS, rfactor=1):
+def draw_earth(time, ngrid=100, R=EARTH_RADIUS, rfactor=1):
     """
     Parameters
     ----------
@@ -82,18 +86,69 @@ def load_moon_file():
     return moon
 
 
-def groundTrackPlot(r, time, ground_stations=None):
+def draw_moon(time, ngrid=100, R=MOON_RADIUS, rfactor=1):
+    """
+    Parameters
+    ----------
+    time : array_like or astropy.time.Time (n,)
+        If float (array), then should correspond to GPS seconds;
+        i.e., seconds since 1980-01-06 00:00:00 UTC
+    ngrid: int
+        Number of grid points in Earth model.
+    R: float
+        Earth radius in meters.  Default is WGS84 value.
+    rfactor: float
+        Factor by which to enlarge Earth (for visualization purposes)
+
+    """
+    moon = load_moon_file()
+
+    from numbers import Real
+    from erfa import gst94
+    lat = np.linspace(-np.pi / 2, np.pi / 2, ngrid)
+    lon = np.linspace(-np.pi, np.pi, ngrid)
+    lat, lon = np.meshgrid(lat, lon)
+    x = np.cos(lat) * np.cos(lon)
+    y = np.cos(lat) * np.sin(lon)
+    z = np.sin(lat)
+    u = np.linspace(0, 1, ngrid)
+    v, u = np.meshgrid(u, u)
+
+    # Need earth rotation angle for t
+    # Just use erfa.gst94.
+    # This ignores precession/nutation, ut1-tt and polar motion, but should
+    # be good enough for visualization.
+    if isinstance(time, Time):
+        time = time.gps
+    if isinstance(time, Real):
+        time = np.array([time])
+
+    mjd_tt = 44244.0 + (time + 51.184) / 86400
+    gst = gst94(2400000.5, mjd_tt)
+
+    u = u - (gst / (2 * np.pi))[:, None, None]
+    v = np.broadcast_to(v, u.shape)
+
+    return ipv.plot_mesh(
+        x * R * rfactor, y * R * rfactor, z * R * rfactor,
+        u=u, v=v,
+        wireframe=False,
+        texture=moon
+    )
+
+
+def ground_track_plot(r, t, ground_stations=None, save_path=False):
     """
     Parameters
     ----------
     r : (3,) array_like - Orbit positions in meters.
-    times: (n,) array_like - array of Astropy Time objects or time in gps seconds.
+    t: (n,) array_like - array of Astropy Time objects or time in gps seconds.
 
     optional - ground_stations: (n,2) array of of ground station (lat,lon) in degrees
     """
-    lon, lat, height = groundTrack(r, time)
+    lon, lat, height = groundTrack(r, t)
 
-    plt.figure(figsize=(15, 12))
+    fig = plt.figure(figsize=(15, 12))
     plt.imshow(load_earth_file(), extent=[-180, 180, -90, 90])
     plt.plot(np.rad2deg(lon), np.rad2deg(lat))
     if ground_stations is not None:
@@ -102,6 +157,8 @@ def groundTrackPlot(r, time, ground_stations=None):
     plt.ylim(-90, 90)
     plt.xlim(-180, 180)
     plt.show()
+    if save_path:
+        save_plot(fig, save_path)
 
 
 def groundTrackVideo(r, time):
@@ -119,7 +176,7 @@ def groundTrackVideo(r, time):
     ipv.style.box_off()
     ipv.style.axes_off()
     widgets = []
-    widgets.append(drawEarth(time))
+    widgets.append(draw_earth(time))
     widgets.append(
         ipv.scatter(
             r[:, 0, None],
@@ -156,474 +213,904 @@ def check_numpy_array(variable):
         return "not numpy"
 
 
-def _make_scatter(x, y, z, xm=False, ym=False, zm=False, limits=False, title='', figsize=(7, 7), orbit_index='', save_path=False, plot_type=False):
-    # DETERMINE WHAT TYPE OF SCATTER THIS IS
+def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
+    """
+    Plot 2D and 3D projections of the orbit of one or more objects.
+
+    Parameters:
+    ----------
+    r : (n,3) or list of [(n,3), ..., (n,3)] array_like
+        Position of orbiting object(s) in meters. If a list is provided, each element represents the orbit of a different object.
+    t : array_like, optional
+        Time array corresponding to the position vectors. Required for frames "itrf", "lunar", or "lunar fixed".
+    limits : float or tuple, optional
+        Limits for the x and y axes of the 2D plots. If not provided, it is calculated based on the data.
+    title : str, optional
+        Title of the plot. Default is an empty string.
+    figsize : tuple of int, optional
+        Size of the figure (width, height) in inches. Default is (7, 7).
+    save_path : str, optional
+        Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+    frame : str, optional
+        The coordinate frame for the plot. Accepted values are "gcrf", "itrf", "lunar", "lunar fixed".
+    show : bool, optional
+        Whether to display the plot. Default is False.
+
+    Returns:
+    -------
+    fig : matplotlib.figure.Figure
+        The figure object containing the plot.
+    ax : list of matplotlib.axes.Axes
+        The list of axes objects used in the plot. Includes 2D axes (ax1, ax2, ax3) and 3D axis (ax4).
+
+    Notes:
+    ------
+    - The function creates a set of subplots showing the projection of the orbit data in 2D (x-y, x-z, y-z) and 3D (x-y-z).
+    - For the "lunar" and "lunar fixed" frames, the plot also includes the positions of Lagrange points.
+    - If a list of orbits is provided, each orbit is plotted with a different color.
+    - The plot background is set to black, and axis labels and ticks are set to white.
+
+    Example usage:
+    ----------
+    import numpy as np
+    from your_module import orbit_plot
+
+    # Example data
+    r = np.array([[1e7, 2e7, 3e7], [4e7, 5e7, 6e7]])  # Replace with actual data
+    t = np.linspace(0, 10, len(r))  # Replace with actual time data
+
+    fig, axes = orbit_plot(r, t, limits=1e8, title='Orbit Plot', frame='gcrf', show=True)
+    """
+    def _make_scatter(fig, ax1, ax2, ax3, ax4, r, t, limits, title='', orbit_index='', num_orbits=1, frame=False):
+        if np.size(t) < 1:
+            if frame in ["itrf", "lunar", "lunar_fixed"]:
+                raise("Need to provide t for itrf, lunar or lunar fixed frames")
+            r_moon = np.atleast_2d(get_body("moon").position(Time("2000-1-1")))
+        else:
+            r_moon = get_body("moon").position(t).T
+
+        # Dictionary of frame transformations and titles
+        def get_main_category(frame):
+            variant_mapping = {
+                "gcrf": "gcrf",
+                "gcrs": "gcrf",
+                "itrf": "itrf",
+                "itrs": "itrf",
+                "lunar": "lunar",
+                "lunar_fixed": "lunar",
+                "lunar fixed": "lunar",
+                "lunar_centered": "lunar",
+                "lunar centered": "lunar",
+                "lunarearthfixed": "lunar axis",
+                "lunarearth": "lunar axis",
+                "lunar axis": "lunar axis",
+                "lunar_axis": "lunar axis",
+                "lunaraxis": "lunar axis",
+            }
+            return variant_mapping.get(frame.lower())
+
+        frame_transformations = {
+            "gcrf": ("GCRF", None),
+            "itrf": ("ITRF", gcrf_to_itrf),
+            "lunar": ("Lunar Frame", gcrf_to_lunar_fixed),
+            "lunar axis": ("Moon on x-axis Frame", gcrf_to_lunar),
+        }
+
+        # Check if the frame is in the dictionary, and set central_dot accordingly
+        frame = get_main_category(frame)
+        if frame in frame_transformations:
+            title2, transform_func = frame_transformations[frame]
+            if transform_func:
+                r = transform_func(r, t)
+                r_moon = transform_func(r_moon, t)
+        else:
+            raise ValueError("Unknown plot type provided. Accepted: gcrf, itrf, lunar, lunar fixed")
+
+        x = r[:, 0] / RGEO
+        y = r[:, 1] / RGEO
+        z = r[:, 2] / RGEO
+        xm = r_moon[:, 0] / RGEO
+        ym = r_moon[:, 1] / RGEO
+        zm = r_moon[:, 2] / RGEO
+            
+        if np.size(xm) > 1:
+            gradient_colors = cm.Greys(np.linspace(0, .8, len(xm)))[::-1]
+            blues = cm.Blues(np.linspace(.4, .9, len(xm)))[::-1]
+        else:
+            gradient_colors = "grey"
+            blues = 'Blue'
+        plot_settings = {
+            "gcrf": ("blue", 50, 1, xm, ym, zm, gradient_colors),
+            "itrf": ("blue", 50, 1, xm, ym, zm, gradient_colors),
+            "lunar": ("grey", 25, 1.3, xm, ym, zm, blues),
+            "lunar axis": ("blue", 50, 1, -xm, -ym, -zm, gradient_colors)
+        }
+        try:
+            stn = plot_settings[frame]
+        except KeyError:
+            raise ValueError("Unknown plot type provided. Accepted: 'gcrf', 'itrf', 'lunar', 'lunar fixed'")
+        if limits is False:
+            lower_bound, upper_bound = find_smallest_bounding_cube(r / RGEO)
+            lower_bound = lower_bound * 1.2
+            upper_bound = upper_bound * 1.2
+
+        if orbit_index == '':
+            angle = 0
+            scatter_dot_colors = cm.rainbow(np.linspace(0, 1, len(x)))
+        else:
+            angle = orbit_index * 10
+            scatter_dot_colors = cm.rainbow(np.linspace(0, 1, num_orbits))[orbit_index]
+        ax1.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
+        ax1.scatter(x, y, color=scatter_dot_colors, s=1)
+        ax1.scatter(0, 0, color=stn[0], s=stn[1])
+        if xm is not False:
+            ax1.scatter(stn[3], stn[4], color=stn[6], s=5)
+        ax1.set_aspect('equal')
+        ax1.set_xlabel('x [GEO]')
+        ax1.set_ylabel('y [GEO]')
+        ax1.set_xlim((lower_bound[0], upper_bound[0]))
+        ax1.set_ylim((lower_bound[1], upper_bound[1]))
+        ax1.set_title(f'Frame: {title2}', color='white')
+        if 'lunar' in frame:
+            colors = ['red', 'green', 'purple', 'orange', 'cyan']
+            for (point, pos), color in zip(lagrange_points_lunar_frame().items(), colors):
+                if 'axis' in frame:
+                    pass
+                else:
+                    pos[0] = pos[0] - LD / RGEO
+                ax1.scatter(pos[0], pos[1], color=color, label=point)
+                ax1.text(pos[0], pos[1], point, color=color)
+
+        ax2.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
+        ax2.scatter(x, z, color=scatter_dot_colors, s=1)
+        ax2.scatter(0, 0, color=stn[0], s=stn[1])
+        if xm is not False:
+            ax2.scatter(stn[3], stn[5], color=stn[6], s=5)
+        ax2.set_aspect('equal')
+        ax2.set_xlabel('x [GEO]')
+        ax2.set_ylabel('z [GEO]')
+        ax2.set_xlim((lower_bound[0], upper_bound[0]))
+        ax2.set_ylim((lower_bound[2], upper_bound[2]))
+        ax2.set_title(f'{title}', color='white')
+        if 'lunar' in frame:
+            colors = ['red', 'green', 'purple', 'orange', 'cyan']
+            for (point, pos), color in zip(lagrange_points_lunar_frame().items(), colors):
+                if 'axis' in frame:
+                    pass
+                else:
+                    pos[0] = pos[0] - LD / RGEO
+                ax2.scatter(pos[0], pos[2], color=color, label=point)
+                ax2.text(pos[0], pos[2], point, color=color)
+
+        ax3.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
+        ax3.scatter(y, z, color=scatter_dot_colors, s=1)
+        ax3.scatter(0, 0, color=stn[0], s=stn[1])
+        if xm is not False:
+            ax3.scatter(stn[4], stn[5], color=stn[6], s=5)
+        ax3.set_aspect('equal')
+        ax3.set_xlabel('y [GEO]')
+        ax3.set_ylabel('z [GEO]')
+        ax3.set_xlim((lower_bound[1], upper_bound[1]))
+        ax3.set_ylim((lower_bound[2], upper_bound[2]))
+        if 'lunar' in frame:
+            colors = ['red', 'green', 'purple', 'orange', 'cyan']
+            for (point, pos), color in zip(lagrange_points_lunar_frame().items(), colors):
+                if 'axis' in frame:
+                    pass
+                else:
+                    pos[0] = pos[0] - LD / RGEO
+                print(pos)
+                ax3.scatter(pos[1], pos[2], color=color, label=point)
+                ax3.text(pos[1], pos[2], point, color=color)
+
+        ax4.scatter3D(x, y, z, color=scatter_dot_colors, s=1)
+        ax4.scatter3D(0, 0, 0, color=stn[0], s=stn[1])
+        if xm is not False:
+            ax4.scatter3D(stn[3], stn[4], stn[5], color=stn[6], s=5)
+        ax4.set_xlim([lower_bound[0], upper_bound[0]])
+        ax4.set_ylim([lower_bound[1], upper_bound[1]])
+        ax4.set_zlim([lower_bound[2], upper_bound[2]])
+        ax4.set_aspect('equal')  # aspect ratio is 1:1:1 in data space
+        ax4.set_xlabel('x [GEO]')
+        ax4.set_ylabel('y [GEO]')
+        ax4.set_zlabel('z [GEO]')
+        if 'lunar' in frame:
+            colors = ['red', 'green', 'purple', 'orange', 'cyan']
+            for (point, pos), color in zip(lagrange_points_lunar_frame().items(), colors):
+                if 'axis' in frame:
+                    pass
+                else:
+                    pos[0] = pos[0] - LD / RGEO
+                ax4.scatter(pos[0], pos[1], pos[2], color=color, label=point)
+                ax4.text(pos[0], pos[1], pos[2], point, color=color)
+    
+        return fig, ax1, ax2, ax3, ax4
+    input_type = check_numpy_array(r)
+
+    fig = plt.figure(dpi=100, figsize=figsize, facecolor='black')
+    ax1 = fig.add_subplot(2, 2, 1)
+    ax2 = fig.add_subplot(2, 2, 2)
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax4 = fig.add_subplot(2, 2, 4, projection='3d')
+    
+    if input_type == "numpy array":
+        fig, ax1, ax2, ax3, ax4 = _make_scatter(fig, ax1, ax2, ax3, ax4, r=r, t=t, limits=limits, title=title, frame=frame)
+    if input_type == "list of numpy array":
+        num_orbits = np.shape(r)[0]
+        for i, row in enumerate(r):
+            fig, ax1, ax2, ax3, ax4 = _make_scatter(fig, ax1, ax2, ax3, ax4, r=row, t=t, limits=limits, title=title, orbit_index=i, num_orbits=num_orbits, frame=frame)
+
+    # Set axis color to white
+    for i, ax in enumerate([ax1, ax2, ax3, ax4]):
+        ax.set_facecolor('black')
+        ax.spines['bottom'].set_color('white')
+        ax.spines['top'].set_color('white')
+        ax.spines['left'].set_color('white')
+        ax.spines['right'].set_color('white')
+        ax.xaxis.label.set_color('white')
+        ax.yaxis.label.set_color('white')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        if i == 3:
+            ax.tick_params(axis='z', colors='white')
+
+    # Set text color to white
+    for ax in [ax1, ax2, ax3, ax4]:
+        for text in ax.get_xticklabels() + ax.get_yticklabels() + [ax.xaxis.label, ax.yaxis.label]:
+            text.set_color('white')
+    
+    #Save the plot
+    fig.patch.set_facecolor('black')
+    if show:
+        plt.show()
+    if save_path:
+        save_plot(fig, save_path)
+    return fig, [ax1, ax2, ax3, ax4]
+
+
+def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el=30, az=0, scale=1):
+    """
+    Plot a 3D scatter plot of position vectors on a globe representation.
+
+    Parameters:
+    - r (array-like): Position vectors with shape (n, 3), where n is the number of points.
+    - t (array-like): Time array corresponding to the position vectors. This parameter is not used in the current function implementation but is included for consistency.
+    - limits (float, optional): The limit for the plot axes. If not provided, it is calculated based on the data. Default is False.
+    - title (str, optional): Title of the plot. Default is an empty string.
+    - figsize (tuple of int, optional): Figure size (width, height) in inches. Default is (7, 8).
+    - save_path (str, optional): Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+    - el (int, optional): Elevation angle (in degrees) for the view of the plot. Default is 30.
+    - az (int, optional): Azimuth angle (in degrees) for the view of the plot. Default is 0.
+    - scale (int, optional): Scale factor for resizing the Earth image. Default is 1.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object containing the plot.
+    - ax (matplotlib.axes._subplots.Axes3DSubplot): The 3D axis object used in the plot.
+
+    The function creates a 3D scatter plot of the position vectors on a globe. The globe is represented using a textured Earth image, and the scatter points are colored using a rainbow colormap. The plot's background is set to black, and the plot is displayed with customizable elevation and azimuth angles.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import globe_plot
+
+    # Example data
+    r = np.array([[1, 2, 3], [4, 5, 6]])  # Replace with actual data
+    t = np.arange(len(r))  # Replace with actual time data
+    
+    globe_plot(r, t, save_path='globe_plot.png')
+    ```
+    """
+    x = r[:, 0] / RGEO
+    y = r[:, 1] / RGEO
+    z = r[:, 2] / RGEO
     if limits is False:
         limits = np.nanmax(np.abs([x, y, z])) * 1.2
+    
+    earth_png = PILImage.open(find_file("earth", ext=".png"))
+    earth_png = earth_png.resize((5400 // scale, 2700 // scale))
+    bm = np.array(earth_png.resize([int(d) for d in earth_png.size])) / 256.
+    lons = np.linspace(-180, 180, bm.shape[1]) * np.pi / 180
+    lats = np.linspace(-90, 90, bm.shape[0])[::-1] * np.pi / 180
+    mesh_x = np.outer(np.cos(lons), np.cos(lats)).T * EARTH_RADIUS / RGEO
+    mesh_y = np.outer(np.sin(lons), np.cos(lats)).T * EARTH_RADIUS / RGEO
+    mesh_z = np.outer(np.ones(np.size(lons)), np.sin(lats)).T * EARTH_RADIUS / RGEO
 
-    dotcolors = cm.rainbow(np.linspace(0, 1, len(x)))
-    if np.size(xm) > 1:
-        gradient_colors = cm.Greys(np.linspace(0.5, 1, len(xm)))
-    else:
-        gradient_colors = "grey"
-
-    # Central dot color, central dot size, dashed line radius
-    plot_settings = {
-        "gcrf": ("blue", 50, 1),
-        "ecef": ("blue", 50, 1),
-        "lunar": ("blue", 50, 1),
-        "stationary_lunar": ("grey", 25, 1.3)
-    }
-
-    # Check if the plot_type is in the dictionary, and set central_dot accordingly
-    if plot_type in plot_settings:
-        stn = plot_settings[plot_type]
-    else:
-        raise ValueError("Unknown plot type provided. Accepted: gcrf, ecef, lunar, stationary_lunar")
-
-    # Creating plot
-    plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'w'})
+    scatter_dot_colors = plt.cm.rainbow(np.linspace(0, 1, len(x)))
     fig = plt.figure(dpi=100, figsize=figsize)
-
-    ax1 = fig.add_subplot(2, 2, 1, projection='3d')
-    ax1.scatter3D(x, y, z, color=dotcolors, s=1)
-    ax1.scatter3D(0, 0, 0, color=stn[0], s=stn[1])
-    if xm is not False:
-        ax1.scatter3D(xm, ym, zm, color=gradient_colors, s=5)
-    ax1.view_init(elev=30, azim=60)
-    ax1.set_xlim([-limits, limits])
-    ax1.set_ylim([-limits, limits])
-    ax1.set_zlim([-limits, limits])
-    ax1.set_aspect('equal')  # aspect ratio is 1:1:1 in data space
-    ax1.set_xlabel('x [GEO]')
-    ax1.set_ylabel('y [GEO]')
-    ax1.set_zlabel('z [GEO]')
-
-    ax2 = fig.add_subplot(2, 2, 2)
-    ax2.add_patch(plt.Circle((0, 0), stn[2], color='black', linestyle='dashed', fill=False))
-    ax2.scatter(x, y, color=dotcolors, s=1)
-    ax2.scatter(0, 0, color=stn[0], s=stn[1])
-    if xm is not False:
-        ax2.scatter(xm, ym, color=gradient_colors, s=5)
-    ax2.set_aspect('equal')
-    ax2.set_xlabel('x [GEO]')
-    ax2.set_ylabel('y [GEO]')
-    ax2.set_xlim((-limits, limits))
-    ax2.set_ylim((-limits, limits))
-    ax2.text(x[0], y[0], f'← start {orbit_index}')
-    ax2.text(x[-1], y[-1], f'← end {orbit_index}')
-    ax2.set_title(f'{title}')
-
-    ax3 = fig.add_subplot(2, 2, 3)
-    ax3.add_patch(plt.Circle((0, 0), stn[2], color='black', linestyle='dashed', fill=False))
-    ax3.scatter(x, z, color=dotcolors, s=1)
-    ax3.scatter(0, 0, color=stn[0], s=stn[1])
-    if xm is not False:
-        ax3.scatter(xm, zm, color=gradient_colors, s=5)
-    ax3.set_aspect('equal')
-    ax3.set_xlabel('x [GEO]')
-    ax3.set_ylabel('z [GEO]')
-    ax3.set_xlim((-limits, limits))
-    ax3.set_ylim((-limits, limits))
-    ax3.text(x[0], z[0], f'← start {orbit_index}')
-    ax3.text(x[-1], z[-1], f'← end {orbit_index}')
-
-    ax4 = fig.add_subplot(2, 2, 4)
-    ax4.add_patch(plt.Circle((0, 0), stn[2], color='black', linestyle='dashed', fill=False))
-    ax4.scatter(y, z, color=dotcolors, s=1)
-    ax4.scatter(0, 0, color=stn[0], s=stn[1])
-    if xm is not False:
-        ax4.scatter(ym, zm, color=gradient_colors, s=5)
-    ax4.set_aspect('equal')
-    ax4.set_xlabel('y [GEO]')
-    ax4.set_ylabel('z [GEO]')
-    ax4.set_xlim((-limits, limits))
-    ax4.set_ylim((-limits, limits))
-    ax4.text(y[0], z[0], f'← start {orbit_index}')
-    ax4.text(y[-1], z[-1], f'← end {orbit_index}')
-
-    plt.tight_layout(pad=2.0, h_pad=2.0)
+    ax = fig.add_subplot(111, projection='3d')
+    fig.patch.set_facecolor('black')
+    ax.tick_params(axis='both', colors='white')
+    ax.grid(True, color='grey', linestyle='--', linewidth=0.5)
+    ax.set_facecolor('black')  # Set plot background color to black
+    ax.scatter(x, y, z, color=scatter_dot_colors, s=1)
+    ax.plot_surface(mesh_x, mesh_y, mesh_z, rstride=4, cstride=4, facecolors=bm, shade=False)
+    ax.view_init(elev=el, azim=az)
+    ax.set_xlim([-limits, limits])
+    ax.set_ylim([-limits, limits])
+    ax.set_zlim([-limits, limits])
+    ax.set_xlabel('x [GEO]', color='white')  # Set x-axis label color to white
+    ax.set_ylabel('y [GEO]', color='white')  # Set y-axis label color to white
+    ax.set_zlabel('z [GEO]', color='white')  # Set z-axis label color to white
+    ax.tick_params(axis='x', colors='white')  # Set x-axis tick color to white
+    ax.tick_params(axis='y', colors='white')  # Set y-axis tick color to white
+    ax.tick_params(axis='z', colors='white')  # Set z-axis tick color to white
+    ax.set_aspect('equal')
+    fig, ax = set_color_theme(fig, ax, theme='black')
     if save_path:
-        if save_path.lower().endswith('.png'):
-            save_plot_to_png(fig, save_path)
-        else:
-            save_plot_to_pdf(fig, save_path)
-    return fig
+        save_plot(fig, save_path)
+    return fig, ax
 
 
-def gcrf_plot(r, times=[], limits=False, title='', save_path=False, figsize=(7, 7)):
+def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
     """
-    Parameters
-    ----------
-    r : (n,3) or array of [(n,3), ..., (n,3)] array_like
-        Position of orbiting object(s) in meters.
-    times: optional - times when r was calculated.
-    limits: optional - x and y limits of the plot
-    title: optional - title of the plot
-    """
+    Plot Keplerian orbital elements over time for a given trajectory.
 
-    if np.size(times) < 1:
-        r_moon = np.atleast_2d(get_body("moon").position(Time("2000-1-1")))
+    Parameters:
+    - r (array-like): Position vectors for the orbit.
+    - v (array-like): Velocity vectors for the orbit.
+    - t (array-like, optional): Time array for the plot, given as a sequence of `astropy.time.Time` objects or a `Time` object with `np.linspace`. Default is one year of hourly intervals starting from "2025-01-01".
+    - elements (list of str, optional): List of orbital elements to plot. Options include 'a' (semi-major axis), 'e' (eccentricity), and 'i' (inclination). Default is ['a', 'e', 'i'].
+    - save_path (str, optional): Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+    - body (str, optional): The celestial body for which to calculate the orbital elements. Options are 'Earth' or 'Moon'. Default is 'Earth'.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object containing the plot.
+    - ax1 (matplotlib.axes.Axes): The primary axis object used in the plot.
+
+    The function calculates orbital elements for the given position and velocity vectors, and plots these elements over time. It creates a plot with two y-axes: one for the eccentricity and inclination, and the other for the semi-major axis. The x-axis represents time in decimal years. 
+
+    Example usage:
+    ```
+    import numpy as np
+    from astropy.time import Time
+    from your_module import koe_plot
+
+    # Example data
+    r = np.array([[[1, 0, 0], [0, 1, 0]]])  # Replace with actual data
+    v = np.array([[[0, 1, 0], [-1, 0, 0]]])  # Replace with actual data
+    t = Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24))
+    
+    koe_plot(r, v, t, save_path='orbital_elements_plot.png')
+    ```
+    """
+    if 'earth' in body.lower():
+        orbital_elements = calculate_orbital_elements(r, v, mu_barycenter=EARTH_MU)
     else:
-        r_moon = get_body("moon").position(times).T
-    xm = r_moon[:, 0] / RGEO
-    ym = r_moon[:, 1] / RGEO
-    zm = r_moon[:, 2] / RGEO
-    input_type = check_numpy_array(r)
-    if input_type == "numpy array":
-        x = r[:, 0] / RGEO
-        y = r[:, 1] / RGEO
-        z = r[:, 2] / RGEO
-        fig = _make_scatter(x=x, y=y, z=z, xm=xm, ym=ym, zm=zm, limits=limits, title=title, figsize=figsize, save_path=save_path, plot_type="gcrf")
-    if input_type == "list of numpy array":
-        limits_plot = 0
-        for i, row in enumerate(r):
-            if limits is False and limits_plot < np.nanmax(norm(row) / RGEO) * 1.2:
-                limits_plot = np.nanmax(norm(row) / RGEO) * 1.2
-            else:
-                limits_plot = limits
-            x = row[:, 0] / RGEO
-            y = row[:, 1] / RGEO
-            z = row[:, 2] / RGEO
-            fig = _make_scatter(x=x, y=y, z=z, xm=xm, ym=ym, zm=zm, limits=limits_plot, title=title, orbit_index=i, figsize=figsize, save_path=save_path, plot_type="gcrf")
+        orbital_elements = calculate_orbital_elements(r, v, mu_barycenter=MOON_MU)
+    fig, ax1 = plt.subplots(dpi=100)
+    fig.patch.set_facecolor('white')
+    ax1.plot([], [], label='semi-major axis [GEO]', c='C0', linestyle='-')
+    ax2 = ax1.twinx()
+    set_color_theme(fig, *[ax1, ax2], theme='white')
+
+    ax1.plot(Time(t).decimalyear, [x for x in orbital_elements['e']], label='eccentricity', c='C1')
+    ax1.plot(Time(t).decimalyear, [x for x in orbital_elements['i']], label='inclination [rad]', c='C2')
+    ax1.set_xlabel('Year')
+    ax1.set_ylim((0, np.pi / 2))
+    ylabel = ax1.set_ylabel('', color='black')
+    x = ylabel.get_position()[0] + 0.05
+    y = ylabel.get_position()[1]
+    fig.text(x - 0.001, y - 0.225, 'Eccentricity', color='C1', rotation=90)
+    fig.text(x, y - 0.05, '/', color='k', rotation=90)
+    fig.text(x, y - 0.025, 'Inclination [Radians]', color='C2', rotation=90)
+
+    ax1.legend(loc='upper left')
+    a = [x / RGEO for x in orbital_elements['a']]
+    ax2.plot(Time(t).decimalyear, a, label='semi-major axis [GEO]', c='C0', linestyle='-')
+    ax2.set_ylabel('semi-major axis [GEO]', color='C0')
+    ax2.yaxis.label.set_color('C0')
+    ax2.tick_params(axis='y', colors='C0')
+    ax2.spines['right'].set_color('C0')
+    
+    if np.abs(np.max(a) - np.min(a)) < 2:
+        ax2.set_ylim((np.min(a) - 0.5, np.max(a) + 0.5))
+    format_date_axis(t, ax1)
+    
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return fig, ax1
+
+
+def koe_hist_2d(stable_data, title="Initial orbital elements of\n1 year stable cislunar orbits", limits=[1, 50], bins=200, logscale=False, cmap='coolwarm', save_path=False):
+    """
+    Create a 2D histogram plot for various Keplerian orbital elements of stable cislunar orbits.
+
+    Parameters:
+    - stable_data (object): An object with attributes `a`, `e`, `i`, and `ta`, which are arrays of semi-major axis, eccentricity, inclination, and true anomaly, respectively.
+    - title (str, optional): Title of the figure. Default is "Initial orbital elements of\n1 year stable cislunar orbits".
+    - limits (list, optional): Color scale limits for the histogram. Default is [1, 50].
+    - bins (int, optional): Number of bins for the 2D histograms. Default is 200.
+    - logscale (bool or str, optional): Whether to use logarithmic scaling for the color bar. Default is False. Can also be 'log' to apply logarithmic scaling.
+    - cmap (str, optional): Colormap to use for the histograms. Default is 'coolwarm'.
+    - save_path (str, optional): Path to save the generated plot. If not provided, the plot will not be saved. Default is False.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object containing the 2D histograms.
+
+    This function creates a 3x3 grid of 2D histograms showing the relationships between various orbital elements, including semi-major axis, eccentricity, inclination, and true anomaly. The color scale of the histograms can be adjusted with a logarithmic or linear normalization. The plot is customized with labels and a color bar.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import koe_hist_2d
+
+    # Example data
+    class StableData:
+        def __init__(self):
+            self.a = np.random.uniform(1, 20, 1000)
+            self.e = np.random.uniform(0, 1, 1000)
+            self.i = np.radians(np.random.uniform(0, 90, 1000))
+            self.ta = np.radians(np.random.uniform(0, 360, 1000))
+
+    stable_data = StableData()
+    koe_hist_2d(stable_data, save_path='orbit_histograms.pdf')
+    ```
+    """
+    if logscale or logscale == 'log':
+        norm = mplcolors.LogNorm(limits[0], limits[1])
+    else:
+        norm = mplcolors.Normalize(limits[0], limits[1])
+    fig, axes = plt.subplots(dpi=100, figsize=(10, 8), nrows=3, ncols=3)
+    fig.patch.set_facecolor('white')
+    st = fig.suptitle(title, fontsize=12)
+    st.set_x(0.46)
+    st.set_y(0.9)
+    ax = axes.flat[0]
+    ax.hist2d([x / RGEO for x in stable_data.a], [x for x in stable_data.e], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("")
+    ax.set_ylabel("eccentricity")
+    ax.set_xticks(np.arange(1, 20, 2))
+    ax.set_yticks(np.arange(0, 1, 0.2))
+    ax.set_xlim((1, 18))
+    axes.flat[1].set_axis_off()
+    axes.flat[2].set_axis_off()
+
+    ax = axes.flat[3]
+    ax.hist2d([x / RGEO for x in stable_data.a], [np.degrees(x) for x in stable_data.i], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("")
+    ax.set_ylabel("inclination [deg]")
+    ax.set_xticks(np.arange(1, 20, 2))
+    ax.set_yticks(np.arange(0, 91, 15))
+    ax.set_xlim((1, 18))
+    ax = axes.flat[4]
+    ax.hist2d([x for x in stable_data.e], [np.degrees(x) for x in stable_data.i], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("")
+    ax.set_ylabel("")
+    ax.set_xticks(np.arange(0, 1, 0.2))
+    ax.set_yticks(np.arange(0, 91, 15))
+    axes.flat[5].set_axis_off()
+
+    ax = axes.flat[6]
+    ax.hist2d([x / RGEO for x in stable_data.a], [np.degrees(x) for x in stable_data.ta], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("semi-major axis [GEO]")
+    ax.set_ylabel("True Anomaly [deg]")
+    ax.set_xticks(np.arange(1, 20, 2))
+    ax.set_yticks(np.arange(0, 361, 60))
+    ax.set_xlim((1, 18))
+    ax = axes.flat[7]
+    ax.hist2d([x for x in stable_data.e], [np.degrees(x) for x in stable_data.ta], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("eccentricity")
+    ax.set_ylabel("")
+    ax.set_xticks(np.arange(0, 1, 0.2))
+    ax.set_yticks(np.arange(0, 361, 60))
+    ax = axes.flat[8]
+    ax.hist2d([np.degrees(x) for x in stable_data.i], [np.degrees(x) for x in stable_data.ta], bins=bins, norm=norm, cmap=cmap)
+    ax.set_xlabel("inclination [deg]")
+    ax.set_ylabel("")
+    ax.set_xticks(np.arange(0, 91, 15))
+    ax.set_yticks(np.arange(0, 361, 60))
+
+    im = fig.subplots_adjust(right=0.8)
+    cbar_ax = fig.add_axes([0.82, 0.15, 0.01, 0.7])
+    fig.colorbar(im, cax=cbar_ax, norm=norm, cmap=cmap)
+    fig, ax = set_color_theme(fig, ax, theme='white')
+    if save_path:
+        save_plot(fig, save_path)
     return fig
 
 
-def ecef_plot(r, times, limits=False, title='', save_path=False, figsize=(7, 7)):
-    """
-    Parameters
-    ----------
-    r : (n,3) or array of [(n,3), ..., (n,3)] array_like
-        Position of orbiting object(s) in meters.
-    times: times when r was calculated.
-    limits: optional - x and y limits of the plot
-    title: optional - title of the plot
-    """
 
-    input_type = check_numpy_array(r)
-    r = gcrf_to_ecef(r, times)
-    if input_type == "numpy array":
+def scatter_2d(x, y, cs, xlabel='x', ylabel='y', title='', cbar_label='', dotsize=1, colorsMap='jet', colorscale='linear', colormin=False, colormax=False, save_path=False):
+    """
+    Create a 2D scatter plot with optional color mapping.
+
+    Parameters:
+    - x (numpy.ndarray): Array of x-coordinates.
+    - y (numpy.ndarray): Array of y-coordinates.
+    - cs (numpy.ndarray): Array of values for color mapping.
+    - xlabel (str, optional): Label for the x-axis. Default is 'x'.
+    - ylabel (str, optional): Label for the y-axis. Default is 'y'.
+    - title (str, optional): Title of the plot. Default is an empty string.
+    - cbar_label (str, optional): Label for the color bar. Default is an empty string.
+    - dotsize (int, optional): Size of the dots in the scatter plot. Default is 1.
+    - colorsMap (str, optional): Colormap to use for the color mapping. Default is 'jet'.
+    - colorscale (str, optional): Scale for the color mapping, either 'linear' or 'log'. Default is 'linear'.
+    - colormin (float, optional): Minimum value for color scaling. If False, it is set to the minimum value of `cs`. Default is False.
+    - colormax (float, optional): Maximum value for color scaling. If False, it is set to the maximum value of `cs`. Default is False.
+    - save_path (str, optional): File path to save the plot. If not provided, the plot is not saved. Default is False.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object.
+    - ax (matplotlib.axes._subplots.AxesSubplot): The 2D axis object.
+
+    This function creates a 2D scatter plot with optional color mapping based on the values provided in `cs`. 
+    The color mapping can be adjusted using either a linear or logarithmic scale. The plot can be customized with axis labels, title, and colormap. 
+    The plot can also be saved to a specified file path.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import scatter_2d
+
+    # Example data
+    x = np.random.rand(100)
+    y = np.random.rand(100)
+    cs = np.random.rand(100)
+
+    scatter_2d(x, y, cs, xlabel='X-axis', ylabel='Y-axis', cbar_label='Color Scale', title='2D Scatter Plot')
+    ```
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    if colormax is False:
+        colormax = np.max(cs)
+    if colormin is False:
+        colormin = np.min(cs)
+    cm = plt.get_cmap(colorsMap)
+    if colorscale == 'linear':
+        cNorm = mplcolors.Normalize(vmin=colormin, vmax=colormax)
+    elif colorscale == 'log':
+        cNorm = mplcolors.LogNorm(vmin=colormin, vmax=colormax)
+    scalarMap = cm.ScalarMappable(norm=cNorm, cmap=cm)
+    ax.scatter(x, y, c=scalarMap.to_rgba(cs), s=dotsize)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(title)
+    scalarMap.set_array(cs)
+    fig.colorbar(scalarMap, shrink=.5, label=f'{cbar_label}', pad=0.04)
+    plt.tight_layout()
+    fig, ax = set_color_theme(fig, ax, theme='black')
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return
+
+
+def scatter_3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', cbar_label='', dotsize=1, colorsMap='jet', title='', save_path=False):
+    """
+    Create a 3D scatter plot with optional color mapping.
+
+    Parameters:
+    - x (numpy.ndarray): Array of x-coordinates or a 2D array with shape (n, 3) representing the x, y, z coordinates.
+    - y (numpy.ndarray, optional): Array of y-coordinates. Required if `x` is not a 2D array with shape (n, 3). Default is None.
+    - z (numpy.ndarray, optional): Array of z-coordinates. Required if `x` is not a 2D array with shape (n, 3). Default is None.
+    - cs (numpy.ndarray, optional): Array of values for color mapping. Default is None.
+    - xlabel (str, optional): Label for the x-axis. Default is 'x'.
+    - ylabel (str, optional): Label for the y-axis. Default is 'y'.
+    - zlabel (str, optional): Label for the z-axis. Default is 'z'.
+    - cbar_label (str, optional): Label for the color bar. Default is an empty string.
+    - dotsize (int, optional): Size of the dots in the scatter plot. Default is 1.
+    - colorsMap (str, optional): Colormap to use for the color mapping. Default is 'jet'.
+    - title (str, optional): Title of the plot. Default is an empty string.
+    - save_path (str, optional): File path to save the plot. If not provided, the plot is not saved. Default is False.
+
+    Returns:
+    - fig (matplotlib.figure.Figure): The figure object.
+    - ax (matplotlib.axes._subplots.Axes3DSubplot): The 3D axis object.
+
+    This function creates a 3D scatter plot with optional color mapping based on the values provided in `cs`. 
+    The plot can be customized with axis labels, title, and colormap. The plot can also be saved to a specified file path.
+
+    Example usage:
+    ```
+    import numpy as np
+    from your_module import scatter_3d
+
+    # Example data
+    x = np.random.rand(100)
+    y = np.random.rand(100)
+    z = np.random.rand(100)
+    cs = np.random.rand(100)
+
+    scatter_3d(x, y, z, cs, xlabel='X-axis', ylabel='Y-axis', zlabel='Z-axis', cbar_label='Color Scale', title='3D Scatter Plot')
+    ```
+    """
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    if x.ndim > 1:
+        r = x
+        x = r[:, 0]
+        y = r[:, 1]
+        z = r[:, 2]
+    if cs is None:
+        ax.scatter(x, y, z, s=dotsize)
+    else:
+        cm = plt.get_cmap(colorsMap)
+        cNorm = mplcolors.Normalize(vmin=min(cs), vmax=max(cs))
+        scalarMap = cm.ScalarMappable(norm=cNorm, cmap=cm)
+        ax.scatter(x, y, z, c=scalarMap.to_rgba(cs), s=dotsize)
+        scalarMap.set_array(cs)
+        fig.colorbar(scalarMap, shrink=.5, label=f'{cbar_label}', pad=0.075)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_zlabel(zlabel)
+    plt.title(title)
+    plt.tight_layout()
+    fig, ax = set_color_theme(fig, ax, theme='black')
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return fig, ax
+
+
+def scatter_dot_colors_scaled(num_colors):
+    return cm.rainbow(np.linspace(0, 1, num_colors))
+
+
+def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_path=False):
+    """
+    Plot multiple cislunar orbits in the GCRF frame with respect to the Earth and Moon.
+
+    Parameters:
+    - rs (numpy.ndarray): A 3D array of shape (n, 3, m) where n is the number of time steps, 
+                          3 represents the x, y, z coordinates, and m is the number of orbits.
+    - r_moon (numpy.ndarray, optional): A 2D array of shape (3, n) representing the Moon's position at each time step.
+                                        If not provided, it is calculated based on the time `t`.
+    - t (astropy.time.Time, optional): The time at which to calculate the Moon's position if `r_moon` is not provided. Default is False.
+    - limits (float, optional): The plot limits in units of Earth's radius (GEO). If not provided, it is calculated as 1.2 times the maximum norm of `rs`. Default is False.
+    - title (str, optional): The title of the plot. Default is an empty string.
+    - save_path (str, optional): The file path to save the plot. If not provided, the plot is not saved. Default is False.
+
+    Returns:
+    None
+
+    This function creates a 3-panel plot of multiple cislunar orbits in the GCRF frame. Each panel represents a different plane (xy, xz, yz) with Earth at the center.
+    The orbits are plotted with color gradients to indicate progression. The Moon's position is also plotted if provided or calculated.
+
+    Example usage:
+    ```
+    import numpy as np
+    from astropy.time import Time
+    from your_module import orbit_divergence_plot
+
+    # Example data
+    rs = np.random.randn(100, 3, 5)  # 5 orbits with 100 time steps each
+    t = Time("2025-01-01")
+
+    orbit_divergence_plot(rs, t=t, title='Cislunar Orbits')
+    ```
+    """
+    if limits is False:
+        limits = np.nanmax(np.linalg.norm(rs, axis=1) / RGEO) * 1.2
+        print(f'limits: {limits}')
+    if np.size(r_moon) < 1:
+        moon = get_body("moon")
+        r_moon = moon.position(t)
+    else:
+        # print('Lunar position(s) provided.')
+        if r_moon.ndim != 2:
+            raise IndexError(f"input moon data shape: {np.shape(r_moon)}, input should be 2 dimensions.")
+            return None
+        if np.shape(r_moon)[1] == 3:
+            r_moon = r_moon.T
+            # print(f"Tranposed input to {np.shape(r_moon)}")
+    fig = plt.figure(dpi=100, figsize=(15, 4))
+    for i in range(rs.shape[-1]):
+        r = rs[:, :, i]
         x = r[:, 0] / RGEO
         y = r[:, 1] / RGEO
         z = r[:, 2] / RGEO
-        fig = _make_scatter(x=x, y=y, z=z, limits=limits, title=title, save_path=save_path, plot_type="ecef")
-    if input_type == "list of numpy array":
-        limits_plot = 0
-        for i, row in enumerate(r):
-            if limits is False and limits_plot < np.nanmax(norm(row) / RGEO) * 1.2:
-                limits_plot = np.nanmax(norm(row) / RGEO) * 1.2
-            else:
-                limits_plot = limits
-            x = row[:, 0] / RGEO
-            y = row[:, 1] / RGEO
-            z = row[:, 2] / RGEO
-            fig = _make_scatter(x=x, y=y, z=z, limits_plot=limits_plot, title=title, orbit_index=i, save_path=save_path, plot_type="ecef")
-    return fig
-
-
-def lunar_plot(r, times, limits=False, title='', save_path=False, figsize=(7, 7)):
-    """
-    Parameters
-    ----------
-    r : (n,3) or array of [(n,3), ..., (n,3)] array_like
-        Position of orbiting object(s) in meters.
-    times: array of Astropy time objects
-    limits: optional - x and y limits of the plot
-    title: optional - title of the plot
-    """
-
-    input_type = check_numpy_array(r)
-    r = gcrf_to_lunar(r, times)
-    r_moon = gcrf_to_lunar(get_body("moon").position(times).T, times)
-    xm = r_moon[:, 0] / RGEO
-    ym = r_moon[:, 1] / RGEO
-    zm = r_moon[:, 2] / RGEO
-    if input_type == "numpy array":
-        x = r[:, 0] / RGEO
-        y = r[:, 1] / RGEO
-        z = r[:, 2] / RGEO
-        fig = _make_scatter(x, y, z, xm, ym, zm, limits=limits, title=title, save_path=save_path, plot_type="lunar")
-    if input_type == "list of numpy array":
-        limits_plot = 0
-        for i, row in enumerate(r):
-            if limits is False and limits_plot < np.nanmax(norm(row) / RGEO) * 1.2:
-                limits_plot = np.nanmax(norm(row) / RGEO) * 1.2
-            else:
-                limits_plot = limits
-            x = row[:, 0] / RGEO
-            y = row[:, 1] / RGEO
-            z = row[:, 2] / RGEO
-            fig = _make_scatter(x, y, z, xm, ym, zm, limits=limits_plot, title=title, orbit_index=i, save_path=save_path, plot_type="lunar")
-    return fig
-
-
-def lunar_stationary_plot(r, times, limits=False, title='', save_path=False, figsize=(7, 7)):
-    """
-    Parameters
-    ----------
-    r : (n,3) or array of [(n,3), ..., (n,3)] array_like
-        Position of orbiting object(s) in meters.
-    times: array of Astropy time objects
-    limits: optional - x and y limits of the plot
-    title: optional - title of the plot
-    """
-    input_type = check_numpy_array(r)
-    r = gcrf_to_stationary_lunar(r, times)
-    if input_type == "numpy array":
-        x = r[:, 0] / RGEO
-        y = r[:, 1] / RGEO
-        z = r[:, 2] / RGEO
-        fig = _make_scatter(x, y, z, limits=limits, title=title, save_path=save_path, plot_type="stationary_lunar")
-    if input_type == "list of numpy array":
-        limits_plot = 0
-        for i, row in enumerate(r):
-            if limits is False and limits_plot < np.nanmax(norm(row) / RGEO) * 1.2:
-                limits_plot = np.nanmax(norm(row) / RGEO) * 1.2
-            else:
-                limits_plot = limits
-            x = row[:, 0] / RGEO
-            y = row[:, 1] / RGEO
-            z = row[:, 2] / RGEO
-            fig = _make_scatter(x, y, z, limts=limits_plot, title=title, orbit_index=i, save_path=save_path, plot_type="stationary_lunar")
-    return fig
-
-
-def tracking_plot(r, times, ground_stations=None, limits=False, title='', figsize=(7, 8), save_path=False, elev=30, azim=90, scale=5):
-    """
-    Create a 3D tracking plot of satellite positions over time on Earth's surface.
-
-    Parameters
-    ----------
-    r : numpy.ndarray or list of numpy.ndarray
-        Satellite positions in GCRF coordinates. If a single numpy array, it represents the satellite's position vector over time. If a list of numpy arrays, it represents multiple satellite position vectors.
-
-    times : numpy.ndarray
-        Timestamps corresponding to the satellite positions.
-
-    ground_stations : list of tuples, optional
-        List of ground stations represented as (latitude, longitude) pairs. Default is None.
-
-    limits : float or bool, optional
-        The plot limits for x, y, and z axes. If a float, it sets the limits for all axes. If False, the limits are automatically determined based on the data. Default is False.
-
-    title : str, optional
-        Title for the plot. Default is an empty string.
-
-    figsize : tuple, optional
-        Figure size in inches (width, height). Default is (7, 8).
-
-    save_path : str or bool, optional
-        Path to save the plot as an image or PDF. If False, the plot is not saved. Default is False.
-
-    elev : float, optional
-        Elevation angle for the 3D plot view. Default is 30 degrees.
-
-    azim : float, optional
-        Azimuthal angle for the 3D plot view. Default is 90 degrees.
-
-    scale : int, optional
-        Scaling factor for the Earth's image. Default is 5.
-
-    frame : str, optional
-        Coordinate frame for the satellite positions, "gcrf" or "ecef". Default is "gcrf".
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-        The created tracking plot figure.
-
-    Notes
-    -----
-    - The function supports plotting the positions of one or multiple satellites over time.
-    - Ground station locations can be optionally displayed on the plot.
-    - The limits parameter can be set to specify the plot's axis limits or automatically determined if set to False.
-    - The frame parameter determines the coordinate frame for the satellite positions, "gcrf" (default) or "ecef".
-
-    Example Usage
-    -------------
-    - Single satellite tracking plot:
-      tracking_plot(r_satellite, times, ground_stations=[(40, -75)], title="Satellite Tracking")
-
-    - Multiple satellite tracking plot:
-      tracking_plot([r_satellite_1, r_satellite_2], times, title="Multiple Satellite Tracking")
-
-    - Save the plot as a PNG image:
-      tracking_plot(r_satellite, times, save_path="satellite_tracking.png")
-
-    - Customize the plot view:
-      tracking_plot(r_satellite, times, elev=45, azim=120)
-
-    - Set custom axis limits:
-      tracking_plot(r_satellite, times, limits=500)
-    """
-    def _make_plot(r, times, ground_stations, limits, title, figsize, save_path, elev, azim, scale, orbit_index=''):
-        lon, lat, height = groundTrack(r, times)
-        r = gcrf_to_ecef(r, times)
-        x = r[:, 0] / RGEO
-        y = r[:, 1] / RGEO
-        z = r[:, 2] / RGEO
-        if limits is False:
-            limits = np.nanmax(np.abs([x, y, z])) * 1.2
-
-        dotcolors = cm.rainbow(np.linspace(0, 1, len(x)))
+        xm = r_moon[0] / RGEO
+        ym = r_moon[1] / RGEO
+        zm = r_moon[2] / RGEO
+        scatter_dot_colors = cm.rainbow(np.linspace(0, 1, len(x)))
 
         # Creating plot
-        plt.rcParams.update({'font.size': 9, 'figure.facecolor': 'w'})
-        fig = plt.figure(dpi=100, figsize=figsize)
-        earth_png = PILImage.open(find_file("earth", ext=".png"))
-        earth_png = earth_png.resize((5400 // scale, 2700 // scale))
-        ax_gt = fig.add_subplot(2, 2, (3, 4))
-        ax_gt.imshow(earth_png, extent=[-180, 180, -90, 90])
-        ax_gt.plot(np.rad2deg(lon), np.rad2deg(lat))
-        if ground_stations is not None:
-            for ground_station in ground_stations:
-                ax_gt.scatter(ground_station[1], ground_station[0], s=50, color='Red')
-        ax_gt.set_ylim(-90, 90)
-        ax_gt.set_xlim(-180, 180)
-        ax_gt.set_xlabel('longitude [degrees]')
-        ax_gt.set_ylabel('latitude [degrees]')
+        plt.subplot(1, 3, 1)
+        plt.scatter(x, y, color=scatter_dot_colors, s=1)
+        plt.scatter(0, 0, color="blue", s=50)
+        plt.scatter(xm, ym, color="grey", s=5)
+        plt.axis('scaled')
+        plt.xlabel('x [GEO]')
+        plt.ylabel('y [GEO]')
+        plt.xlim((-limits, limits))
+        plt.ylim((-limits, limits))
+        plt.text(x[0], y[0], '$\leftarrow$ start')
+        plt.text(x[-1], y[-1], '$\leftarrow$ end')
 
-        bm = np.array(earth_png.resize([int(d) for d in earth_png.size])) / 256.
-        lons = np.linspace(-180, 180, bm.shape[1]) * np.pi / 180
-        lats = np.linspace(-90, 90, bm.shape[0])[::-1] * np.pi / 180
-        mesh_x = np.outer(np.cos(lons), np.cos(lats)).T * 0.15126911409197252
-        mesh_y = np.outer(np.sin(lons), np.cos(lats)).T * 0.15126911409197252
-        mesh_z = np.outer(np.ones(np.size(lons)), np.sin(lats)).T * 0.15126911409197252
+        plt.subplot(1, 3, 2)
+        plt.scatter(x, z, color=scatter_dot_colors, s=1)
+        plt.scatter(0, 0, color="blue", s=50)
+        plt.scatter(xm, zm, color="grey", s=5)
+        plt.axis('scaled')
+        plt.xlabel('x [GEO]')
+        plt.ylabel('z [GEO]')
+        plt.xlim((-limits, limits))
+        plt.ylim((-limits, limits))
+        plt.text(x[0], z[0], '$\leftarrow$ start')
+        plt.text(x[-1], z[-1], '$\leftarrow$ end')
+        plt.title(f'{title}')
 
-        ax_3d = fig.add_subplot(2, 2, 1, projection='3d')
-        ax_3d.scatter3D(x, y, z, color=dotcolors, s=1)
-        ax_3d.plot_surface(mesh_x, mesh_y, mesh_z, rstride=4, cstride=4, facecolors=bm, shade=False)
-        ax_3d.view_init(elev=elev, azim=azim)
-        ax_3d.set_xlim([-limits, limits])
-        ax_3d.set_ylim([-limits, limits])
-        ax_3d.set_zlim([-limits, limits])
-        ax_3d.set_aspect('equal')  # aspect ratio is 1:1:1 in data space
-        ax_3d.set_xlabel('x [GEO]')
-        ax_3d.set_ylabel('y [GEO]')
-        ax_3d.set_zlabel('z [GEO]')
-
-        ax_3d_r = fig.add_subplot(2, 2, 2, projection='3d')
-        ax_3d_r.scatter3D(x, y, z, color=dotcolors, s=1)
-        ax_3d_r.plot_surface(mesh_x, mesh_y, mesh_z, rstride=4, cstride=4, facecolors=bm, shade=False)
-        ax_3d_r.view_init(elev=elev, azim=180 + azim)
-        ax_3d_r.set_xlim([-limits, limits])
-        ax_3d_r.set_ylim([-limits, limits])
-        ax_3d_r.set_zlim([-limits, limits])
-        ax_3d_r.set_aspect('equal')  # aspect ratio is 1:1:1 in data space
-        ax_3d_r.set_xlabel('x [GEO]')
-        ax_3d_r.set_ylabel('y [GEO]')
-        ax_3d_r.set_zlabel('z [GEO]')
-
-        plt.tight_layout()
-        if save_path:
-            if save_path.lower().endswith('.png'):
-                save_plot_to_png(fig, save_path)
-            else:
-                save_plot_to_pdf(fig, save_path)
-        return fig
-
-    input_type = check_numpy_array(r)
-    if input_type == "numpy array":
-        fig = _make_plot(
-            r, times, ground_stations=ground_stations,
-            limits=limits, title=title, figsize=figsize,
-            save_path=save_path, elev=elev, azim=azim,
-            scale=scale)
-    if input_type == "list of numpy array":
-        limits_plot = 0
-        for i, row in enumerate(r):
-            if limits is False and limits_plot < np.nanmax(norm(row) / RGEO) * 1.2:
-                limits_plot = np.nanmax(norm(row) / RGEO) * 1.2
-            else:
-                limits_plot = limits
-            fig = _make_plot(
-                row, times, ground_stations=ground_stations,
-                limits=limits_plot, title=title, figsize=figsize,
-                elev=elev, azim=azim, save_path=save_path,
-                scale=scale, orbit_index=i
-            )
-    return fig
+        plt.subplot(1, 3, 3)
+        plt.scatter(y, z, color=scatter_dot_colors, s=1)
+        plt.scatter(0, 0, color="blue", s=50)
+        plt.scatter(ym, zm, color="grey", s=5)
+        plt.axis('scaled')
+        plt.xlabel('y [GEO]')
+        plt.ylabel('z [GEO]')
+        plt.xlim((-limits, limits))
+        plt.ylim((-limits, limits))
+        plt.text(y[0], z[0], '$\leftarrow$ start')
+        plt.text(y[-1], z[-1], '$\leftarrow$ end')
+    plt.tight_layout()
+    plt.show(block=False)
+    if save_path:
+        save_plot(fig, save_path)
+    return
 
 
-def plotRVTrace(chain, lnprob, lnprior, start=0, fig=None):
-    """Plot rv MCMC traces.
-
-    Parameters
-    ----------
-    chain : array_like (nStep, nChain, 6)
-        MCMC sample chain.
-    lnprob : array_like (nStep, nChain)
-        Log posterior probability of sample chain.
-    lnprior : array_like (nStep, nChain)
-        Log posterior probability of sample chain.
-    start : int, optional
-        Optional starting index for plot
-    fig : matplotlib Figure, optional
-        Where to make plots.  Will be created if not explicitly supplied.
+def set_color_theme(fig, *axes, theme):
     """
+    Set the color theme of the figure and axes to white or black and the text color to white or black.
+
+    Parameters:
+    - fig (matplotlib.figure.Figure): The figure to modify.
+    - axes (list of matplotlib.axes._subplots.AxesSubplot): One or more axes to modify.
+    - theme (str) either black/dark or white.
+    
+    Returns:
+    - fig (matplotlib.figure.Figure): The modified figure.
+    - axes (tuple of matplotlib.axes._subplots.AxesSubplot): The modified axes.
+
+    This function changes the background color of the given figure and its axes to black or white. 
+    It also sets the color of all text items (title, labels, tick labels) to white or black.
+
+    Example usage:
+    ```
     import matplotlib.pyplot as plt
-    if fig is None:
-        fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(8.5, 11))
-        axes = axes.ravel()
-    else:
-        try:
-            axes = np.array(fig.axes).reshape((4, 2)).ravel()
-        except Exception:
-            raise ValueError("Provided figure has {} axes, but plot requires "
-                             "dimensions K={}".format(np.array(fig.axes).shape, (4, 2)))
 
-    labels = ["x (km)", "y (km)", "z (km)",
-              "vx (km/s)", "vy (km/s)", "vz (km/s)"]
-    xs = np.arange(start, chain.shape[0])
-    for i, (ax, label) in enumerate(zip(axes, labels)):
-        ax.plot(xs, chain[start:, :, i] / 1000, alpha=0.1, color='k')
-        ax.set_ylabel(label)
-    axes[-2].plot(xs, lnprob[start:], alpha=0.1, color='k')
-    axes[-2].set_ylabel("lnprob")
-    axes[-1].plot(xs, lnprior[start:], alpha=0.1, color='k')
-    axes[-1].set_ylabel("lnprior")
-    return fig
-
-
-def plotRVCorner(chain, lnprob, lnprior, start=0, **kwargs):
-    """Make rv samples corner plot.
-
-    Parameters
-    ----------
-    chain : array_like (nStep, nChain, 6)
-        MCMC sample chain.
-    lnprob : array_like (nStep, nChain)
-        Log posterior probability of sample chain.
-    lnprior : array_like (nStep, nChain)
-        Log prior probability of sample chain.
-    start : int, optional
-        Optional starting index for selecting samples
-    kwargs : optional kwargs to pass on to corner.corner
-
-    Returns
-    -------
-    fig : matplotlib.Figure
-        Figure instance from corner.corner.
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [4, 5, 6])
+    set_color_theme(fig, ax, theme='black')
+    plt.show()
+    ```
     """
-    import corner
+    if theme == 'black' or theme == 'dark':
+        background = 'black'
+        secondary = 'white'
+    else:
+        background = 'white'
+        secondary = 'black'
+    
+    fig.patch.set_facecolor(background)
 
-    chain = chain[start:] / 1000
-    lnprob = np.atleast_3d(lnprob[start:])
-    lnprior = np.atleast_3d(lnprior[start:])
-    data = np.concatenate([chain, lnprob, lnprior], axis=2)
-    data = data.reshape((-1, 8))
-    labels = ["x (km)", "y (km)", "z (km)",
-              "vx (km/s)", "vy (km/s)", "vz (km/s)",
-              "lnprob", "lnprior"]
+    for ax in axes:
+        ax.set_facecolor(background)
+        ax_items = [ax.title, ax.xaxis.label, ax.yaxis.label]
+        if hasattr(ax, 'zaxis'):
+            ax_items.append(ax.zaxis.label)
+        ax_items += ax.get_xticklabels() + ax.get_yticklabels()
+        if hasattr(ax, 'get_zticklabels'):
+            ax_items += ax.get_zticklabels()
+        ax_items += ax.get_xticklines() + ax.get_yticklines()
+        if hasattr(ax, 'get_zticklines'):
+            ax_items += ax.get_zticklines()
+        for item in ax_items:
+            item.set_color(secondary)
 
-    return corner.corner(data, labels=labels, **kwargs)
+    return fig, axes
 
 
-######################################################################
+def draw_dashed_circle(ax, normal_vector, radius, dashes, dash_length=0.1, label='Dashed Circle'):
+    """
+    Draw a dashed circle on a 3D axis with a given normal vector.
+
+    Parameters:
+    - ax (matplotlib.axes._subplots.Axes3DSubplot): The 3D axis on which to draw the circle.
+    - normal_vector (array-like): A 3-element array representing the normal vector to the plane of the circle.
+    - radius (float): The radius of the circle.
+    - dashes (int): The number of dashes to be used in drawing the circle.
+    - dash_length (float, optional): The relative length of each dash, as a fraction of the circle's circumference. Default is 0.1.
+    - label (str, optional): The label for the circle. Default is 'Dashed Circle'.
+
+    Returns:
+    None
+
+    This function draws a dashed circle on a 3D axis. The circle is defined in the xy-plane, then rotated to align with the given normal vector. The circle is divided into dashes to create the dashed effect.
+
+    Example usage:
+    ```
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    from your_module import draw_dashed_circle
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    normal_vector = [0, 0, 1]
+    radius = 5
+    dashes = 20
+
+    draw_dashed_circle(ax, normal_vector, radius, dashes)
+
+    plt.show()
+    ```
+    """
+    from .utils import rotation_matrix_from_vectors
+    # Define the circle in the xy-plane
+    theta = np.linspace(0, 2 * np.pi, 1000)
+    x_circle = radius * np.cos(theta)
+    y_circle = radius * np.sin(theta)
+    z_circle = np.zeros_like(theta)
+    
+    # Stack the coordinates into a matrix
+    circle_points = np.vstack((x_circle, y_circle, z_circle)).T
+    
+    # Create the rotation matrix to align z-axis with the normal vector
+    normal_vector = normal_vector / np.linalg.norm(normal_vector)
+    rotation_matrix = rotation_matrix_from_vectors(np.array([0, 0, 1]), normal_vector)
+    
+    # Rotate the circle points
+    rotated_points = circle_points @ rotation_matrix.T
+    
+    # Create dashed effect
+    dash_points = []
+    dash_gap = int(len(theta) / dashes)
+    for i in range(dashes):
+        start_idx = i * dash_gap
+        end_idx = start_idx + int(dash_length * len(theta))
+        dash_points.append(rotated_points[start_idx:end_idx])
+    
+    # Plot the dashed circle in 3D
+    for points in dash_points:
+        ax.plot(points[:, 0], points[:, 1], points[:, 2], 'k--', label=label)
+        label = None  # Only one label
+
+
+# #####################################################################
 # Formatting x axis
-######################################################################
-def format_xaxis_decimal_year(time_array, ax):
-    n = 5  # Number of nearly evenly spaced points to select
+# #####################################################################
+def format_date_axis(time_array, ax):
+    """
+    Format the x-axis of a plot with time-based labels depending on the span of the time array.
+
+    Parameters:
+    - time_array (array-like): An array of time objects (e.g., astropy.time.Time) to be used for the x-axis labels.
+    - ax (matplotlib.axes.Axes): The matplotlib axes object on which to set the x-axis labels.
+
+    Returns:
+    None
+
+    This function formats the x-axis labels of a plot based on the span of the provided time array. The labels are 
+    set to show either hours and day-month or month-year formats, depending on the time span.
+
+    The function performs the following steps:
+    1. If the time span is less than one month:
+        - If the time span is less than a day, the labels show 'HH:MM dd-Mon'.
+        - Otherwise, the labels show 'dd-Mon-YYYY'.
+    2. If the time span is more than one month, the labels show 'Mon-YYYY'.
+
+    The function selects six nearly evenly spaced points in the time array to set the x-axis labels.
+
+    Example usage:
+    ```
+    import matplotlib.pyplot as plt
+    from astropy.time import Time
+    import numpy as np
+
+    # Example time array
+    time_array = Time(['2024-07-01T00:00:00', '2024-07-01T06:00:00', '2024-07-01T12:00:00', 
+                       '2024-07-01T18:00:00', '2024-07-02T00:00:00'])
+
+    fig, ax = plt.subplots()
+    ax.plot(time_array.decimalyear, np.random.rand(len(time_array)))
+    format_date_axis(time_array, ax)
+    plt.show()
+    ```
+    """
+    n = 6  # Number of nearly evenly spaced points to select
     time_span_in_months = (time_array[-1].datetime - time_array[0].datetime).days / 30
     if time_span_in_months < 1:
         # Get the time span in hours
@@ -647,7 +1134,7 @@ def format_xaxis_decimal_year(time_array, ax):
         selected_month_year_strings = [t.strftime('%d-%b-%Y') for t in selected_times]
     else:
         # Get the first of n nearly evenly spaced months in the time
-        step = int(len(time_array) / (n - 1))
+        step = int(len(time_array) / (n - 1)) - 1
         selected_times = time_array[::step]
         selected_month_year_strings = [t.strftime('%b-%Y') for t in selected_times]
     selected_decimal_years = [t.decimalyear for t in selected_times]
@@ -657,18 +1144,47 @@ def format_xaxis_decimal_year(time_array, ax):
 
     # Optional: Rotate the tick labels for better visibility
     plt.xticks(rotation=0)
+    return
 
 
 save_plot_to_pdf_call_count = 0
 
 
 def save_plot_to_pdf(figure, pdf_path):
-    ######################################################################
-    # Save figures appended to a pdf.
-    ######################################################################
-    import io
-    import os
-    import re
+    """
+    Save a Matplotlib figure to a PDF file, with support for merging with existing PDFs.
+
+    Parameters:
+    - figure (matplotlib.figure.Figure): The Matplotlib figure to be saved.
+    - pdf_path (str): The path to the PDF file. If the file exists, the figure will be appended to it.
+
+    Returns:
+    None
+
+    This function saves a Matplotlib figure as a PNG in-memory and then converts it to a PDF.
+    If the specified PDF file already exists, the new figure is appended to it. Otherwise,
+    a new PDF file is created. The function also keeps track of how many times it has been called
+    using a global variable `save_plot_to_pdf_call_count`.
+
+    The function performs the following steps:
+    1. Expands the user directory if the path starts with `~`.
+    2. Generates a temporary PDF path by appending "_temp.pdf" to the original path.
+    3. Saves the figure as a PNG in-memory using a BytesIO buffer.
+    4. Opens the in-memory PNG using PIL and creates a new figure to display the image.
+    5. Saves the new figure with the image into a temporary PDF.
+    6. If the specified PDF file exists, merges the temporary PDF with the existing one.
+       Otherwise, renames the temporary PDF to the specified path.
+    7. Closes the original and temporary figures and prints a message indicating the save location.
+
+    Example usage:
+    ```
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3], [4, 5, 6])
+    save_plot_to_pdf(fig, '~/Desktop/my_plot.pdf')
+    ```
+    """
     global save_plot_to_pdf_call_count
     save_plot_to_pdf_call_count += 1
     if '~' == pdf_path[0]:
@@ -707,21 +1223,57 @@ def save_plot_to_pdf(figure, pdf_path):
     return
 
 
-def save_plot_to_png(figure, save_path, dpi=200):
+def save_plot(figure, save_path, dpi=200):
     """
-    Save a Python figure as a PNG image.
+    Save a Python figure as a PNG/JPG/PDF/ect. image. If no extension is given in the save_path, a .png is defaulted.
 
     Parameters:
         figure (matplotlib.figure.Figure): The figure object to be saved.
-        save_path (str): The file path where the PNG image will be saved.
+        save_path (str): The file path where the image will be saved.
 
     Returns:
         None
     """
+    if save_path.lower().endswith('.pdf'):
+        save_plot_to_pdf(figure, save_path)
+        return
     try:
+        base_name, extension = os.path.splitext(save_path)
+        if extension.lower() == '':
+            save_path = base_name + '.png'
         # Save the figure as a PNG image
         figure.savefig(save_path, dpi=dpi, bbox_inches='tight')
         plt.close(figure)  # Close the figure to release resources
-        print(f"Figure saved at: {save_path}")
+        # print(f"Figure saved at: {save_path}")
     except Exception as e:
         print(f"Error occurred while saving the figure: {e}")
+
+
+def save_animated_gif(gif_name, frames, fps=30):
+    """
+    Create a GIF from a sequence of image frames.
+
+    Parameters:
+    - gif_name (str): The name of the output GIF file, including the .gif extension.
+    - frames (list of str): A list of file paths to the image frames to be included in the GIF.
+    - fps (int, optional): Frames per second for the GIF. Default is 30.
+
+    Returns:
+    None
+
+    This function uses the imageio library to write a GIF file. It prints messages indicating
+    the start and completion of the GIF writing process. Each frame is read from the provided
+    file paths and appended to the GIF.
+
+    Example usage:
+    frames = ['frame1.png', 'frame2.png', 'frame3.png']
+    write_gif('output.gif', frames, fps=24)
+    """
+    import imageio
+    print(f'Writing gif: {gif_name}')
+    with imageio.get_writer(gif_name, mode='I', duration=1 / fps) as writer:
+        for i, filename in enumerate(frames):
+            image = imageio.imread(filename)
+            writer.append_data(image)
+    print(f'Wrote {gif_name}')
+    return

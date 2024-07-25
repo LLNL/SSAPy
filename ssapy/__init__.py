@@ -39,6 +39,7 @@ from . import constants
 from . import plotUtils
 from . import io
 from . import utils
+from . import simple
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from datetime import timedelta
