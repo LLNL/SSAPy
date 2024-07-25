@@ -600,7 +600,7 @@ def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 36
     
     if np.abs(np.max(a) - np.min(a)) < 2:
         ax2.set_ylim((np.min(a) - 0.5, np.max(a) + 0.5))
-    date_format(t, ax1)
+    format_date_axis(t, ax1)
     
     plt.show(block=False)
     if save_path:
@@ -1104,7 +1104,7 @@ def draw_dashed_circle(ax, normal_vector, radius, dashes, dash_length=0.1, label
 # #####################################################################
 # Formatting x axis
 # #####################################################################
-def date_format(time_array, ax):
+def format_date_axis(time_array, ax):
     """
     Format the x-axis of a plot with time-based labels depending on the span of the time array.
 
@@ -1138,7 +1138,7 @@ def date_format(time_array, ax):
 
     fig, ax = plt.subplots()
     ax.plot(time_array.decimalyear, np.random.rand(len(time_array)))
-    date_format(time_array, ax)
+    format_date_axis(time_array, ax)
     plt.show()
     ```
     """
