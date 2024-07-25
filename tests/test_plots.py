@@ -22,7 +22,7 @@ for theta in range(0, 181, 20):
         i += 1
 
 gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
-ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.sortbynum(ssapy.io.listdir(f'{temp_directory}*')), fps=20)
+ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.listdir(f'{temp_directory}*', sorted=True), fps=20)
 shutil.rmtree(temp_directory)
 
 

@@ -679,7 +679,7 @@ def rmfile(pathname):
     return
 
 
-def sortbynum(files, index=0):
+def _sortbynum(files, index=0):
     """
     Sorts a list of file paths based on numeric values in the filenames.
 
@@ -712,10 +712,10 @@ def sortbynum(files, index=0):
 
     Examples:
     --------
-    >>> sortbynum(['file2.txt', 'file10.txt', 'file1.txt'])
+    >>> _sortbynum(['file2.txt', 'file10.txt', 'file1.txt'])
     ['file1.txt', 'file2.txt', 'file10.txt']
 
-    >>> sortbynum(['/path/to/file2.txt', '/path/to/file10.txt', '/path/to/file1.txt'])
+    >>> _sortbynum(['/path/to/file2.txt', '/path/to/file10.txt', '/path/to/file1.txt'])
     ['/path/to/file1.txt', '/path/to/file2.txt', '/path/to/file10.txt']
     """
     import re
@@ -733,7 +733,7 @@ def sortbynum(files, index=0):
     return sorted_files
 
 
-def listdir(dir_path='*', files_only=False, exclude=None, sorted=False):
+def listdir(dir_path='*', files_only=False, exclude=None, sorted=False, index=0):
     """
     Lists files and directories in a specified path with optional filtering and sorting.
 
@@ -747,6 +747,8 @@ def listdir(dir_path='*', files_only=False, exclude=None, sorted=False):
         If specified, excludes files and directories whose base name contains this string.
     sorted : bool, default=False
         If True, sorts the resulting list by numeric values in filenames.
+    index : int, default=0
+        sorted required to be true. Index of the digit used for sorting.
 
     Returns:
     -------
@@ -769,7 +771,7 @@ def listdir(dir_path='*', files_only=False, exclude=None, sorted=False):
         new_files = [file for file in files if exclude not in os.path.basename(file)]
         files = new_files
     if sorted:
-        return sortbynum(files)
+        return _sortbynum(files, index=index)
     else:
         return files
 
