@@ -1281,7 +1281,7 @@ def save_plot(figure, save_path, dpi=200):
         print(f"Error occurred while saving the figure: {e}")
 
 
-def write_gif(gif_name, frames, fps=30):
+def save_animated_gif(gif_name, frames, fps=30):
     """
     Create a GIF from a sequence of image frames.
 

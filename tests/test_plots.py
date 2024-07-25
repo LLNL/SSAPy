@@ -22,7 +22,7 @@ for theta in range(0, 181, 20):
         i += 1
 
 gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
-ssapy.plotUtils.write_gif(gif_name=gif_path, frames=ssapy.io.sortbynum(ssapy.io.listdir(f'{temp_directory}*')), fps=20)
+ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.sortbynum(ssapy.io.listdir(f'{temp_directory}*')), fps=20)
 shutil.rmtree(temp_directory)
 
 
@@ -165,6 +165,6 @@ ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}/lagrange_points")
 print(f"Lagrange points were calculated correctly.")
 print(f"Rotate vector plot successfully created.")
 print(f"save_plot() executed succesfully.")
-print(f"write_gif() executed succesfully.")
+print(f"save_animated_gif() executed succesfully.")
 
 print(f"\nFinished plot testing!\n")
