@@ -625,9 +625,7 @@ def exists(pathname):
     bool
         True if the path exists as either a file or a directory, False otherwise.
     """
-    if os.path.isdir(pathname):
-        exists = True
-    elif os.path.isfile(pathname):
+    if os.path.isdir(pathname) or os.path.isfile(pathname):
         exists = True
     else:
         exists = False
@@ -686,15 +684,38 @@ def sortbynum(files):
     """
     Sorts a list of file paths based on numeric values in the filenames.
 
+    This function assumes that each filename contains at least one numeric value
+    and sorts the files based on the first numeric value found in the filename.
+
     Parameters:
     ----------
     files : list
-        List of file paths to be sorted.
+        List of file paths to be sorted. Each file path can be a full path or just a filename.
 
     Returns:
     -------
     list
         List of file paths sorted by numeric values in their filenames.
+
+    Notes:
+    -----
+    - This function extracts the first numeric value it encounters in each filename.
+    - If no numeric value is found in a filename, the function may raise an error.
+    - The numeric value can appear anywhere in the filename.
+    - The function does not handle cases where filenames have different directory prefixes.
+    
+    Raises:
+    ------
+    ValueError:
+        If a filename does not contain any numeric value.
+
+    Examples:
+    --------
+    >>> sortbynum(['file2.txt', 'file10.txt', 'file1.txt'])
+    ['file1.txt', 'file2.txt', 'file10.txt']
+
+    >>> sortbynum(['/path/to/file2.txt', '/path/to/file10.txt', '/path/to/file1.txt'])
+    ['/path/to/file1.txt', '/path/to/file2.txt', '/path/to/file10.txt']
     """
     import re
     if len(files[0].split('/')) > 1:
