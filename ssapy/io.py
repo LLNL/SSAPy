@@ -626,10 +626,9 @@ def exists(pathname):
         True if the path exists as either a file or a directory, False otherwise.
     """
     if os.path.isdir(pathname) or os.path.isfile(pathname):
-        exists = True
+        return True
     else:
-        exists = False
-    return exists
+        return False
 
 
 def mkdir(pathname):
