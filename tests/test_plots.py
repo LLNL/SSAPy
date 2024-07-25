@@ -31,7 +31,7 @@ times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t='2025-3-
 moon = ssapy.get_body("moon").position(times).T
 
 
-def DRO(t, delta_r=7.52064e7, delta_v=344):
+def initialize_DRO(t, delta_r=7.52064e7, delta_v=344):
     """
     Calculate an orbit with adjustments based on the Moon's position and velocity.
 
@@ -64,7 +64,7 @@ def DRO(t, delta_r=7.52064e7, delta_v=344):
 
 
 # DRO
-dro_orbit = DRO(t=times[0])
+dro_orbit = initialize_DRO(t=times[0])
 r, v, t = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
 ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/DRO_orbit", frame='Lunar', show=False)
 r_lunar, v_lunar = ssapy.utils.gcrf_to_lunar_fixed(r, t=times, v=True)
