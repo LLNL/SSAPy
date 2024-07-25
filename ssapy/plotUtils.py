@@ -1257,11 +1257,11 @@ def save_plot_to_pdf(figure, pdf_path):
 
 def save_plot(figure, save_path, dpi=200):
     """
-    Save a Python figure as a PNG image.
+    Save a Python figure as a PNG/JPG/PDF/ect. image. If no extension is given in the save_path, a .png is defaulted.
 
     Parameters:
         figure (matplotlib.figure.Figure): The figure object to be saved.
-        save_path (str): The file path where the PNG image will be saved.
+        save_path (str): The file path where the image will be saved.
 
     Returns:
         None
@@ -1271,7 +1271,7 @@ def save_plot(figure, save_path, dpi=200):
         return
     try:
         base_name, extension = os.path.splitext(save_path)
-        if extension.lower() != '.png':
+        if extension.lower() == '':
             save_path = base_name + '.png'
         # Save the figure as a PNG image
         figure.savefig(save_path, dpi=dpi, bbox_inches='tight')
