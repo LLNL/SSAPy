@@ -765,7 +765,7 @@ def get_memory_usage():
 ######################################################################
 
 
-def psave(filename_, data_):
+def save_pickle(filename_, data_):
     from six.moves import cPickle as pickle  # for performance
     with open(filename_, 'wb') as f:
         pickle.dump(data_, f)
@@ -773,7 +773,7 @@ def psave(filename_, data_):
     return
 
 
-def pload(filename_):
+def load_pickle(filename_):
     from six.moves import cPickle as pickle  # for performance
     try:
         # print('Openning: ' + current_filename)
@@ -790,9 +790,9 @@ def merge_dicts(file_names, save_path):
     number_of_files = len(file_names); master_dict = {}
     for count, file in enumerate(file_names):
         print(f'Merging dict: {count+1} of {number_of_files}, name: {file}, num of master keys: {len(master_dict.keys())}, num of new keys: {len(master_dict.keys())}')
-        master_dict.update(pload(file))
+        master_dict.update(load_pickle(file))
     print('Beginning final save.')
-    psave(save_path, master_dict)
+    save_pickle(save_path, master_dict)
     return
 
 
@@ -801,7 +801,7 @@ def merge_dicts(file_names, save_path):
 ######################################################################
 
 
-def npsave(filename_, data_):
+def save_np(filename_, data_):
     """
     Save a NumPy array to a binary file.
 
@@ -822,7 +822,7 @@ def npsave(filename_, data_):
     Examples:
     --------
     >>> arr = np.array([1, 2, 3, 4, 5])
-    >>> npsave('array.npy', arr)
+    >>> save_np('array.npy', arr)
     """
     try:
         with open(filename_, 'wb') as f:
@@ -833,7 +833,7 @@ def npsave(filename_, data_):
         return
 
 
-def npload(filename_):
+def load_np(filename_):
     """
     Load a NumPy array from a binary file.
 
@@ -851,7 +851,7 @@ def npload(filename_):
 
     Examples:
     --------
-    >>> arr = npload('array.npy')
+    >>> arr = load_np('array.npy')
     >>> print(arr)
     [1 2 3 4 5]
     """
@@ -1570,9 +1570,9 @@ def pdstr_to_arrays(df):
     return df.apply(str_to_array).to_numpy()
 
 
-def allfiles(dirName=os.getcwd()):
+def get_all_files_recursive(path_name=os.getcwd()):
     # Get the list of all files in directory tree at given path
     listOfFiles = list()
-    for (dirpath, dirnames, filenames) in os.walk(dirName):
+    for (dirpath, dirnames, filenames) in os.walk(path_name):
         listOfFiles += [os.path.join(dirpath, file) for file in filenames]
     return listOfFiles
