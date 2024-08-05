@@ -11,6 +11,7 @@
 
    installation
    examples
+   benchmarks
    concepts
    contribution_guide
 
