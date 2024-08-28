@@ -47,6 +47,13 @@ After cloning the main git repository, you must run the following command to clo
 
     git submodule update --init --recursive
 
+Then checkout the large files
+
+.. code-block:: console
+
+   git lfs install
+   git lfs pull
+
 Then run the usual setup commands:
 
 .. code-block:: console
