@@ -734,7 +734,7 @@ def test_rv():
     np.testing.assert_allclose(v, v2, rtol=0, atol=1e-2)
 
 
-# @timer
+@timer
 def test_groundTrack():
     np.random.seed(5772156)
     NORBIT = 30
@@ -823,7 +823,6 @@ def test_groundTrack():
         normed(r[-1]),
         atol=0.15
     )
-test_groundTrack()
 
 @timer
 def test_dircos():
