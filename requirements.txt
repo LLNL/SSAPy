@@ -21,3 +21,4 @@ matplotlib
 pypdf2
 ipyvolume
 ipython_genutils
+pytest-cov

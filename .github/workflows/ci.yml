@@ -63,6 +63,10 @@ jobs:
     #    python setup.py build
     #    python setup.py install
     #    python -m pip list
+    - name: Run tests
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      run: |
+        coverage run -m pytest ./tests/
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: codecov/codecov-action@v4
