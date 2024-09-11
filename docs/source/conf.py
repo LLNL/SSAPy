@@ -51,6 +51,7 @@ def linkcode_resolve(domain, info):
     try:
         path = inspect.getsourcefile(obj)
         relpath = path[len(modpath) + 1:]
+        relpath = relpath.split(".egg/")[-1]
         _, lineno = inspect.getsourcelines(obj)
     except TypeError:
         # skip property or other type that inspect doesn't like
@@ -61,6 +62,7 @@ def linkcode_resolve(domain, info):
 
 
 autosummary_generate = True
+numpydoc_show_class_members = False
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']
 templates_path = ['_templates']
@@ -76,8 +78,8 @@ master_doc = "index"
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
-html_logo = "images/logo/ssapy_logo.svg"
+html_logo = "_static/images/logo/ssapy_logo.svg"
 html_theme_options = {
     'logo_only': True,
 }
-html_favicon = 'images/logo/ssapy_logo.ico'
+html_favicon = '_static/images/logo/ssapy_logo.ico'
