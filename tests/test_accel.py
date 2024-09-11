@@ -68,6 +68,8 @@ def test_MG_3_1():
 
 @timer
 def test_MG_3_2():
+    # Exercise 3.2 from Montenbruck and Gill
+    # Tests implementation of position of the Moon
     t0 = Time("2006-03-14", scale='tt')
     tt = t0 + np.linspace(0, 4, 5)*u.d
     mg_moon = [[-387105.185,  106264.577,  61207.474],
@@ -171,6 +173,8 @@ def test_angles():
 
 @timer
 def test_MG_3_4_accel():
+    # Exercise 3.4 from Montenbruck and Gill
+    # Tests implementation of harmonic, lunar, solar radiation, and other accelerations
     aSun = ssapy.AccelThirdBody(sun_MG)
     aMoon = ssapy.AccelThirdBody(moon_MG)
     aH2020 = ssapy.AccelHarmonic(earth_MG, n_max=20, m_max=20) + ssapy.AccelKepler(mu=earth_MG.mu)
