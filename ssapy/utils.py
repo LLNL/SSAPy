@@ -564,6 +564,7 @@ def catalog_to_apparent(
     # Code below modeled after SOFA iauPmpx, iauAb routines, but a bit simpler
     # since SSA requirements are only ~arcsec or so.
     # aulty = (u.au / (299792458 * u.m / u.s)).to(u.year).value
+    # SOFA is the Standards of Fundamental Astronomy.
     obsPos, obsVel = get_body_barycentric_posvel('earth', tTime)
     pob = obsPos.xyz.to(u.AU).value
     vob = obsVel.xyz.to(u.m / u.s).value
