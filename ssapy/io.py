@@ -728,12 +728,12 @@ def _sortbynum(files, index=0):
         file_prefix = '/'.join(files[0].split('/')[:-1])
         for file in files:
             files_shortened.append(file.split('/')[-1])
-        files_sorted = sorted(files_shortened, key=lambda x: float(re.findall("(\d+)", x)[index]))
+        files_sorted = sorted(files_shortened, key=lambda x: float(re.findall(r"(\d+)", x)[index]))
         sorted_files = []
         for file in files_sorted:
             sorted_files.append(f'{file_prefix}/{file}')
     else:
-        sorted_files = sorted(files, key=lambda x: float(re.findall("(\d+)", x)[index]))
+        sorted_files = sorted(files, key=lambda x: float(re.findall(r"(\d+)", x)[index]))
     return sorted_files
 
 
