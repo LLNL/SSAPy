@@ -91,7 +91,7 @@ jobs:
         cd docs && make html && make html
         touch _build/html/.nojekyll
     - name: Deploy documentation
-      if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: crazy-max/ghaction-github-pages@v4
       with:
         target_branch: gh-pages
@@ -105,6 +105,7 @@ jobs:
       - run: echo "All jobs passed"
   deploy-images:
     needs: [pass]
+    if: github.event_name == 'push' || github.event_name == 'release'
     runs-on: ubuntu-latest
     permissions:
       packages: write
