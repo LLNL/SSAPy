@@ -1,6 +1,5 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
-# from setuptools import find_packages
 import subprocess
 import sys
 import os
@@ -50,13 +49,13 @@ setup(
     description='Space Situational Awareness',
     author='Michael D. Schneider, William A. Dawson, Julia T. Ebert, Josh Meyers, Eddie Schlafly',
     author_email='meyers18@llnl.gov',
-    url='https://lc.llnl.gov/bitbucket/scm/mad/ssa.git',
+    url='https://github.com/LLNL/SSAPy',
     packages=['ssapy'],
     package_dir={'ssapy': 'ssapy'},
     package_data={'ssapy': ['ssapy/**/*']},
     ext_modules=[CMakeExtension('ssapy._ssapy')],
     cmdclass=dict(build_ext=CMakeBuild),
-    license='TBD',
+    license='MIT',
     tests_require=[
         'pytest',
         'pytest-xdist'
@@ -78,14 +77,6 @@ setup(
         'ipyvolume',
         'ipython_genutils',
         'jplephem',
-        'docutils<0.21',
-        'pytest',
-        'sphinx',
-        'sphinx-rtd-theme',
-        'sphinx-copybutton',
-        'sphinx-autobuild',
-        'sphinx-tabs',
-        'sphinx-automodapi',
         'tqdm',
         'myst-parser',
         'graphviz',
