@@ -542,7 +542,7 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
     return fig, ax
 
 
-def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
+def koe_plot(r, v, t=np.linspace(Time("2025-01-01", scale='utc'), Time("2026-01-01", scale='utc'), int(365.25*24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
     """
     Plot Keplerian orbital elements over time for a given trajectory.
 
