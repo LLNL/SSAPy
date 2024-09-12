@@ -1,17 +1,24 @@
 name: CI/CD
 
 on:
+  # This Workflow can be triggered manually
+  workflow_dispatch:
+  # Run daily at 0:01 UTC
+  schedule:
+    - cron:  '1 0 * * *'
+  # Run on pushes that modify this branch or tag the repo
   push:
     branches:
       - main
     tags:
       - v*.*.*
+  # Run on pull requests that modify this branch/file
   pull_request:
     branches:
       - main
-  # Run daily at 0:01 UTC
-  schedule:
-    - cron:  '1 0 * * *'
+  # Let's also run the workflow on releases
+  release:
+    types: [published]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -35,11 +42,10 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
-
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        python -m pip install --upgrade pip setuptools
+        python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
         # install checked out SSAPy
         python setup.py build
@@ -48,7 +54,7 @@ jobs:
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
-        python -m pip install --upgrade pip setuptools
+        python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
         # install checked out SSAPy
         python setup.py build
@@ -63,6 +69,16 @@ jobs:
     #    python setup.py build
     #    python setup.py install
     #    python -m pip list
+    #- name: Lint code
+    #  if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+    #  run: |
+    #    python3 --version
+    #    flake8 --version
+    #    flake8 ssapy/ tests/ devel/
+    #- name: Test with pytest
+    #  run: |
+    #    python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
+    #    pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: codecov/codecov-action@v4
@@ -75,16 +91,59 @@ jobs:
         cd docs && make html && make html
         touch _build/html/.nojekyll
     - name: Deploy documentation
-      if: github.event_name == 'push' && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: crazy-max/ghaction-github-pages@v4
       with:
         target_branch: gh-pages
         build_dir: docs/_build/html
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   pass:
     needs: [test]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All jobs passed"
+  deploy-images:
+    needs: [pass]
+    if: github.event_name == 'push' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - uses: docker/metadata-action@v5
+        id: docker_meta
+        with:
+          images: |
+              ghcr.io/${{ github.repository_owner }}/centos-s8
+              ${{ github.repository_owner }}/centos-s8
+          tags: |
+              type=schedule,pattern=nightly
+              type=schedule,pattern=develop
+              type=semver,pattern={{version}}
+              type=semver,pattern={{major}}.{{minor}}
+              type=semver,pattern={{major}}
+              type=ref,event=branch
+              type=ref,event=pr
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build & Deploy centos-s8
+        uses: docker/build-push-action@v5
+        with:
+          context: .docker/Dockerfile
+          platforms: 'linux/amd64,linux/arm64'
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+          labels: ${{ steps.docker_meta.outputs.labels }}
+
+  images-built:
+    needs: [deploy-images]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Container built"
