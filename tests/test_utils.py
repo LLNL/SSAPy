@@ -30,7 +30,9 @@ def test_catalog_to_apparent():
 
 @timer
 def test_catalog_to_apparent_SOFA():
-    """Checking against test case using SOFA library"""
+    """Checking against test case using SOFA library,
+    where SOFA is the Standards of Fundamental Astronomy.
+    """
     t = Time("2013-04-02T23:15:43.55", scale='utc')
     ra = np.array([np.deg2rad(15*(14+34/60+16.81183/3600))])
     dec = np.array([-np.deg2rad(12+31/60+10.3965/3600)])
