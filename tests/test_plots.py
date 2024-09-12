@@ -33,7 +33,8 @@ moon = ssapy.get_body("moon").position(times).T
 
 def initialize_DRO(t, delta_r=7.52064e7, delta_v=344):
     """
-    Calculate an orbit with adjustments based on the Moon's position and velocity.
+    Calculate a distant retrograde orbit (DRO) as an orbit with
+    adjustments based on the Moon's position and velocity.
 
     Parameters:
     ----------
@@ -63,7 +64,7 @@ def initialize_DRO(t, delta_r=7.52064e7, delta_v=344):
     return orbit
 
 
-# DRO
+# Distant Retrograde Orbit (DRO)
 dro_orbit = initialize_DRO(t=times[0])
 r, v, t = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
 ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/DRO_orbit", frame='Lunar', show=False)
@@ -80,7 +81,7 @@ print(f"Created a ITRF orbit plot.")
 print(f"Created a Lunar orbit plot.")
 print(f"Created a Lunar axis orbit plot.")
 
-# Globe plot of GTO Orbit
+# Globe plot of a Geostationary Transfer Orbit (GTO)
 r_geo, _, t_geo = ssapy.simple.ssapy_orbit(a=ssapy.constants.RGEO, e=0.3, t=times)
 ssapy.plotUtils.globe_plot(r=r_geo, t=t_geo, save_path=f"{save_folder}/globe_plot", scale=5)
 print('Created a globe plot.')
@@ -111,7 +112,7 @@ for (point, pos), color in zip(ssapy.compute.lunar_lagrange_points(t=times[0]).i
     ax.scatter(pos[0], pos[1], pos[2], color=color, label=point)
     ax.text(pos[0], pos[1], pos[2], point, color=color)
 
-# Add a dashed black circle at distance LD
+# Add a dashed black circle at the lunar distance (LD)
 current_LD = np.linalg.norm(moon_pos, axis=-1)
 normal_vector = ssapy.compute.moon_normal_vector(t=times[0])
 ssapy.plotUtils.draw_dashed_circle(ax, normal_vector, current_LD, 12)
