@@ -86,7 +86,7 @@ def test_teme_orekit():
 
 @timer
 def test_MG_5_1():
-    # Exercise 5.1 from Montenbruck and Gill
+    """Exercise 5.1 from Montenbruck and Gill"""
     import astropy.units as u
     t0 = Time("1999-03-04T00:00:00", scale='utc')
     mjd_tt_j2000 = 51544.5

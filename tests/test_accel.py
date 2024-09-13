@@ -34,9 +34,10 @@ earth_MG = ssapy.Body(
 
 @timer
 def test_MG_3_1():
-    # Exercise 3.1 from Montenbruck and Gill
-    # Tests implementation of harmonic acceleration
-
+    """Exercise 3.1 from Montenbruck and Gill
+    Tests implementation of harmonic acceleration
+    """
+    
     r = np.array([6525.919e3, 1710.416e3, 2508.886e3])
 
     # M&G results
@@ -68,8 +69,9 @@ def test_MG_3_1():
 
 @timer
 def test_MG_3_2():
-    # Exercise 3.2 from Montenbruck and Gill
-    # Tests implementation of position of the Moon
+    """Exercise 3.2 from Montenbruck and Gill
+    Tests implementation of position of the Moon
+    """
     t0 = Time("2006-03-14", scale='tt')
     tt = t0 + np.linspace(0, 4, 5)*u.d
     mg_moon = [[-387105.185,  106264.577,  61207.474],
