@@ -61,7 +61,7 @@ def linkcode_resolve(domain, info):
     )
 
 
-autosummary_generate = True
+autosummary_generate = False
 numpydoc_show_class_members = False
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']
