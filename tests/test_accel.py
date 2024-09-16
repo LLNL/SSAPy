@@ -175,8 +175,9 @@ def test_angles():
 
 @timer
 def test_MG_3_4_accel():
-    # Exercise 3.4 from Montenbruck and Gill
-    # Tests implementation of harmonic, lunar, solar radiation, and other accelerations
+    """Exercise 3.4 from Montenbruck and Gill
+    Tests implementation of harmonic, lunar, solar radiation, and other accelerations
+    """
     aSun = ssapy.AccelThirdBody(sun_MG)
     aMoon = ssapy.AccelThirdBody(moon_MG)
     aH2020 = ssapy.AccelHarmonic(earth_MG, n_max=20, m_max=20) + ssapy.AccelKepler(mu=earth_MG.mu)
