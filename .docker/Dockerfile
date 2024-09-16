@@ -7,7 +7,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vendor="LLNL"
 
 # Copy over SSAPy
-COPY ssapy/ /opt/ssapy/
+COPY SSAPy/ /opt/SSAPy/
 
 # Install C/C++ compilers
 RUN dnf -y update && \
@@ -31,15 +31,15 @@ RUN dnf install -y wget python3.12 python3.12-devel && \
     ls -l /usr/bin/ && \
     python -m pip install --no-cache-dir --upgrade pip && \
     python -m pip install --no-cache-dir --upgrade setuptools && \
-    python -m pip install --no-cache-dir -r /opt/ssapy/requirements.txt && \
+    python -m pip install --no-cache-dir -r /opt/SSAPy/requirements.txt && \
     ls -l /
 
 # Install SSAPY
 RUN ls -la / && \
     ls -la /opt && \
-    ls -la /opt/ssapy && \
-    tree -r /opt/ssapy && \
-    cd /opt/ssapy && \
+    ls -la /opt/SSAPy && \
+    tree -r /opt/SSAPy && \
+    cd /opt/SSAPy && \
     python setup.py build && \
     python setup.py install && \
     chmod -R go+rwX ./ && \
