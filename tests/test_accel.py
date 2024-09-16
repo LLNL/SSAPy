@@ -1065,14 +1065,12 @@ def test_reverse():
         np.testing.assert_allclose(v0, v2, rtol=0, atol=1e-3)
 
 
+
 @timer
-def test_maneuvers():
-    # three maneuvers, Hohman transfer, inclination change, bielliptic transfer
-    # hohman transfer from LEO to GEO; test that eccentricity and
-    # final semimajor axis are close to expectations.
-    # inclination change: do tiny burn to change inclination.  Make
-    # sure that di ~ dv * n * a, and that a and e don't change much.
-    # first a Hohman transfer
+def test_Hohmann_transfer():
+    """
+    Perform a Hohmann transfer from Low Earth Orbit (LEO) to Geostationary Orbit (GEO).
+    """
     earthrad = ssapy.constants.WGS84_EARTH_RADIUS
     rleo = earthrad + 300*1000
     rgeo = ssapy.constants.RGEO
@@ -1085,7 +1083,6 @@ def test_maneuvers():
     dv1 = np.sqrt(vesq1)-np.sqrt(v1sq)
     dv2 = np.sqrt(v2sq)-np.sqrt(vesq2)
     T1 = 2*np.pi*np.sqrt(rleo**3/mu)
-    T2 = 2*np.pi*np.sqrt(rgeo**3/mu)
     Te = 2*np.pi*np.sqrt(rellip**3/mu)
     t0 = Time('2020-01-01T00:00:00').gps
     orbleo = ssapy.Orbit.fromKeplerianElements(rleo, 0, 0, 0, 0, 0, t0)
@@ -1098,26 +1095,46 @@ def test_maneuvers():
     prop = ssapy.propagator.default_numerical(accel=accel)
     rr, vv = ssapy.compute.rv(orbleo, t0+np.arange(8640)*300, prop)
     orbfinal = ssapy.Orbit(r=rr[-1], v=vv[-1], t=t0+(8640-1)*300)
+
+    # Test that final Keplerian elements are as expected
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-5)
     np.testing.assert_allclose(orbfinal.i, 0, atol=1e-5)
     np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=10)
-    # Next, an inclination change.
-    # change inclination by 0.01 rad
-    di = 0.01
-    dvi = di*2*np.pi/T2*rgeo
+
+@timer
+def test_inclination_change():
+    """
+    Perform a small inclination change for a geostationary orbit.
+    """
+    rgeo = ssapy.constants.RGEO
+    mu = ssapy.constants.WGS84_EARTH_MU
+    t0 = Time('2020-01-01T00:00:00').gps
+    T1 = 2*np.pi*np.sqrt(rgeo**3/mu)
+    di = 0.01  # change inclination by 0.01 rad
+    n = 2 * np.pi / T1  # mean motion
+    dvi = di * n * rgeo  # approximate delta-v needed for inclination change
     burni = ssapy.AccelConstNTW(
         [0, 0, dvi],
-        time_breakpoints=[t0+T2-0.5, t0+T2+0.5]
+        time_breakpoints=[t0+T1-0.5, t0+T1+0.5]
     )
     acceli = ssapy.AccelSum([ssapy.AccelKepler(mu), burni])
     propi = ssapy.propagator.default_numerical(accel=acceli)
     orbgeo = ssapy.Orbit.fromKeplerianElements(rgeo, 0, 0, 0, 0, 0, t0)
     rri, vvi = ssapy.compute.rv(orbgeo, t0+np.arange(8640)*200, propi)
     orbfinal = ssapy.Orbit(r=rri[-1], v=vvi[-1], t=t0+(8640-1)*200)
+
+    # Test that final Keplerian elements are as expected
     np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=1)
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-6)
     np.testing.assert_allclose(orbfinal.i, di, atol=1e-6)
-    # Finally, a bielliptic transfer
+
+@timer
+def test_bielliptic_transfer():
+    """
+    Test of bi-elliptic transfer from an initial orbit to a final orbit.
+    """
+    mu = ssapy.constants.WGS84_EARTH_MU
+    t0 = Time('2020-01-01T00:00:00').gps
     a1 = 7000000
     a4 = 105000000
     rb = 210000000
@@ -1137,7 +1154,8 @@ def test_maneuvers():
     T3 = 2*np.pi*np.sqrt(a3**3/mu)
     T4 = 2*np.pi*np.sqrt(a4**3/mu)
     orbi = ssapy.Orbit.fromKeplerianElements(a1, 0, 0, 0, 0, 0, t0)
-    # three burns, separated by half periods for the elliptical orbit.
+
+    # Three burns, separated by half periods for the elliptical orbit.
     dt = 1  # seconds
     burn1 = ssapy.AccelConstNTW(
         [0, dv1/dt, 0],
@@ -1155,6 +1173,8 @@ def test_maneuvers():
     rr, vv = ssapy.rv(
         orbi, tt, prop)
     orbf = ssapy.Orbit(r=rr[-1], v=vv[-1], t=tt[-1])
+
+    # Test that final Keplerian elements are as expected
     np.testing.assert_allclose(orbf.a, a4, atol=100)
     np.testing.assert_allclose(orbf.e, 0, atol=1e-4)
     np.testing.assert_allclose(orbf.i, 0, atol=1e-6)
@@ -1174,4 +1194,6 @@ if __name__ == '__main__':
     test_RK8()
     test_RK78()
     test_reverse()
-    test_maneuvers()
+    test_Hohmann_transfer()
+    test_inclination_change()
+    test_bielliptic_transfer()
