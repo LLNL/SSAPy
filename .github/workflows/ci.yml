@@ -114,6 +114,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+      - name: Look around
+        run: |
+          echo ${{ github.workspace }}
+          pwd
+          ls -alh ./
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -142,8 +147,8 @@ jobs:
       - name: Build & Deploy centos-s8
         uses: docker/build-push-action@v5
         with:
-          context: ../
-          file: SSAPy/.docker/Dockerfile
+          context: .
+          file: .docker/Dockerfile
           platforms: 'linux/amd64,linux/arm64'
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_meta.outputs.tags }}
