@@ -1066,13 +1066,11 @@ def test_reverse():
 
 
 @timer
-def test_maneuvers():
-    # three maneuvers, Hohman transfer, inclination change, bielliptic transfer
-    # hohman transfer from LEO to GEO; test that eccentricity and
-    # final semimajor axis are close to expectations.
-    # inclination change: do tiny burn to change inclination.  Make
-    # sure that di ~ dv * n * a, and that a and e don't change much.
-    # first a Hohman transfer
+def test_Hohmann_transfer():
+    """
+    Test Hohmann transfer between Low Earth Orbit (LEO) and Geostationary Orbit (GEO).
+    Check that (a, e, i) are close to expectations.
+    """
     earthrad = ssapy.constants.WGS84_EARTH_RADIUS
     rleo = earthrad + 300*1000
     rgeo = ssapy.constants.RGEO
@@ -1085,11 +1083,10 @@ def test_maneuvers():
     dv1 = np.sqrt(vesq1)-np.sqrt(v1sq)
     dv2 = np.sqrt(v2sq)-np.sqrt(vesq2)
     T1 = 2*np.pi*np.sqrt(rleo**3/mu)
-    T2 = 2*np.pi*np.sqrt(rgeo**3/mu)
     Te = 2*np.pi*np.sqrt(rellip**3/mu)
     t0 = Time('2020-01-01T00:00:00').gps
     orbleo = ssapy.Orbit.fromKeplerianElements(rleo, 0, 0, 0, 0, 0, t0)
-    # two burns, separated by half a period for the elliptical orbit.
+    # Two burns, separated by half a period for the elliptical orbit
     burn1 = ssapy.AccelConstNTW(
         [0, dv1, 0], time_breakpoints=[t0+T1-0.5, t0+T1+0.5])
     burn2 = ssapy.AccelConstNTW(
@@ -1098,13 +1095,21 @@ def test_maneuvers():
     prop = ssapy.propagator.default_numerical(accel=accel)
     rr, vv = ssapy.compute.rv(orbleo, t0+np.arange(8640)*300, prop)
     orbfinal = ssapy.Orbit(r=rr[-1], v=vv[-1], t=t0+(8640-1)*300)
+    np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=10)
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-5)
     np.testing.assert_allclose(orbfinal.i, 0, atol=1e-5)
-    np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=10)
-    # Next, an inclination change.
-    # change inclination by 0.01 rad
-    di = 0.01
-    dvi = di*2*np.pi/T2*rgeo
+
+def test_inclination_change():
+    """
+    Test inclination change with a small delta-v.  Check that (a, e, i)
+    are close to expectations.
+    """
+    rgeo = ssapy.constants.RGEO
+    mu = ssapy.constants.WGS84_EARTH_MU
+    t0 = Time('2020-01-01T00:00:00').gps
+    T2 = 2*np.pi*np.sqrt(rgeo**3/mu)
+    di = 0.01  # change inclination by 0.01 rad
+    dvi = di*2*np.pi/T2*rgeo  # approximate delta-v needed for plane change
     burni = ssapy.AccelConstNTW(
         [0, 0, dvi],
         time_breakpoints=[t0+T2-0.5, t0+T2+0.5]
@@ -1117,7 +1122,14 @@ def test_maneuvers():
     np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=1)
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-6)
     np.testing.assert_allclose(orbfinal.i, di, atol=1e-6)
-    # Finally, a bielliptic transfer
+
+def test_bielliptic_transfer():
+    """
+    Test bielliptic transfer between two orbits.  Check that
+    (a, e, i) are close to expectations.
+    """
+    mu = ssapy.constants.WGS84_EARTH_MU
+    t0 = Time('2020-01-01T00:00:00').gps
     a1 = 7000000
     a4 = 105000000
     rb = 210000000
@@ -1137,7 +1149,7 @@ def test_maneuvers():
     T3 = 2*np.pi*np.sqrt(a3**3/mu)
     T4 = 2*np.pi*np.sqrt(a4**3/mu)
     orbi = ssapy.Orbit.fromKeplerianElements(a1, 0, 0, 0, 0, 0, t0)
-    # three burns, separated by half periods for the elliptical orbit.
+    # Three burns, separated by half periods for the elliptical orbit
     dt = 1  # seconds
     burn1 = ssapy.AccelConstNTW(
         [0, dv1/dt, 0],
@@ -1174,4 +1186,6 @@ if __name__ == '__main__':
     test_RK8()
     test_RK78()
     test_reverse()
-    test_maneuvers()
+    test_Hohmann_transfer()
+    test_inclination_change()
+    test_bielliptic_transfer()
