@@ -46,9 +46,9 @@ class CMakeBuild(build_ext):
 setup(
     name='SSAPy',
     version='0.7',
-    description='Space Situational Awareness',
-    author='Michael D. Schneider, William A. Dawson, Julia T. Ebert, Josh Meyers, Eddie Schlafly',
-    author_email='meyers18@llnl.gov',
+    description='Space Situational Awareness for Python',
+    author='Michael Schneider, Joshua Meyers, Edward Schlafly, Julia Ebert, Travis Yeager',
+    author_email='yeager7@llnl.gov',
     url='https://github.com/LLNL/SSAPy',
     packages=['ssapy'],
     package_dir={'ssapy': 'ssapy'},

@@ -16,8 +16,8 @@ sys.path.insert(0, os.path.abspath('../../ssapy/'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'SSAPy'
-copyright = '2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert'
-author = 'Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert'
+copyright = '2018, Lawrence Livermore National Security, LLC'
+author = 'Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert, Travis Yeager, et al.'
 
 githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
 
@@ -61,7 +61,7 @@ def linkcode_resolve(domain, info):
     )
 
 
-autosummary_generate = True
+autosummary_generate = False
 numpydoc_show_class_members = False
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']

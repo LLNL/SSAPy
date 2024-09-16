@@ -15,19 +15,30 @@ SSAPy - Space Situational Awareness for Python
 .. |codecov_badge| image:: https://codecov.io/gh/LLNL/SSAPy/branch/main/graph/badge.svg
     :target: https://codecov.io/gh/LLNL/SSAPy
 
-SSAPy is a python package allowing for fast and precise orbital modeling.
+`SSAPy <https://github.com/LLNL/SSAPy>`_ is a fast, flexible, high-fidelity orbital modeling and analysis tool for orbits spanning from low-Earth orbit into the cislunar regime, and includes the following:
 
-SSAPy is much faster than other orbit modeling tools and offers:
-
-- A variety of integrators, including Runge-Kutta, SciPy, SGP4, etc.
-- Customizable force propagation models, including a variety of Earth gravity models, lunar gravity, radiation pressure, etc.
+- Ability to define satellite parameters (area, mass, radiation and drag coefficients, etc.)
+- Support for multiple data types (e.g., read in orbit from TLE file, define a set of Keplerian, Equinoctial, or Kozai Mean Keplerian elements, etc.)
+- Define a fully customizable analytic force propagation model including the following:
+    - Earth gravity models (WGS84, EGM84, EGM96, EGM2008)
+    - Lunar gravity model (point source & harmonic)
+    - Radiation pressure (Earth & solar)
+    - Forces for all planets out to Neptune
+    - Atmospheric drag models
+    - Maneuvering (takes a user defined burn profile)
+- Various community used integrators: SGP4, Runge-Kutta (4, 8, and 7/8), SciPy, Keplerian, Taylor Series
+- User definable timesteps with the ability to return various parameters for any orbit and at any desired timestep (e.g., magnitude, state vector, TLE, Keplerian elements, periapsis, apoapsis, specific angular momentum, and many more.)
+- Ground and space-based observer models
+- Location and time of various lighting conditions of interest
 - Multiple-hypothesis tracking (MHT) UCT linker
-- Vectorized computations
-- Short arc probabilistic orbit determination
+- Vectorized computations (use of array broadcasting for fast computation, easily parallelizable and deployable on HPC machines)
+- Short arc probabilistic orbit determination methods
 - Conjunction probability estimation
-- Uncertainty quantification
-- Monte Carlo data fusion
-- Support for multiple coordinate frames (with coordinate frame conversions)
+- Built-in uncertainty quantification
+- Support for Monte Carlo runs and data fusion
+- Support for multiple coordinate frames and coordinate frame conversions (GCRF, IERS, GCRS Cartesian, TEME Cartesian, ra/dec, NTW, zenith/azimuth, apparent positions, orthoginal tangent plane, and many more.)
+- Various plotting capabilities (ground tracks, 3D orbit plotting, cislunar trajectory visualization, etc.)
+- User definable timesteps and orbit information retrieval times, in which the user can query parameters of interest for that orbit and time.
 
 Installation
 ------------
@@ -92,22 +103,22 @@ Please note that SSAPy has a `Code of Conduct <https://github.com/LLNL/SSAPy/blo
 Authors
 -------
 
-SSAPy was developed with support from Lawrence Livermore National Laboratory's Laboratory Directed Research and Development (LDRD) Program under projects
+SSAPy was developed with support from Lawrence Livermore National Laboratory's (LLNL) Laboratory Directed Research and Development (LDRD) Program under projects
 `19-SI-004 <https://ldrd-annual.llnl.gov/archives/ldrd-annual-2021/project-highlights/high-performance-computing-simulation-and-data-science/madstare-modeling-and-analysis-data-starved-or-ambiguous-environments>`_ and
 `22-ERD-054 <https://ldrd-annual.llnl.gov/ldrd-annual-2023/project-highlights/space-security/data-demand-capable-space-domain-awareness-architecture>`_, by the following individuals (in alphabetical order):
 
-- `Robert Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
-- `Nathan Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
-- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics) - Developer
-- Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_) - Developer
+- `Robert Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Nathan Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_)
+- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics)
+- Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_, now PhD student at `UT Austin <https://www.utexas.edu>`_)
 - `Dan Merl <https://people.llnl.gov/merl1>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
-- `Joshua Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Lead Developer
-- `Caleb Miller <https://people.llnl.gov/miller294>`_ (`LLNL <https://www.llnl.gov/>`_) - Technical Advisor
-- `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
-- `Kerianne Pruett <https://people.llnl.gov/pruett6>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer, Technical Advisor
-- `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Developer
-- `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_) - Creator, Developer, Technical Advisor
-- `Travis Yeager <https://people.llnl.gov/yeager7>`_ (`LLNL <https://www.llnl.gov/>`_) - Lead Developer
+- `Joshua Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Former Lead Developer
+- `Caleb Miller <https://people.llnl.gov/miller294>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Kerianne Pruett <https://people.llnl.gov/pruett6>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Former Lead Developer
+- `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_) - Creator, Former Lead Developer
+- `Travis Yeager <https://people.llnl.gov/yeager7>`_ (`LLNL <https://www.llnl.gov/>`_) - Current Lead Developer
 
 Many thanks go to SSAPy's other `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
 
