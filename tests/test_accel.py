@@ -1107,12 +1107,13 @@ def test_inclination_change():
     rgeo = ssapy.constants.RGEO
     mu = ssapy.constants.WGS84_EARTH_MU
     t0 = Time('2020-01-01T00:00:00').gps
-    T2 = 2*np.pi*np.sqrt(rgeo**3/mu)
+    T1 = 2*np.pi*np.sqrt(rgeo**3/mu)
     di = 0.01  # change inclination by 0.01 rad
-    dvi = di*2*np.pi/T2*rgeo  # approximate delta-v needed for plane change
+    n = 2 * np.pi / T1  # mean motion
+    dvi = di * n * rgeo  # approximate delta-v needed for plane change
     burni = ssapy.AccelConstNTW(
         [0, 0, dvi],
-        time_breakpoints=[t0+T2-0.5, t0+T2+0.5]
+        time_breakpoints=[t0+T1-0.5, t0+T1+0.5]
     )
     acceli = ssapy.AccelSum([ssapy.AccelKepler(mu), burni])
     propi = ssapy.propagator.default_numerical(accel=acceli)
