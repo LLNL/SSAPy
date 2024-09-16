@@ -1067,10 +1067,13 @@ def test_reverse():
 
 
 @timer
-def test_Hohmann_transfer():
-    """
-    Perform a Hohmann transfer from Low Earth Orbit (LEO) to Geostationary Orbit (GEO).
-    """
+def test_maneuvers():
+    # three maneuvers, Hohman transfer, inclination change, bielliptic transfer
+    # hohman transfer from LEO to GEO; test that eccentricity and
+    # final semimajor axis are close to expectations.
+    # inclination change: do tiny burn to change inclination.  Make
+    # sure that di ~ dv * n * a, and that a and e don't change much.
+    # first a Hohman transfer
     earthrad = ssapy.constants.WGS84_EARTH_RADIUS
     rleo = earthrad + 300*1000
     rgeo = ssapy.constants.RGEO
@@ -1100,19 +1103,10 @@ def test_Hohmann_transfer():
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-5)
     np.testing.assert_allclose(orbfinal.i, 0, atol=1e-5)
     np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=10)
-
-@timer
-def test_inclination_change():
-    """
-    Perform a small inclination change for a geostationary orbit.
-    """
-    rgeo = ssapy.constants.RGEO
-    mu = ssapy.constants.WGS84_EARTH_MU
-    t0 = Time('2020-01-01T00:00:00').gps
-    T1 = 2*np.pi*np.sqrt(rgeo**3/mu)
-    di = 0.01  # change inclination by 0.01 rad
-    n = 2 * np.pi / T1  # mean motion
-    dvi = di * n * rgeo  # approximate delta-v needed for inclination change
+    # Next, an inclination change.
+    # change inclination by 0.01 rad
+    di = 0.01
+    dvi = di*2*np.pi/T2*rgeo
     burni = ssapy.AccelConstNTW(
         [0, 0, dvi],
         time_breakpoints=[t0+T1-0.5, t0+T1+0.5]
@@ -1127,14 +1121,7 @@ def test_inclination_change():
     np.testing.assert_allclose(orbfinal.a, ssapy.constants.RGEO, atol=1)
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-6)
     np.testing.assert_allclose(orbfinal.i, di, atol=1e-6)
-
-@timer
-def test_bielliptic_transfer():
-    """
-    Test of bi-elliptic transfer from an initial orbit to a final orbit.
-    """
-    mu = ssapy.constants.WGS84_EARTH_MU
-    t0 = Time('2020-01-01T00:00:00').gps
+    # Finally, a bielliptic transfer
     a1 = 7000000
     a4 = 105000000
     rb = 210000000
