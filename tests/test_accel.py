@@ -1068,8 +1068,9 @@ def test_reverse():
 @timer
 def test_Hohmann_transfer():
     """
-    Test Hohmann transfer between Low Earth Orbit (LEO) and Geostationary Orbit (GEO).
-    Check that (a, e, i) are close to expectations.
+    Test Hohmann transfer between Low Earth Orbit (LEO) and Geostationary 
+    Orbit (GEO).  Check that the semi-major axis (a), eccentricity (e), and
+    inclination (i) are close to expectations.
     """
     earthrad = ssapy.constants.WGS84_EARTH_RADIUS
     rleo = earthrad + 300*1000
@@ -1101,8 +1102,8 @@ def test_Hohmann_transfer():
 
 def test_inclination_change():
     """
-    Test inclination change with a small delta-v.  Check that (a, e, i)
-    are close to expectations.
+    Test inclination change with a small delta-v.  Check that the semi-major
+    axis (a), eccentricity (e), and inclination (i) are close to expectations.
     """
     rgeo = ssapy.constants.RGEO
     mu = ssapy.constants.WGS84_EARTH_MU
@@ -1126,8 +1127,8 @@ def test_inclination_change():
 
 def test_bielliptic_transfer():
     """
-    Test bielliptic transfer between two orbits.  Check that
-    (a, e, i) are close to expectations.
+    Test bielliptic transfer between two orbits.  Check that the semi-major
+    axis (a), eccentricity (e), and inclination (i) are close to expectations.
     """
     mu = ssapy.constants.WGS84_EARTH_MU
     t0 = Time('2020-01-01T00:00:00').gps
