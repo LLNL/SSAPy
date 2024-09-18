@@ -71,6 +71,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("http://docs.scipy.org/doc/numpy", None),
 }
+tls_verify = False
 master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
