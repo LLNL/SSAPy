@@ -1985,7 +1985,6 @@ if __name__ == '__main__':
     # test_light_time_correction()
     test_find_passes()
     # test_musun()
-    # test_MG_2_3()
 
     if args.prof:
         import pstats
