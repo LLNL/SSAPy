@@ -12,7 +12,7 @@ COPY SSAPy/ /opt/SSAPy/
 # Install C/C++ compilers
 RUN echo "sslverify=False" >> /etc/dnf/dnf.conf && \
     dnf -y update && \
-    dnf groupinstall -y "Development Tools" && \
+    dnf groupinstall --exclude=selinux-policy --exclude=selinux-policy-targeted -y "Development Tools" && \
     dnf -y clean all && \
     sed -i '$ d' /etc/dnf/dnf.conf && \
     gcc --version
