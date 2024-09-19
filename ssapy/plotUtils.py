@@ -542,7 +542,7 @@ def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el
     return fig, ax
 
 
-def koe_plot(r, v, t=Time("2025-01-01", scale='utc') + np.linspace(0, int(1 * 365.25), int(365.25 * 24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
+def koe_plot(r, v, t=np.linspace(Time("2025-01-01", scale='utc'), Time("2026-01-01", scale='utc'), int(365.25*24)), elements=['a', 'e', 'i'], save_path=False, body='Earth'):
     """
     Plot Keplerian orbital elements over time for a given trajectory.
 
@@ -917,8 +917,8 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
         plt.ylabel('y [GEO]')
         plt.xlim((-limits, limits))
         plt.ylim((-limits, limits))
-        plt.text(x[0], y[0], '$\leftarrow$ start')
-        plt.text(x[-1], y[-1], '$\leftarrow$ end')
+        plt.text(x[0], y[0], r'$\leftarrow$ start')
+        plt.text(x[-1], y[-1], r'$\leftarrow$ end')
 
         plt.subplot(1, 3, 2)
         plt.scatter(x, z, color=scatter_dot_colors, s=1)
@@ -929,8 +929,8 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
         plt.ylabel('z [GEO]')
         plt.xlim((-limits, limits))
         plt.ylim((-limits, limits))
-        plt.text(x[0], z[0], '$\leftarrow$ start')
-        plt.text(x[-1], z[-1], '$\leftarrow$ end')
+        plt.text(x[0], z[0], r'$\leftarrow$ start')
+        plt.text(x[-1], z[-1], r'$\leftarrow$ end')
         plt.title(f'{title}')
 
         plt.subplot(1, 3, 3)
@@ -942,8 +942,8 @@ def orbit_divergence_plot(rs, r_moon=[], t=False, limits=False, title='', save_p
         plt.ylabel('z [GEO]')
         plt.xlim((-limits, limits))
         plt.ylim((-limits, limits))
-        plt.text(y[0], z[0], '$\leftarrow$ start')
-        plt.text(y[-1], z[-1], '$\leftarrow$ end')
+        plt.text(y[0], z[0], r'$\leftarrow$ start')
+        plt.text(y[-1], z[-1], r'$\leftarrow$ end')
     plt.tight_layout()
     plt.show(block=False)
     if save_path:

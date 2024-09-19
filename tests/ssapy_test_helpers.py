@@ -19,7 +19,7 @@ def timer(f):
 def checkAngle(a, b, rtol=0, atol=1e-14):
     diff = (a-b)%(2*np.pi)
     absdiff = np.min([np.abs(diff), np.abs(2*np.pi-diff)], axis=0)
-    np.testing.assert_allclose(absdiff, 0, rtol=0, atol=atol)
+    np.testing.assert_allclose(absdiff, 0, rtol=rtol, atol=atol)
 
 
 def checkSphere(lon1, lat1, lon2, lat2, atol=1e-14, verbose=False):

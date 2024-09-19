@@ -16,8 +16,8 @@ sys.path.insert(0, os.path.abspath('../../ssapy/'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'SSAPy'
-copyright = '2018, Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert'
-author = 'Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert'
+copyright = '2018, Lawrence Livermore National Security, LLC'
+author = 'Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert, Travis Yeager, et al.'
 
 githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
 
@@ -51,6 +51,7 @@ def linkcode_resolve(domain, info):
     try:
         path = inspect.getsourcefile(obj)
         relpath = path[len(modpath) + 1:]
+        relpath = relpath.split(".egg/")[-1]
         _, lineno = inspect.getsourcelines(obj)
     except TypeError:
         # skip property or other type that inspect doesn't like
@@ -60,7 +61,8 @@ def linkcode_resolve(domain, info):
     )
 
 
-autosummary_generate = True
+autosummary_generate = False
+numpydoc_show_class_members = False
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']
 templates_path = ['_templates']
@@ -69,6 +71,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("http://docs.scipy.org/doc/numpy", None),
 }
+tls_verify = False
 master_doc = "index"
 
 # -- Options for HTML output -------------------------------------------------
@@ -76,8 +79,8 @@ master_doc = "index"
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
-html_logo = "images/logo/ssapy_logo.svg"
+html_logo = "_static/images/logo/ssapy_logo.svg"
 html_theme_options = {
     'logo_only': True,
 }
-html_favicon = 'images/logo/ssapy_logo.ico'
+html_favicon = '_static/images/logo/ssapy_logo.ico'

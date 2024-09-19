@@ -243,10 +243,11 @@ def testThreeAngles():
 
 @timer
 def test_MG_2_6():
-    """Example 2.6 from Montebruck & Gill
+    """Exercise 2.6 from Montenbruck and Gill
 
-    Test the orbit determination from 2 position vectors
+    Tests orbit determination from two position vectors
     """
+    # Elements provided in MG as a solution
     a_ref = 28196776.0 # meters
     e_ref = 0.7679436
     i_ref = np.deg2rad(20.315)
@@ -254,6 +255,7 @@ def test_MG_2_6():
     omega_ref = np.deg2rad(179.425)
     M0_ref = np.deg2rad(29.236)
 
+    # Specify satellite positions at two times
     r1 = np.array([11959978.0, -16289478.0, -5963827.0])
     r2 = np.array([39863390.0, -13730547.0, -4862350.0])
     t1 = Time(2455198.0, format='jd')
@@ -261,6 +263,7 @@ def test_MG_2_6():
 
     orbit = ssapy.SheferTwoPosOrbitSolver(r1, r2, t1, t2).solve()
 
+    # Test that determined elements are close to reference values
     np.testing.assert_allclose(orbit.a, a_ref, atol=1e-1, rtol=0)
     np.testing.assert_allclose(orbit.e, e_ref, atol=1e-6, rtol=0)
     np.testing.assert_allclose(orbit.i, i_ref, atol=1e-5, rtol=0)

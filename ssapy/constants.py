@@ -1,5 +1,194 @@
 """
 A collection of physical constants.
+
+.. data:: WGS84_EARTH_MU
+
+    Earth gravitational constant from WGS84 model [m³/s²]
+
+.. data:: WGS72_EARTH_MU
+
+    Earth gravitational constant from WGS72 model [m³/s²]
+
+.. data:: WGS84_EARTH_OMEGA
+
+    Earth angular velocity from WGS84 model [rad/s]
+
+.. data:: WGS72_EARTH_OMEGA
+
+    Earth angular velocity from WGS72 model [rad/s]
+
+.. data:: WGS84_EARTH_RADIUS
+
+    Earth radius at equator from WGS84 model [m]
+
+.. data:: WGS72_EARTH_RADIUS
+
+    Earth radius at equator from WGS72 model [m]
+
+.. data:: WGS84_EARTH_FLATTENING
+
+    Earth flattening f = (a - b) / a where a and b are the major
+    and minor axes respectively, from WGS84 model [unitless]
+
+.. data:: WGS72_EARTH_FLATTENING
+
+    Earth flattening f = (a - b) / a where a and b are the major
+    and minor axes respectively, from WGS72 model [unitless]
+
+.. data:: WGS84_EARTH_POLAR_RADIUS
+
+    Earth polar radius, calculated by multiplying the equatorial
+    radius by (1 - flattening), from WGS84 model [m]
+
+.. data:: WGS72_EARTH_POLAR_RADIUS
+
+    Earth polar radius, calculated by multiplying the equatorial
+    radius by (1 - flattening), from WGS72 model [m]
+
+.. data:: RGEO
+
+    GEO-synchronous radius [m]
+
+.. data:: VGEO
+
+    GEO-synchronous velocity [m/s]
+
+.. data:: RGEOALT
+
+    GEO-synchronous altitude [m]
+
+.. data:: VLEO
+
+    Approximate orbital velocity for low earth orbit (altitude of 500km) [m/s]
+
+.. data:: LD
+
+    Lunar semi-major axis [m]
+
+Gravitational constants
+-----------------------
+
+.. data:: SUN_MU
+
+    Sun gravitational constant, from IAU 1976 model [m³/s²]
+
+.. data:: MOON_MU
+
+    Moon gravitational constant, from the DE200 ephemeris [m³/s²]
+
+.. data:: MERCURY_MU
+
+    Mercury gravitational constant [m³/s²]
+
+.. data:: VENUS_MU
+
+    Venus gravitational constant [m³/s²]
+
+.. data:: EARTH_MU
+
+    Earth gravitational constant, from WGS84 model [m³/s²]
+
+.. data:: MARS_MU
+
+    Mars gravitational constant [m³/s²]
+
+.. data:: JUPITER_MU
+
+    Jupiter gravitational constant [m³/s²]
+
+.. data:: SATURN_MU
+
+    Saturn gravitational constant [m³/s²]
+
+.. data:: URANUS_MU
+
+    Uranus gravitational constant [m³/s²]
+
+.. data:: NEPTUNE_MU
+
+    Neptune gravitational constant [m³/s²]
+
+Mass
+----
+
+.. data:: SUN_MASS
+
+    Sun mass, from the DE405 ephemeris [kg]
+
+.. data:: MOON_MASS
+
+    Moon mass, from the DE405 ephemeris [kg]
+
+.. data:: MERCURY_MASS
+
+    Mercury mass, from the DE405 ephemeris [kg]
+
+.. data:: VENUS_MASS
+
+    Venus mass, from the DE405 ephemeris [kg]
+
+.. data:: EARTH_MASS
+
+    Earth mass, from the DE405 ephemeris [kg]
+
+.. data:: MARS_MASS
+
+    Mars mass, from the DE405 ephemeris [kg]
+
+.. data:: JUPITER_MASS
+
+    Jupiter mass, from the DE405 ephemeris [kg]
+
+.. data:: SATURN_MASS
+
+    Saturn mass, from the DE405 ephemeris [kg]
+
+.. data:: URANUS_MASS
+
+    Uranus mass, from the DE405 ephemeris [kg]
+
+.. data:: NEPTUNE_MASS
+
+    Neptune mass, from the DE405 ephemeris [kg]
+
+Radius
+------
+
+.. data:: MOON_RADIUS
+
+    Moon radius (source: 10.2138/rmg.2006.60.3) [m]
+
+.. data:: MERCURY_RADIUS
+
+    Mercury radius [m]
+
+.. data:: VENUS_RADIUS
+
+    Venus radius [m]
+
+.. data:: EARTH_RADIUS
+
+    Earth radius [m]
+
+.. data:: MARS_RADIUS
+
+    Mars radius [m]
+
+.. data:: JUPITER_RADIUS
+
+    Jupiter radius [m]
+
+.. data:: SATURN_RADIUS
+
+    Saturn radius [m]
+
+.. data:: URANUS_RADIUS
+
+    Uranus radius [m]
+
+.. data:: NEPTUNE_RADIUS
+
+    Neptune radius [m]
 """
 
 import numpy as np

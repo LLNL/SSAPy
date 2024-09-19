@@ -1900,6 +1900,56 @@ def test_musun():
     np.testing.assert_allclose(orbit.v, v)
 
 
+def test_MG_2_3():
+    """Exercise 2.3 from Montenbruck and Gill
+    Tests conversion of position and velocity vectors to Keplerian elements
+    """
+    # Provided position and velocity vectors
+    r_ref = np.array([10000.0, 40000.0, -5000.0]) * 1000  # [m]
+    v_ref = np.array([-1.5, 1.0, -0.1]) * 1000  # [m/s]
+
+    # Instantiate Orbit object with position and velocity
+    t = Time("2020-01-01 00:00:00.000000")
+    orbit = ssapy.Orbit(r_ref, v_ref, t=t)
+
+    # Compute Keplerian elements for this orbit
+    orbit._setKeplerian()
+
+    # Reference element values provided in Montenbruck and Gill
+    a_ref = 25015.181 * 1000  # semi-major axis [m]
+    e_ref = 0.7079772  # eccentricity
+    i_ref = np.deg2rad(6.971)  # inclination
+    raan_ref = np.deg2rad(173.290)  # right ascension of ascending node
+    pa_ref = np.deg2rad(91.553)  # argument of perigee
+    meanAnomaly_ref = np.deg2rad(144.225)  # mean anomaly
+
+    # Check that reference elements and computed elements are close
+    np.testing.assert_allclose(
+        a_ref, orbit.a, atol=1e-5, err_msg="Semi-major axis test failed"
+    )
+    np.testing.assert_allclose(
+        e_ref, orbit.e, atol=1e-5, err_msg="Eccentricity test failed"
+    )
+    np.testing.assert_allclose(
+        i_ref, orbit.i, atol=1e-5, err_msg="Inclination test failed"
+    )
+    np.testing.assert_allclose(
+        raan_ref,
+        orbit.raan,
+        atol=1e-5,
+        err_msg="Right ascension of ascending node test failed",
+    )
+    np.testing.assert_allclose(
+        pa_ref, orbit.pa, atol=1e-5, err_msg="Argument of perigee test failed"
+    )
+    np.testing.assert_allclose(
+        meanAnomaly_ref,
+        orbit.meanAnomaly,
+        atol=1e-5,
+        err_msg="Mean anomaly test failed",
+    )
+
+
 if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()

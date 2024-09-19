@@ -86,6 +86,7 @@ def test_teme_orekit():
 
 @timer
 def test_MG_5_1():
+    """Exercise 5.1 from Montenbruck and Gill"""
     import astropy.units as u
     t0 = Time("1999-03-04T00:00:00", scale='utc')
     mjd_tt_j2000 = 51544.5
@@ -108,16 +109,21 @@ def test_MG_5_1():
         [0, 0, 1]
     ])
 
+    # Precession transformation matrix
     MG_prec = np.array([
         [+0.99999998, +0.00018581, +0.00008074],
         [-0.00018581, +0.99999998, -0.00000001],
         [-0.00008074, -0.00000001, +1.00000000]
     ])
+
+    # Nutation transformation matrix
     MG_nut = np.array([
         [+1.00000000, +0.00004484, +0.00001944],
         [-0.00004484, +1.00000000, +0.00003207],
         [-0.00001944, -0.00003207, +1.00000000]
     ])
+
+    # Earth rotation transformation matrix
     MG_GHA = np.array([
         [-0.94730417, +0.32033547, +0.00000000],
         [-0.32033547, -0.94730417, +0.00000000],
@@ -135,13 +141,15 @@ def test_MG_5_1():
     np.testing.assert_allclose(pmy, 0.00000117, rtol=0, atol=1e-8)
 
     # We don't have a route to compute polar motion in ssapy.  So just assert
-    # answer from MG for now.
+    # polar motion transformation matrix from MG for now.
     pol = np.array([
         [+1.0, +0.0, +pmx],
         [+0.0, +1.0, -pmy],
         [-pmx, +pmy, +1.0]
     ])
 
+    # Transformation matrix from International Celestial Reference System (ICRS) to
+    # International Terrestrial Reference System (ITRS)
     U = pol@GHA@nut@prec
     MG_U = np.array([
         [-0.94737803, +0.32011696, -0.00008431],
