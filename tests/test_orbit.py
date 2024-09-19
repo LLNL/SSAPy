@@ -1886,7 +1886,7 @@ def test_musun():
     # failing example.
 
     a = u.AU.to(u.m)
-    mu = ssapy.constants.GM_SUN
+    mu = ssapy.constants.SUN_MU
     e = 0.001
     i = 0.001
     pa = 0.001
