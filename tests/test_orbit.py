@@ -15,7 +15,7 @@ from ssapy.orbit import _hyperbolicEccentricToTrueLongitude, _hyperbolicTrueToEc
 from ssapy.orbit import _ellipticalEccentricToMeanLongitude, _ellipticalMeanToEccentricLongitude
 from ssapy.orbit import _hyperbolicEccentricToMeanLongitude, _hyperbolicMeanToEccentricLongitude
 from ssapy.utils import normed, norm, teme_to_gcrf
-from ssapy_test_helpers import timer, checkAngle, checkSphere
+from ssapy_test_helpers import timer, checkAngle, checkSphere, sample_orbit, sample_LEO_orbit, sample_GEO_orbit
 
 
 try:
@@ -142,28 +142,10 @@ def test_orbit_ctor():
     eqElts = []
     kElts = []
     for _ in range(1000):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        rs.append(r)
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-        vs.append(v)
+        orbit = sample_GEO_orbit(t=0.0)
+        rs.append(orbit.r)
+        vs.append(orbit.v)
 
-        orbit = ssapy.Orbit(r, v, 0.0)
         eqElts.append(orbit.equinoctialElements)
         kElts.append(orbit.keplerianElements)
         orbit2 = ssapy.Orbit.fromEquinoctialElements(*orbit.equinoctialElements, orbit.t)
@@ -182,32 +164,14 @@ def test_orbit_ctor():
             np.testing.assert_allclose(orb.hx, np.tan(orb.i/2)*np.cos(orb.raan))
             np.testing.assert_allclose(orb.hy, np.tan(orb.i/2)*np.sin(orb.raan))
             checkAngle(orb.lv, orb.trueAnomaly + lonPa, atol=1e-13)
-            np.testing.assert_allclose(r, orb.r, atol=1e-4, rtol=0)
-            np.testing.assert_allclose(v, orb.v, atol=1e-8, rtol=0)
+            np.testing.assert_allclose(orbit.r, orb.r, atol=1e-4, rtol=0)
+            np.testing.assert_allclose(orbit.v, orb.v, atol=1e-8, rtol=0)
             np.testing.assert_equal(0, orb.t)
 
-        # Repeat near LEO
-        r = np.random.uniform(7e6, 1e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        rs.append(r)
-        # Pick a velocity near VLEO
-        v = np.random.uniform(7.7e3, 7.9e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-        vs.append(v)
+        orbit = sample_LEO_orbit(t=0.0)
+        rs.append(orbit.r)
+        vs.append(orbit.v)
 
-        orbit = ssapy.Orbit(r, v, 0.0)
         eqElts.append(orbit.equinoctialElements)
         kElts.append(orbit.keplerianElements)
         orbit2 = ssapy.Orbit.fromEquinoctialElements(*orbit.equinoctialElements, orbit.t)
@@ -226,8 +190,8 @@ def test_orbit_ctor():
             np.testing.assert_allclose(orb.hx, np.tan(orb.i/2)*np.cos(orb.raan))
             np.testing.assert_allclose(orb.hy, np.tan(orb.i/2)*np.sin(orb.raan))
             checkAngle(orb.lv, orb.trueAnomaly + lonPa, atol=1e-13)
-            np.testing.assert_allclose(r, orb.r, atol=1e-4, rtol=0)
-            np.testing.assert_allclose(v, orb.v, atol=1e-8, rtol=0)
+            np.testing.assert_allclose(orbit.r, orb.r, atol=1e-4, rtol=0)
+            np.testing.assert_allclose(orbit.v, orb.v, atol=1e-8, rtol=0)
             np.testing.assert_equal(0, orb.t)
 
     # Construct an "Orbit" with array arguments
@@ -367,27 +331,8 @@ def test_orbit_rv():
     np.random.seed(57721)
 
     for _ in range(1000):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbit = ssapy.Orbit(r, v, 0.0)
-
+        # Test near GEO
+        orbit = sample_GEO_orbit(t=0.0)
         true_anomalies = np.random.uniform(-2*np.pi, 2*np.pi, size=1)
         true_longitudes = true_anomalies + orbit.pa + orbit.raan
         r1, v1 = orbit._rvFromKeplerian(np.atleast_2d(true_anomalies))
@@ -396,31 +341,11 @@ def test_orbit_rv():
         np.testing.assert_allclose(v1, v2, atol=1e-6, rtol=1e-11)
 
         # Repeat near LEO
-        r = np.random.uniform(7e6, 1e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VLEO
-        v = np.random.uniform(7.7e3, 7.9e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbit = ssapy.Orbit(r, v, 0.0)
-
+        orbit = sample_LEO_orbit(t=0.0)
         true_anomalies = np.random.uniform(-2*np.pi, 2*np.pi, size=1)
         true_longitudes = true_anomalies + orbit.pa + orbit.raan
         r1, v1 = orbit._rvFromKeplerian(np.atleast_2d(true_anomalies))
         r2, v2 = orbit._rvFromEquinoctial(lv=np.atleast_2d(true_longitudes))
-
         np.testing.assert_allclose(r1, r2, atol=1e-4, rtol=1e-13)
         np.testing.assert_allclose(v1, v2, atol=1e-6, rtol=1e-11)
 
@@ -448,27 +373,8 @@ def test_orekit():
     t0 = Time('J2000.0')
 
     for i in range(100):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
 
-        orbit = ssapy.Orbit(r, v, t0)
-
+        orbit = sample_GEO_orbit(t0)
         true_anomalies = np.random.uniform(-2*np.pi, 2*np.pi, size=1)
 
         # Now construct an orekit orbit and compare
@@ -648,26 +554,8 @@ def test_rv():
 
     orbits = []
     for _ in range(NORBIT):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbit = sample_GEO_orbit(t=Time("J2000"))
+        orbits.append(orbit)
 
     for prop in [
         ssapy.KeplerianPropagator(), ssapy.SeriesPropagator(0),
@@ -742,26 +630,8 @@ def test_groundTrack():
 
     orbits = []
     for _ in range(NORBIT):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbit = sample_GEO_orbit(t=Time("J2000"))
+        orbits.append(orbit)
 
     for prop in [
         ssapy.KeplerianPropagator(), ssapy.SeriesPropagator(0),
@@ -834,26 +704,8 @@ def test_dircos():
     # Just checking broadcasting behavior for the moment
     orbits = []
     for _ in range(NORBIT):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbit = sample_GEO_orbit(t=Time("J2000"))
+        orbits.append(orbit)
 
     times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
 
@@ -977,26 +829,8 @@ def test_radec():
     # Just checking broadcasting behavior for the moment
     orbits = []
     for _ in range(30):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbit = sample_GEO_orbit(t=Time("J2000"))
+        orbits.append(orbit)
 
     times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
 
@@ -1151,33 +985,16 @@ def test_radecRate():
     orbits = []
     for _ in range(NORBIT):
         while True:
-            # Pick a distance between LEO and GEO
-            r = np.random.uniform(7e6, 5e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near between LEO and GEO
-            v = np.random.uniform(2.7e3, 8.3e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, Time("J2000"))
-            # exclude if intersects earth or is unbound;
+            # For sampling orbits, pick a distance between LEO and GEO
+            orbit = sample_orbit(t=Time("J2000"), r_low=7e6, r_high=5e7, v_low=2.7e3, v_high=8.3e3)
+            # Exclude orbit if it intersects earth or is unbound
             if norm(orbit.periapsis) < 6.4e6:
                 continue
             if orbit.energy > 0:
                 continue
             break
 
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbits.append(orbit)
 
     times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
 
@@ -1368,26 +1185,8 @@ def test_altaz():
     # Just checking broadcasting behavior for the moment
     orbits = []
     for _ in range(NORBIT):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbit = sample_GEO_orbit(t=Time("J2000"))
+        orbits.append(orbit)
 
     times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
 
@@ -1454,26 +1253,8 @@ def test_multiprocessing():
 
     orbits = []
     for _ in range(NORBIT):
-        # Pick a distance near GEO
-        r = np.random.uniform(4e7, 5e7)
-        # Pick a random direction (not uniform on sphere)
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        x = r * np.cos(theta) * np.sin(phi)
-        y = r * np.sin(theta) * np.sin(phi)
-        z = r * np.cos(phi)
-        r = np.array([x, y, z])
-        # Pick a velocity near VGEO
-        v = np.random.uniform(2.7e3, 3.3e3)
-        # and a randomish direction
-        theta = np.random.uniform(0, 2*np.pi)
-        phi = np.random.uniform(0, np.pi)
-        vx = v * np.cos(theta) * np.sin(phi)
-        vy = v * np.sin(theta) * np.sin(phi)
-        vz = v * np.cos(phi)
-        v = np.array([vx, vy, vz])
-
-        orbits.append(ssapy.Orbit(r, v, Time("J2000")))
+        orbit = sample_GEO_orbit(t=Time("J2000"))
+        orbits.append(orbit)
 
     time = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
     ff = f(time)
@@ -1604,27 +1385,8 @@ def test_sgp4_vector():
     np.random.seed(57721566490153 % 2**32)
     for _ in range(10):
         while True:
-            # Pick a distance near GEO
-            r = np.random.uniform(4e7, 5e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VGEO
-            v = np.random.uniform(2.7e3, 3.3e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-
-            orbit = ssapy.Orbit(r, v, 0.0)
-            # Skip orbits with perigees close to Earth's surface
+            orbit = sample_GEO_orbit(t=0.0)
+            # Skip orbit if perigee is close to Earth's surface
             if np.sqrt(np.sum(orbit.periapsis**2)) > 1e7:
                 break
 
