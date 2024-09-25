@@ -1528,14 +1528,32 @@ def ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=None, vz=None, r_
 
 
 def lonlat_distance(lat1, lat2, lon1, lon2):
-    # Haversine formula
+    """Calculate the great-circle distance between two points 
+    on Earth's surface using the Haversine formula.
+
+    Parameters
+    ----------
+    lat1 : float
+        Latitude of the first point in radians.
+    lat2 : float
+        Latitude of the second point in radians.
+    lon1 : float
+        Longitude of the first point in radians.
+    lon2 : float
+        Longitude of the second point in radians.
+
+    Returns
+    -------
+    distance : float
+        Distance between the two points in kilometers.
+    """
     dlon = lon2 - lon1
     dlat = lat2 - lat1
     a = np.sin(dlat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2)**2
     c = 2 * np.arcsin(np.sqrt(a))
-    # Radius of earth in kilometers. Use 3956 for miles
-    # calculate the result
-    return (c * EARTH_RADIUS)
+    # Calculate distance in kilometers, use 3956 for miles
+    distance = c * EARTH_RADIUS
+    return distance
 
 
 def altitude_to_zenithangle(altitude, deg=True):
