@@ -770,7 +770,7 @@ def xyz_to_lb(x, y, z):
 def lb_to_tan(lb, b, mul=None, mub=None, lcen=None, bcen=None):
     """Convert lb-like coordinates & proper motions to orthographic tangent plane.
 
-    Everything is in radians.  If mul is None (default), transformed
+    All units are in radians.  If mul is None (default), transformed
     proper motions will not be returned.  The tangent plane is always chosen
     so that +Y is towards b = 90, and +X is towards +lb.
 
