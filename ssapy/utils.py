@@ -210,9 +210,11 @@ def cluster_emcee_walkers(
     chain, lnprob, lnprior, thresh_multiplier=1, verbose=False
 ):
     """
-    Down-select emcee walkers to those with the largest mean posteriors
+    Down-select emcee walkers to those with the largest posterior mean.
 
-    Follows the algorithm of Hou, Goodman, Hogg et al. (2012)
+    Follows the algorithm of Hou, Goodman, Hogg et al. (2012), An affine-invariant
+    sampler for exoplanet fitting and discovery in radial velocity data.
+    The Astrophysical Journal, 745(2), 198.
     """
     import emcee
     from distutils.version import LooseVersion
