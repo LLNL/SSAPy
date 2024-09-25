@@ -990,10 +990,26 @@ def unscented_transform_mean_covar(f, x, C, scale=1):
 
 
 def _gpsToTT(t):
-    # Check if t is astropy Time object if so convert to GPS seconds if not assume GPS seconds.  Convert to TT seconds by adding 51.184.
-    # Divide by 86400 to get TT days.
-    # Then add the TT time of the GPS epoch, expressed as an MJD, which
-    # is 44244.0
+    """
+    Convert GPS time to Terrestrial Time (TT).
+
+    Parameters:
+    ----------
+    t : Time or float
+        If `t` is an instance of `astropy.time.Time`, it is assumed to represent GPS time in the form of an Astropy Time object.
+        If `t` is a float, it is assumed to be GPS time in seconds.
+
+    Returns:
+    -------
+    float
+        The equivalent time in Terrestrial Time (TT) expressed in days since the GPS epoch (January 6, 1980).
+
+    Notes:
+    -----
+    The conversion involves adding a constant offset of 51.184 seconds to the GPS time,
+    then converting the result into days by dividing by 86400 (the number of seconds in a day).
+    The epoch for GPS is represented as a Modified Julian Date (MJD) of 44244.0.
+    """
     if isinstance(t, Time):
         t = t.gps
     return 44244.0 + (t + 51.184) / 86400
