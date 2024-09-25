@@ -963,8 +963,8 @@ def sigma_points(f, x, C, scale=1, fixed_dimensions=None):
 
 
 def unscented_transform_mean_covar(f, x, C, scale=1):
-    """Compute mean and covar using unscented transform given a transformation
-    f, a point x, and a covariance C.
+    """Compute mean and covariance matrix using unscented transform given a
+    transformation f, a point x, and a covariance C.
 
     This uses the sigma point convention from sigma_points.  It assumes that
     f(sigma_points)[i] is f evaluated at the ith sigma point.  If f does
