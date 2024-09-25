@@ -1538,7 +1538,7 @@ def lonlat_distance(lat1, lat2, lon1, lon2):
     return (c * EARTH_RADIUS)
 
 
-def altitude2zenithangle(altitude, deg=True):
+def altitude_to_zenithangle(altitude, deg=True):
     if deg:
         out = 90 - altitude
     else:
@@ -1546,7 +1546,7 @@ def altitude2zenithangle(altitude, deg=True):
     return out
 
 
-def zenithangle2altitude(zenith_angle, deg=True):
+def zenithangle_to_altitude(zenith_angle, deg=True):
     if deg:
         out = 90 - zenith_angle
     else:
@@ -1554,7 +1554,7 @@ def zenithangle2altitude(zenith_angle, deg=True):
     return out
 
 
-def rightasension2hourangle(right_ascension, local_time):
+def rightascension_to_hourangle(right_ascension, local_time):
     if type(right_ascension) is not str:
         right_ascension = dd_to_hms(right_ascension)
     if type(local_time) is not str:
@@ -1570,7 +1570,7 @@ def rightasension2hourangle(right_ascension, local_time):
 
 def equatorial_to_horizontal(observer_latitude, declination, right_ascension=None, hour_angle=None, local_time=None, hms=False):
     if right_ascension is not None:
-        hour_angle = rightasension2hourangle(right_ascension, local_time)
+        hour_angle = rightascension_to_hourangle(right_ascension, local_time)
         if hms:
             hour_angle = hms_to_dd(hour_angle)
     elif hour_angle is not None:
@@ -1587,7 +1587,7 @@ def equatorial_to_horizontal(observer_latitude, declination, right_ascension=Non
 
     zenith_angle = np.arccos(np.sin(observer_latitude) * np.sin(declination) + np.cos(observer_latitude) * np.cos(declination) * np.cos(hour_angle))
 
-    altitude = zenithangle2altitude(zenith_angle, deg=False)
+    altitude = zenithangle_to_altitude(zenith_angle, deg=False)
 
     _num = np.sin(declination) - np.sin(observer_latitude) * np.cos(zenith_angle)
     _den = np.cos(observer_latitude) * np.sin(zenith_angle)
@@ -1602,7 +1602,7 @@ def equatorial_to_horizontal(observer_latitude, declination, right_ascension=Non
 
 def horizontal_to_equatorial(observer_latitude, azimuth, altitude):
     altitude, azimuth, latitude = np.radians([altitude, azimuth, observer_latitude])
-    zenith_angle = zenithangle2altitude(altitude)
+    zenith_angle = zenithangle_to_altitude(altitude)
 
     zenith_angle = [-zenith_angle if latitude < 0 else zenith_angle][0]
 
