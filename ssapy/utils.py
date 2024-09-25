@@ -382,7 +382,7 @@ def regularize_default(particles, weights, num_particles_out=None, dimension=6):
     :type dimension: int, optional
 
     :return: Deltas from original particles and their weights
-    :rtype: (numpy.ndarray, numpy.ndarry)
+    :rtype: (numpy.ndarray, numpy.ndarray)
     """
     num_particles_in, dim_in = particles.shape
     if num_particles_out is None:
