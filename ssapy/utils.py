@@ -2028,6 +2028,7 @@ def get_times(duration, freq, t):
         The starting time. Default is "2025-01-01".
     example input:
     duration=(30, 'day'), freq=(1, 'hr'), t=Time("2025-01-01", scale='utc')
+    
     Returns
     -------
     times: array-like
