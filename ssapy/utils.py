@@ -1187,7 +1187,7 @@ def unit_vector(vector):
     return vector / np.linalg.norm(vector)
 
 
-def get_angle(a, b, c):  # a,b,c where b is the vertex
+def get_angle(a, b, c):
     """
     Calculate the angle between two vectors where b is the vertex of the angle.
 
