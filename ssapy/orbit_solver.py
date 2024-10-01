@@ -133,6 +133,8 @@ class GaussTwoPosOrbitSolver(TwoPosOrbitSolver):
         TwoPosOrbitSolver.__init__(self, *args, **kwargs)
 
     def _getP(self):
+        """Compute p from Shefer (2)."""
+        # Solve for eta
         eta = 1
         d_eta = 1
         niter = 0
