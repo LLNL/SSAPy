@@ -151,8 +151,7 @@ class GaussTwoPosOrbitSolver(TwoPosOrbitSolver):
             d_eta = 1. + (self.ell + x) * X - eta
             eta += d_eta
             niter += 1
-
-        # Shefer (2)
+        # Plug eta into (2) to obtain p
         p = (0.5 * eta * self.kappa * self.sigma / self.tau)**2 / self.mu
         return p
 
