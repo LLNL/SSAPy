@@ -12,6 +12,10 @@ DanchickTwoPosOrbitSolver:
 SheferTwoPosOrbitSolver:
 
 ThreeAngleOrbitSolver
+
+References:
+- Shefer, V. A. (2010). New method of orbit determination from two position vectors based on solving Gauss’s equations. Solar System Research, 44, 252-266.
+- Montenbruck, O., Gill, E., & Lutze, F. H. (2002). Satellite orbits: models, methods, and applications. Appl. Mech. Rev., 55(2), B27-B28.
 """
 
 
@@ -98,7 +102,7 @@ class TwoPosOrbitSolver(metaclass=abc.ABCMeta):
         )
 
     def _finishOrbit(self, p):
-        # M&G (2.114)  good for both elliptical and hyperbolic orbits
+        # M&G (2.114), good for both elliptical and hyperbolic orbits
         ecosnu1 = p / self.r1mag - 1.0
         ecosnu2 = p / self.r2mag - 1.0  # M&G (2.114)
         # M&G (2.116)
@@ -129,6 +133,8 @@ class GaussTwoPosOrbitSolver(TwoPosOrbitSolver):
         TwoPosOrbitSolver.__init__(self, *args, **kwargs)
 
     def _getP(self):
+        """Compute p from Shefer (2)."""
+        # Solve for eta
         eta = 1
         d_eta = 1
         niter = 0
@@ -145,8 +151,7 @@ class GaussTwoPosOrbitSolver(TwoPosOrbitSolver):
             d_eta = 1. + (self.ell + x) * X - eta
             eta += d_eta
             niter += 1
-
-        # Shefer (2)
+        # Plug eta into (2) to obtain p
         p = (0.5 * eta * self.kappa * self.sigma / self.tau)**2 / self.mu
         return p
 
@@ -157,11 +162,12 @@ class DanchickTwoPosOrbitSolver(TwoPosOrbitSolver):
 
     @staticmethod
     def X(g):
-        return (2 * g - np.sin(2 * g)) / (np.sin(g)**3)  # Shefer (11)
+        """Compute X(g) from Shefer (11)."""
+        return (2 * g - np.sin(2 * g)) / (np.sin(g)**3)
 
     @staticmethod
     def dXdg(g):
-        # Shefer (12)
+        """Compute dX(g)/dg from Shefer (12)."""
         return (2 * (1 - np.cos(2 * g)) - 3 * (2 * g - np.sin(2 * g)) / np.tan(g)) / (np.sin(g)**3)
 
     def _getP(self):
@@ -213,18 +219,22 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         self.nExam = kwargs.pop('nExam', 100)
         TwoPosOrbitSolver.__init__(self, *args, **kwargs)
 
-    def alpha(self, x):  # Shefer (18)
+    def alpha(self, x):
+        """Evaluate alpha(x) from Shefer (18)."""
         return (self.rbar + self.kappa * (x - 0.5)), self.kappa
 
-    def beta(self, xi):  # Shefer (A.4), (A.9)
+    def beta(self, xi):
+        """Evaluate beta(xi) and its derivative from Shefer (A.4) and (A.9)."""
         val = self.rbar - 0.5 * self.kappa + xi * (self.rbar + 0.5 * self.kappa)
         grad = self.rbar + 0.5 * self.kappa
         return val, grad
 
-    def Y(self, x):  # Shefer (17)
+    def Y(self, x):
+        """Evaluate Y(x) and dY(x)/dx from Shefer (17)."""
         XVal, XGrad = self.X(x)
         alphaVal, alphaGrad = self.alpha(x)
         val = self.kappa + alphaVal * XVal
+        # Evaluate dY(x)/dx using the chain rule
         grad = alphaVal * XGrad + alphaGrad * XVal
         return val, grad
 
@@ -233,7 +243,11 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         return self.kappa + betaVal * self.Z(xi)[0]
 
     @staticmethod
-    def X(x):  # Shefer (19), (20), (23)
+    def X(x):
+        """Evaluate X(x) function from Shefer (19) for elliptical orbits
+        and (20) for hyperbolic orbits. The derivative of X(x) is given in
+        (23).
+        """
         import astropy.units as u
         if isinstance(x, u.Quantity):
             x = x.value
@@ -261,21 +275,26 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
             return np.inf  # X(x) actually asymptotes to Infinity as x -> 1
 
     @staticmethod
-    def Z(xi):  # Shefer (A.5)
+    def Z(xi):
+        """Compute Z(xi) function from Shefer (A.5)."""
         num = (1 + xi)**2 * np.arctanh(np.sqrt(-xi)) - (1 - xi) * np.sqrt(-xi)
         denom = 2 * xi * np.sqrt(-xi)
         val = num / denom
         grad = (4 - (3 - xi) * val) / (2 * xi * (1 + xi))
         return val, grad
 
-    def D(self, x):  # Shefer (43) and derivative
+    def D(self, x):
+        """Compute D(x) and its derivative, dD(x)/dx, from Shefer (43)."""
         aval, agrad = self.semiMajorAxis(x)
         val = self.tau * np.sqrt(self.mu) - 2 * np.pi * self.lam * aval**1.5
         grad = -3 * np.pi * self.lam * np.sqrt(aval) * agrad
         # print("----- D: ", x, aval, agrad, self.tau, self.mu, self.lam)
         return val, grad
 
-    def semiMajorAxis(self, x):  # Shefer (42) and derivative
+    def semiMajorAxis(self, x):
+        """Compute semi-major axis a(x) and its derivative, da(x)/dx, from
+        Shefer (42).
+        """
         assert x >= 0. and x <= 1., \
             "ERROR: invalid x in Shefer semi_major_axis: {}".format(x)
         alphaVal, alphaGrad = self.alpha(x)
@@ -293,7 +312,8 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         grad = self.kappa * Ysq + 2 * alphaVal * Y * (self.kappa * XVal + alphaVal * XGrad)
         return val, grad
 
-    def F(self, x):  # Shefer (40), (41)
+    def F(self, x):
+        """Compute F(x) and dF(x)/dx from Shefer (40) and (41)."""
         if x >= 1.:
             # Should not get here
             val = 1.e16
@@ -307,7 +327,8 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
             grad = alphaGrad * YVal**2 + alphaVal * 2 * YVal * YGrad - 2 * DVal * DGrad
         return val, grad
 
-    def G(self, xi):  # Shefer (A.7), (A.8)
+    def G(self, xi):
+        """Compute G(xi) and its derivative from Shefer (A.7) and (A.8)."""
         betaVal, betaGrad = self.beta(xi)
         Y = self.Yxi(xi)
         Ysq = Y**2
@@ -380,11 +401,7 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         return xi
 
     def _getP(self):
-        """
-        Get the semi-latus rectum
-
-        This is the final result of the Shefer algorithm
-        """
+        """Get the semi-latus rectum. This is the final result of the Shefer algorithm."""
         x = self._getInitialXGuess()
         if x < -1. or x > 1.:
             xi = self._getInitialXiGuess()
@@ -413,7 +430,8 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         xs = find_all_zeros(lambda x: self.F(x)[0], xmin, xmax, n=self.nExam)
         return [self.sigma**2 / (4 * self.alpha(x)[0]) for x in xs]
 
-    def _getEta(self, p):  # Shefer (2)
+    def _getEta(self, p):
+        """Compute auxiliary value defined in Shefer (2)."""
         return 2 * np.sqrt(p * self.mu) * self.tau / (self.kappa * self.sigma)
 
     def solve(self):
@@ -571,25 +589,30 @@ class ThreeAngleOrbitSolver:
     def t2131(self):
         return self.t21 / self.t31
 
-    def _getRho(self, n1, n3):  # M&G (2.129)
+    def _getRho(self, n1, n3):
+        """Compute three unknown station-satellite distances from Montenbruck and Gill (2.129).
+        """
         rho1 = -1 / (n1 * self.D) * (n1 * self.D11 - self.D12 + n3 * self.D13)
         rho2 = 1 / self.D * (n1 * self.D21 - self.D22 + n3 * self.D23)
         rho3 = -1 / (n3 * self.D) * (n1 * self.D31 - self.D32 + n3 * self.D33)
         return rho1, rho2, rho3
 
-    def _getR(self, rho1, rho2, rho3):  # M&G (2.122)
+    def _getR(self, rho1, rho2, rho3):
+        """Compute three Earth-satellite position vectors from Montenbruck and Gill (2.122).
+        """
         r1 = self.R1 + rho1 * self.e1
         r2 = self.R2 + rho2 * self.e2
         r3 = self.R3 + rho3 * self.e3
         return r1, r2, r3
 
-    def _getN(self, eta21, eta23):  # M&G (2.132)
+    def _getN(self, eta21, eta23):
+        """Compute n1 and n3 terms from Montenbruck and Gill (2.132)."""
         n1 = eta21 * self.t3231
         n3 = eta23 * self.t2131
         return n1, n3
 
-    # Use Shefer algorithm to improve eta estimates
     def _getEta(self, r1, r2, t1, t2):
+        """Use Shefer algorithm to improve eta estimates."""
         solver = SheferTwoPosOrbitSolver(r1, r2, t1, t2)
         p = solver._getP()
         eta = solver._getEta(p)
