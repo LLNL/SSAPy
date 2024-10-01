@@ -275,21 +275,26 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
             return np.inf  # X(x) actually asymptotes to Infinity as x -> 1
 
     @staticmethod
-    def Z(xi):  # Shefer (A.5)
+    def Z(xi):
+        """Compute Z(xi) function from Shefer (A.5)."""
         num = (1 + xi)**2 * np.arctanh(np.sqrt(-xi)) - (1 - xi) * np.sqrt(-xi)
         denom = 2 * xi * np.sqrt(-xi)
         val = num / denom
         grad = (4 - (3 - xi) * val) / (2 * xi * (1 + xi))
         return val, grad
 
-    def D(self, x):  # Shefer (43) and derivative
+    def D(self, x):
+        """Compute D(x) and its derivative, dD(x)/dx, from Shefer (43)."""
         aval, agrad = self.semiMajorAxis(x)
         val = self.tau * np.sqrt(self.mu) - 2 * np.pi * self.lam * aval**1.5
         grad = -3 * np.pi * self.lam * np.sqrt(aval) * agrad
         # print("----- D: ", x, aval, agrad, self.tau, self.mu, self.lam)
         return val, grad
 
-    def semiMajorAxis(self, x):  # Shefer (42) and derivative
+    def semiMajorAxis(self, x):
+        """Compute semi-major axis a(x) and its derivative, da(x)/dx, from
+        Shefer (42).
+        """
         assert x >= 0. and x <= 1., \
             "ERROR: invalid x in Shefer semi_major_axis: {}".format(x)
         alphaVal, alphaGrad = self.alpha(x)
