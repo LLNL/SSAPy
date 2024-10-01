@@ -401,11 +401,7 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         return xi
 
     def _getP(self):
-        """
-        Get the semi-latus rectum
-
-        This is the final result of the Shefer algorithm
-        """
+        """Get the semi-latus rectum. This is the final result of the Shefer algorithm."""
         x = self._getInitialXGuess()
         if x < -1. or x > 1.:
             xi = self._getInitialXiGuess()
