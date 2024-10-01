@@ -589,25 +589,30 @@ class ThreeAngleOrbitSolver:
     def t2131(self):
         return self.t21 / self.t31
 
-    def _getRho(self, n1, n3):  # M&G (2.129)
+    def _getRho(self, n1, n3):
+        """Compute three unknown station-satellite distances from Montenbruck and Gill (2.129).
+        """
         rho1 = -1 / (n1 * self.D) * (n1 * self.D11 - self.D12 + n3 * self.D13)
         rho2 = 1 / self.D * (n1 * self.D21 - self.D22 + n3 * self.D23)
         rho3 = -1 / (n3 * self.D) * (n1 * self.D31 - self.D32 + n3 * self.D33)
         return rho1, rho2, rho3
 
-    def _getR(self, rho1, rho2, rho3):  # M&G (2.122)
+    def _getR(self, rho1, rho2, rho3):
+        """Compute three Earth-satellite position vectors from Montenbruck and Gill (2.122).
+        """
         r1 = self.R1 + rho1 * self.e1
         r2 = self.R2 + rho2 * self.e2
         r3 = self.R3 + rho3 * self.e3
         return r1, r2, r3
 
-    def _getN(self, eta21, eta23):  # M&G (2.132)
+    def _getN(self, eta21, eta23):
+        """Compute n1 and n3 terms from Montenbruck and Gill (2.132)."""
         n1 = eta21 * self.t3231
         n3 = eta23 * self.t2131
         return n1, n3
 
-    # Use Shefer algorithm to improve eta estimates
     def _getEta(self, r1, r2, t1, t2):
+        """Use Shefer algorithm to improve eta estimates."""
         solver = SheferTwoPosOrbitSolver(r1, r2, t1, t2)
         p = solver._getP()
         eta = solver._getEta(p)
