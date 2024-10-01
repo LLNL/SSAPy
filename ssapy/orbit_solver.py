@@ -243,7 +243,11 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         return self.kappa + betaVal * self.Z(xi)[0]
 
     @staticmethod
-    def X(x):  # Shefer (19), (20), (23)
+    def X(x):
+        """Evaluate X(x) function from Shefer (19) for elliptical orbits
+        and (20) for hyperbolic orbits. The derivative of X(x) is given in
+        (23).
+        """
         import astropy.units as u
         if isinstance(x, u.Quantity):
             x = x.value
