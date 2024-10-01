@@ -219,18 +219,22 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         self.nExam = kwargs.pop('nExam', 100)
         TwoPosOrbitSolver.__init__(self, *args, **kwargs)
 
-    def alpha(self, x):  # Shefer (18)
+    def alpha(self, x):
+        """Evaluate alpha(x) from Shefer (18)."""
         return (self.rbar + self.kappa * (x - 0.5)), self.kappa
 
-    def beta(self, xi):  # Shefer (A.4), (A.9)
+    def beta(self, xi):
+        """Evaluate beta(xi) and its derivative from Shefer (A.4) and (A.9)."""
         val = self.rbar - 0.5 * self.kappa + xi * (self.rbar + 0.5 * self.kappa)
         grad = self.rbar + 0.5 * self.kappa
         return val, grad
 
-    def Y(self, x):  # Shefer (17)
+    def Y(self, x):
+        """Evaluate Y(x) and dY(x)/dx from Shefer (17)."""
         XVal, XGrad = self.X(x)
         alphaVal, alphaGrad = self.alpha(x)
         val = self.kappa + alphaVal * XVal
+        # Evaluate dY(x)/dx using the chain rule
         grad = alphaVal * XGrad + alphaGrad * XVal
         return val, grad
 
