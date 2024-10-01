@@ -102,7 +102,7 @@ class TwoPosOrbitSolver(metaclass=abc.ABCMeta):
         )
 
     def _finishOrbit(self, p):
-        # M&G (2.114)  good for both elliptical and hyperbolic orbits
+        # M&G (2.114), good for both elliptical and hyperbolic orbits
         ecosnu1 = p / self.r1mag - 1.0
         ecosnu2 = p / self.r2mag - 1.0  # M&G (2.114)
         # M&G (2.116)
