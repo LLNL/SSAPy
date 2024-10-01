@@ -312,7 +312,8 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         grad = self.kappa * Ysq + 2 * alphaVal * Y * (self.kappa * XVal + alphaVal * XGrad)
         return val, grad
 
-    def F(self, x):  # Shefer (40), (41)
+    def F(self, x):
+        """Compute F(x) and dF(x)/dx from Shefer (40) and (41)."""
         if x >= 1.:
             # Should not get here
             val = 1.e16
@@ -326,7 +327,8 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
             grad = alphaGrad * YVal**2 + alphaVal * 2 * YVal * YGrad - 2 * DVal * DGrad
         return val, grad
 
-    def G(self, xi):  # Shefer (A.7), (A.8)
+    def G(self, xi):
+        """Compute G(xi) and its derivative from Shefer (A.7) and (A.8)."""
         betaVal, betaGrad = self.beta(xi)
         Y = self.Yxi(xi)
         Ysq = Y**2
