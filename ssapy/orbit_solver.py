@@ -430,7 +430,8 @@ class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
         xs = find_all_zeros(lambda x: self.F(x)[0], xmin, xmax, n=self.nExam)
         return [self.sigma**2 / (4 * self.alpha(x)[0]) for x in xs]
 
-    def _getEta(self, p):  # Shefer (2)
+    def _getEta(self, p):
+        """Compute auxiliary value defined in Shefer (2)."""
         return 2 * np.sqrt(p * self.mu) * self.tau / (self.kappa * self.sigma)
 
     def solve(self):
