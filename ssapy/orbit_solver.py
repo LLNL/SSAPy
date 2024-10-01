@@ -162,11 +162,12 @@ class DanchickTwoPosOrbitSolver(TwoPosOrbitSolver):
 
     @staticmethod
     def X(g):
-        return (2 * g - np.sin(2 * g)) / (np.sin(g)**3)  # Shefer (11)
+        """Compute X(g) from Shefer (11)."""
+        return (2 * g - np.sin(2 * g)) / (np.sin(g)**3)
 
     @staticmethod
     def dXdg(g):
-        # Shefer (12)
+        """Compute dX(g)/dg from Shefer (12)."""
         return (2 * (1 - np.cos(2 * g)) - 3 * (2 * g - np.sin(2 * g)) / np.tan(g)) / (np.sin(g)**3)
 
     def _getP(self):
