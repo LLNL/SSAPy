@@ -22,25 +22,14 @@ aas-journal:
 
 # Summary
 
-SSAPy is a fast, flexible, high-fidelity orbital modeling and analysis tool for orbits spanning from low-Earth orbit into the cislunar regime. 
+SSAPy is a fast, flexible, high-fidelity orbital modeling and analysis tool for orbits spanning from 
+low-Earth orbits (<2000 Km alitiude) orbits in the cislunar regime (between the earth and moon). 
+Orbits can be flexiabley specified from common input format such as Keplerian elements or two-line 
+element data files. Addionally, SSAPy allows users to model satellite and specify parameters such 
+as satilite area, mass, and drag coefficents. SSAPy includes a customizable force propagations
+with a range of Earth, Lunar, Radiation, Atmospheric, and Maneuvering models. SSAPy makes 
+use of various integration methods (e.g., Runge-Kutta, Keplerian, and Taylor series)
 
-Ability to define satellite parameters (area, mass, radiation and drag coefficients, etc.)
-
-Support for multiple data types (e.g., read in orbit from TLE file, define a set of Keplerian, Equinoctial, or Kozai Mean Keplerian elements, etc.)
-
-Define a fully customizable analytic force propagation model including the following:
-
-    Earth gravity models (WGS84, EGM84, EGM96, EGM2008)
-
-    Lunar gravity model (point source & harmonic)
-
-    Radiation pressure (Earth & solar)
-
-    Forces for all planets out to Neptune
-
-    Atmospheric drag models
-
-    Maneuvering (takes a user defined burn profile)
 
 Various community used integrators: SGP4, Runge-Kutta (4, 8, and 7/8), SciPy, Keplerian, Taylor Series
 
@@ -86,4 +75,5 @@ is LLNL-CODE-862420. SSAPy was developed with support
 from Lawrence Livermore National Laboratory’s (LLNL) Laboratory
 Directed Research and Development (LDRD) Program under 
 projects 19-SI-004 and 22-ERD-054.
+
 # References
