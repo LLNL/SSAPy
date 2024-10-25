@@ -36,8 +36,8 @@ mutliple coordinate and references frames. SSAPy also supports orbit analysis an
 propigation methods such as multiple-hypothesis tracking and has buit-in uncertainty qunatification
 via short orbit arc probabilisitic orbit determinarion methods and Monte Carlo simulation runs. 
 The majority of SSAPy's methods are vectorized and parallaelizable allowing effective use of 
-high performance computer systems. Finally, SSAPy has plotting functionality allowing users to 
-visualize orbits and trajectories which is shown in Figure 1. 
+high performance computer (HPC) systems. Finally, SSAPy has plotting functionality allowing users to 
+visualize orbits and trajectories, an example of which is shown in Figure 1. 
 
 SSAPy has been used for the 
 classification of cislunar [@Higgins2024] and closely spaced orbits [@Pruett2024] as 
@@ -56,12 +56,11 @@ critical to all of these endevours. The challenge for cislunar orbits is that n-
 from the Sun, Earth, Moon and other planets) are significant, leading to unpredicatable and chaotic orbital motion. 
 In this chaotic regime, orbits cannot be redcued to simple parameteric descriptions making scalable orbit 
 simulation and modeling a citicial analysis tool [@Yeager2023]. Current obrit modeling software tools
-are predominatly Graphical User Interfaced based [e.g., The General Mission Analysis Tool @Hughes2014 or the Systems Tool Kit]
-and are not optimized for large scale simulation on high performance computer systems. 
-
-There are many available software tools that are used for orbital analysis. The more prevalanetly
-used tools are the General Mission Analysis Tool (GMAT) [@Hughes2014], REBOUND [@Rein2012], 
-Systems Tool Kit (STK).
+are predominatly Graphical User Interfaced based [e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit]
+and are not optimized for large scale simulation on HPC systems. Orbital modeling codes that
+can be run on HPC systmes (e.g., REBOUND; @Rein2012) lack full observable genreation and modeling capilities
+with uncertainty quantification. SAPPy, with its full-featured modeling framework and scalable, parallaelizable
+functionality, fills the gap in the orbital software landscape. 
 
 # Acknowledgements
 
