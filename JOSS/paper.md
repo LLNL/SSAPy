@@ -33,14 +33,13 @@ use of various community integration methods and can calculate
 time-evolved orbital quantities including satellite magnitudes and state vectors.
 Users can specify various space- and ground- based observation models with support for
 multiple coordinate and references frames. SSAPy also supports orbit analysis and
-propagation methods such as multiple-hypothesis tracking and has built-in uncertainty quantification
-via short orbit arc probabilistic orbit determination methods and Monte Carlo simulation runs. 
+propagation methods such as multiple-hypothesis tracking and has built-in uncertainty quantification. 
 The majority of SSAPy's methods are vectorized and parallelizable allowing effective use of 
 high performance computer (HPC) systems. Finally, SSAPy has plotting functionality allowing users to 
 visualize orbits and trajectories, an example of which is shown in Figure 1. 
 
 SSAPy has been used for the 
-classification of cislunar [@Higgins2024], and closely spaced [@Pruett2024], orbits as 
+classification of cislunar [@Higgins2024], and closely-spaced [@Pruett2024], orbits as 
 well as for studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
 has also be used to build a case study for rare events analysis in the context of satellites
 passing close to each other in space [@Miller2022]. 
