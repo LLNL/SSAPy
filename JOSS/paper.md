@@ -26,7 +26,7 @@ aas-journal:
 SSAPy is a fast and flexible orbital modeling and analysis tool for orbits spanning from 
 low-Earth into the cislunar regime. Orbits can be flexibly specified from common 
 input format such as Keplerian elements or two-line 
-element data files. Additionally, SSAPy allows users to model satellite and specify parameters such 
+element data files. SSAPy allows users to model satellite and specify parameters such 
 as satellite area, mass, and drag coefficients. SSAPy includes a customizable force propagation 
 with a range of Earth, Lunar, radiation, atmospheric, and maneuvering models. SSAPy makes 
 use of various community integration methods and can calculate
@@ -40,8 +40,8 @@ high performance computer (HPC) systems. Finally, SSAPy has plotting functionali
 visualize orbits and trajectories, an example of which is shown in Figure 1. 
 
 SSAPy has been used for the 
-classification of cislunar [@Higgins2024] and closely spaced orbits [@Pruett2024] as 
-well as studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
+classification of cislunar [@Higgins2024], and closely spaced [@Pruett2024], orbits as 
+well as for studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
 has also be used to build a case study for rare events analysis in the context of satellites
 passing close to each other in space [@Miller2022]. 
 
@@ -56,7 +56,7 @@ critical to all of these endeavors. The challenge for cislunar orbits is that n-
 from the Sun, Earth, Moon and other planets) are significant, leading to unpredictable and chaotic orbital motion. 
 In this chaotic regime, orbits cannot be reduced to simple parametric descriptions making scalable orbit 
 simulation and modeling a critical analysis tool [@Yeager2023]. Current orbit modeling software tools
-are predominantly Graphical User Interfaced based [e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit]
+are predominantly used via graphical user interfaces [e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit]
 and are not optimized for large scale simulation on HPC systems. Orbital modeling codes that
 can be run on HPC systems (e.g., REBOUND; @Rein2012) lack full observable generation and modeling capabilities
 with uncertainty quantification. SAPPy, with its full-featured modeling framework and scalable, parallelizable
