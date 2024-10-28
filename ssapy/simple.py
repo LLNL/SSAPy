@@ -217,6 +217,8 @@ def ssapy_orbit(orbit=None, a=None, e=0, i=0, pa=0, raan=0, ta=0, r=None, v=None
     """
     if t is None:
         t = get_times(duration=duration, freq=freq, t=t0)
+    else:
+        t0 = t[0]
 
     if orbit is not None:
         pass
