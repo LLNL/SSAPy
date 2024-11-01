@@ -25,7 +25,7 @@ aas-journal:
 
 SSAPy is a fast and flexible orbital modeling and analysis tool for orbits spanning from 
 low-Earth into the cislunar regime. Orbits can be flexibly specified from common 
-input format such as Keplerian elements or two-line 
+input formats such as Keplerian elements or two-line 
 element data files. SSAPy allows users to model satellites and specify parameters such 
 as satellite area, mass, and drag coefficients. SSAPy includes a customizable force propagation 
 with a range of Earth, Lunar, radiation, atmospheric, and maneuvering models. SSAPy makes 
@@ -41,19 +41,14 @@ visualize orbits and trajectories, an example of which is shown in Figure 1.
 SSAPy has been used for the 
 classification of cislunar [@Higgins2024], and closely-spaced [@Pruett2024], orbits as 
 well as for studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
-has also be used to build a case study for rare events analysis in the context of satellites
+has also been used to build a case study for rare events analysis in the context of satellites
 passing close to each other in space [@Miller2022]. 
-
-![Example SSAPy visualization plots. The left plot shows an example relative angle between an orbit and the Earth's 
-surface and is used for determining reentry points. The middle plot is the corresponding orbit in the 
-International Terrestrial Reference Frame (ITRF), a frame fixed to the Earths surface. The third frame is the orbit in 
-Geocentric Celestial Reference Frame (GCRF), a frame fixed to the stars. Color on the right two plots represents time.](image.png)
 
 # Statement of need
 
 Cislunar space is a region between earth out to beyond the Moon's orbit that includes the
-Lagrange points. This region of space is of growing importance to space exploration endeavors, 
-scientific [e.g., @Duggan2019] or otherwise. Understanding, mapping, and modeling orbits through cislunar space is 
+Lagrange points. This region of space is of growing importance to scientific and other space exploration endeavors [e.g., @Duggan2019].
+Understanding, mapping, and modeling orbits through cislunar space is 
 critical to all of these endeavors. The challenge for cislunar orbits is that n-body dynamics (e.g., gravitational forces 
 from the Sun, Earth, Moon and other planets) are significant, leading to unpredictable and chaotic orbital motion. 
 In this chaotic regime, orbits cannot be reduced to simple parametric descriptions making scalable orbit 
@@ -64,9 +59,12 @@ can be run on HPC systems (e.g., REBOUND; @Rein2012) lack full observable genera
 with uncertainty quantification. SAPPy, with its full-featured modeling framework and scalable, parallelizable
 functionality, fills the gap in the orbital software landscape. 
 
+![Example SSAPy visualization plots. Simulated trajectory of a cislunar orbit in Lunar rotating coordinates. Each panel
+shows a different spatial projection of the orbit. The color on all plots represents time.](fig_2.png)
+
 # Acknowledgements
 
-`SSAPy` depends on numpy [@Harris2020], scipy [@Virtanen2020], matplotlib [@Hunter2007], emcee [@ForemanMackey2013], 
+`SSAPy` depends on NumPy [@Harris2020], SciPy [@Virtanen2020], matplotlib [@Hunter2007], emcee [@ForemanMackey2013], 
 astropy [@astropy2022], pyerfa [@Kerkwijk2023], lmfit [@newville2024], and sqp4 [@Vallado2006].
 This work was performed under the auspices of the U.S.
 Department of Energy by Lawrence Livermore National
