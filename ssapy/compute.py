@@ -260,7 +260,7 @@ _rv = LRU_Cache(__rv, maxsize=16)
 
 def groundTrack(orbit, time, propagator=KeplerianPropagator(), format='geodetic'):
     """Calculate satellite ground track on the outer product of all supplied times and
-    statevectors or orbits.
+    state vectors or orbits.
 
     Parameters
     ----------
@@ -427,7 +427,7 @@ def dircos(
         do any correction.  "linear" means do an aberration correction and first
         order light-time correction.  "exact" means do an aberration correction
         and iteratively solve for the exact light-time correction.  (The
-        "linear" correction is almost always sufficiently accuration).
+        "linear" correction is almost always sufficiently accurate).
 
     Notes
     -----
@@ -503,7 +503,7 @@ def radec(
         do any correction.  "linear" means do an aberration correction and first
         order light-time correction.  "exact" means do an aberration correction
         and iteratively solve for the exact light-time correction.  (The
-        "linear" correction is almost always sufficiently accuration).
+        "linear" correction is almost always sufficiently accurate).
 
     Notes
     -----
@@ -590,7 +590,7 @@ def altaz(
         do any correction.  "linear" means do an aberration correction and first
         order light-time correction.  "exact" means do an aberration correction
         and iteratively solve for the exact light-time correction.  (The
-        "linear" correction is almost always sufficiently accuration).
+        "linear" correction is almost always sufficiently accurate).
 
     Notes
     -----
@@ -662,7 +662,7 @@ def quickAltAz(
         do any correction.  "linear" means do an aberration correction and first
         order light-time correction.  "exact" means do an aberration correction
         and iteratively solve for the exact light-time correction.  (The
-        "linear" correction is almost always sufficiently accuration).
+        "linear" correction is almost always sufficiently accurate).
 
     Notes
     -----
@@ -740,7 +740,7 @@ def radecRate(
         do any correction.  "linear" means do an aberration correction and first
         order light-time correction.  "exact" means do an aberration correction
         and iteratively solve for the exact light-time correction.  (The
-        "linear" correction is almost always sufficiently accuration).
+        "linear" correction is almost always sufficiently accurate).
 
     Notes
     -----
@@ -1436,7 +1436,7 @@ def earth_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_earth, albedo_back
     """
     # https://amostech.com/TechnicalPapers/2013/POSTER/COGNION.pdf
     phase_angle = get_angle(r_sun, r_sat, r_earth)  # angle from Sun to object to Earth
-    earth_angle = np.pi - phase_angle  # Sun to Earth to oject.
+    earth_angle = np.pi - phase_angle  # Sun to Earth to object.
     r_earth_sat = np.linalg.norm(r_sat - r_earth, axis=-1)  # Earth is the observer.
     flux_earth_to_sat = 2 / 3 * albedo_earth * EARTH_RADIUS**2 / (np.pi * (r_earth_sat)**2) * (np.sin(earth_angle) + (np.pi - earth_angle) * np.cos(earth_angle))  # Fraction of sunlight reflected from the Earth to satellite
     # Fraction of light from back of solar panel
