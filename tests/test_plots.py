@@ -69,7 +69,7 @@ dro_orbit = initialize_DRO(t=times[0])
 r, v, t = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
 ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/DRO_orbit", frame='Lunar', show=False)
 r_lunar, v_lunar = ssapy.utils.gcrf_to_lunar_fixed(r, t=times, v=True)
-print("Succesfully converted gcrf to lunar frame.")
+print("Successfully converted GCRF to lunar frame.")
 ssapy.plotUtils.koe_plot(r, v, t=times, body='Earth', save_path=f"{save_folder}Keplerian_orbital_elements.png")
 
 ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/gcrf_plot.png", frame='gcrf', show=True)
@@ -165,7 +165,7 @@ ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}/lagrange_points")
 
 print(f"Lagrange points were calculated correctly.")
 print(f"Rotate vector plot successfully created.")
-print(f"save_plot() executed succesfully.")
-print(f"save_animated_gif() executed succesfully.")
+print(f"save_plot() executed successfully.")
+print(f"save_animated_gif() executed successfully.")
 
 print(f"\nFinished plot testing!\n")
