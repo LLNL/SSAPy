@@ -69,9 +69,7 @@ astropy [@astropy2022], pyerfa [@Kerkwijk2023], lmfit [@newville2024], and sqp4 
 This work was performed under the auspices of the U.S.
 Department of Energy by Lawrence Livermore National
 Laboratory (LLNL) under Contract DE-AC52-07NA27344.
-The document number is LLNL-JRNL-XXXX and the code number 
-is LLNL-CODE-862420. SSAPy was developed with support 
-from LLNL's Laboratory Directed Research and Development Program under 
-projects 19-SI-004 and 22-ERD-054.
+The document number is LLNL-JRNL-871602-DRAFT and the code number is LLNL-CODE-862420. SSAPy was developed with support 
+from LLNL's Laboratory Directed Research and Development Program under projects 19-SI-004 and 22-ERD-054.
 
 # References
