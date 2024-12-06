@@ -14,6 +14,7 @@ from .propagator import RK78Propagator
 
 from astropy.time import Time
 import numpy as np
+from typing import Union, List, Tuple
 
 
 def keplerian_prop(integration_timestep: float = 10) -> RK78Propagator:
