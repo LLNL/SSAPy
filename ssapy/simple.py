@@ -215,10 +215,12 @@ def ssapy_orbit(orbit=None, a=None, e=0, i=0, pa=0, raan=0, ta=0, r=None, v=None
     - ValueError: If neither Keplerian elements nor position and velocity vectors are provided.
     - RuntimeError or ValueError: If an error occurs during computation.
     """
+    t0 = Time(t0, scale='utc')
     if t is None:
-        t = get_times(duration=duration, freq=freq, t=t0)
+        time_is_None = True
+        t = get_times(duration=duration, freq=freq, t0=t0)
     else:
-        t0 = t[0]
+        time_is_None = False
 
     if orbit is not None:
         pass
@@ -232,7 +234,10 @@ def ssapy_orbit(orbit=None, a=None, e=0, i=0, pa=0, raan=0, ta=0, r=None, v=None
 
     try:
         r, v = rv(orbit, t, prop)
-        return r, v, t
+        if time_is_None:
+            return r, v, t
+        else:
+            return r, v
     except (RuntimeError, ValueError) as err:
         print(err)
         return np.nan, np.nan, np.nan
