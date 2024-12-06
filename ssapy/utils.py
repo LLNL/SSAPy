@@ -3,6 +3,7 @@ import os
 import numpy as np
 from astropy.time import Time
 import astropy.units as u
+from typing import Union, List, Tuple
 
 from . import datadir
 from .constants import RGEO, EARTH_RADIUS, MOON_RADIUS, WGS84_EARTH_OMEGA
