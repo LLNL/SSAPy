@@ -213,7 +213,7 @@ def check_numpy_array(variable):
         return "not numpy"
 
 
-def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
+def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
     """
     Plot 2D and 3D projections of the orbit of one or more objects.
 
@@ -223,8 +223,6 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
         Position of orbiting object(s) in meters. If a list is provided, each element represents the orbit of a different object.
     t : array_like, optional
         Time array corresponding to the position vectors. Required for frames "itrf", "lunar", or "lunar fixed".
-    limits : float or tuple, optional
-        Limits for the x and y axes of the 2D plots. If not provided, it is calculated based on the data.
     title : str, optional
         Title of the plot. Default is an empty string.
     figsize : tuple of int, optional
@@ -259,9 +257,10 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
     r = np.array([[1e7, 2e7, 3e7], [4e7, 5e7, 6e7]])  # Replace with actual data
     t = np.linspace(0, 10, len(r))  # Replace with actual time data
 
-    fig, axes = orbit_plot(r, t, limits=1e8, title='Orbit Plot', frame='gcrf', show=True)
+    fig, axes = orbit_plot(r, t, title='Orbit Plot', frame='gcrf', show=True)
     """
-    def _make_scatter(fig, ax1, ax2, ax3, ax4, r, t, limits, title='', orbit_index='', num_orbits=1, frame=False):
+
+    def _make_scatter(fig, ax1, ax2, ax3, ax4, r, t, title='', orbit_index='', num_orbits=1, frame=False):
         if np.size(t) < 1:
             if frame in ["itrf", "lunar", "lunar_fixed"]:
                 raise("Need to provide t for itrf, lunar or lunar fixed frames")
@@ -312,7 +311,13 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
         xm = r_moon[:, 0] / RGEO
         ym = r_moon[:, 1] / RGEO
         zm = r_moon[:, 2] / RGEO
-            
+
+        if orbit_index == '' or orbit_index == 0:
+            lower_bound = np.array([np.inf, np.inf, np.inf])
+            upper_bound = np.array([-np.inf, -np.inf, -np.inf])
+        lower_bound_temp, upper_bound_temp = find_smallest_bounding_cube(r / RGEO * 1.2)
+        lower_bound = np.minimum(lower_bound, lower_bound_temp)
+        upper_bound = np.maximum(upper_bound, upper_bound_temp)
         if np.size(xm) > 1:
             gradient_colors = cm.Greys(np.linspace(0, .8, len(xm)))[::-1]
             blues = cm.Blues(np.linspace(.4, .9, len(xm)))[::-1]
@@ -329,11 +334,7 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
             stn = plot_settings[frame]
         except KeyError:
             raise ValueError("Unknown plot type provided. Accepted: 'gcrf', 'itrf', 'lunar', 'lunar fixed'")
-        if limits is False:
-            lower_bound, upper_bound = find_smallest_bounding_cube(r / RGEO)
-            lower_bound = lower_bound * 1.2
-            upper_bound = upper_bound * 1.2
-
+        
         if orbit_index == '':
             angle = 0
             scatter_dot_colors = cm.rainbow(np.linspace(0, 1, len(x)))
@@ -358,8 +359,8 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                     pass
                 else:
                     pos[0] = pos[0] - LD / RGEO
-                ax1.scatter(pos[0], pos[1], color=color, label=point)
-                ax1.text(pos[0], pos[1], point, color=color)
+                ax1.scatter(pos[0], pos[1], color='w', label=point)
+                ax1.text(pos[0], pos[1], point, color='w')
 
         ax2.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
         ax2.scatter(x, z, color=scatter_dot_colors, s=1)
@@ -369,6 +370,8 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
         ax2.set_aspect('equal')
         ax2.set_xlabel('x [GEO]')
         ax2.set_ylabel('z [GEO]')
+        ax2.yaxis.tick_right()  # Move y-axis ticks to the right
+        ax2.yaxis.set_label_position("right")  # Move y-axis label to the right
         ax2.set_xlim((lower_bound[0], upper_bound[0]))
         ax2.set_ylim((lower_bound[2], upper_bound[2]))
         ax2.set_title(f'{title}', color='white')
@@ -379,8 +382,8 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                     pass
                 else:
                     pos[0] = pos[0] - LD / RGEO
-                ax2.scatter(pos[0], pos[2], color=color, label=point)
-                ax2.text(pos[0], pos[2], point, color=color)
+                ax2.scatter(pos[0], pos[2], color='w', label=point)
+                ax2.text(pos[0], pos[2], point, color='w')
 
         ax3.add_patch(plt.Circle((0, 0), stn[2], color='white', linestyle='dashed', fill=False))
         ax3.scatter(y, z, color=scatter_dot_colors, s=1)
@@ -399,9 +402,8 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                     pass
                 else:
                     pos[0] = pos[0] - LD / RGEO
-                print(pos)
-                ax3.scatter(pos[1], pos[2], color=color, label=point)
-                ax3.text(pos[1], pos[2], point, color=color)
+                ax3.scatter(pos[1], pos[2], color='w', label=point)
+                ax3.text(pos[1], pos[2], point, color='w')
 
         ax4.scatter3D(x, y, z, color=scatter_dot_colors, s=1)
         ax4.scatter3D(0, 0, 0, color=stn[0], s=stn[1])
@@ -421,9 +423,9 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
                     pass
                 else:
                     pos[0] = pos[0] - LD / RGEO
-                ax4.scatter(pos[0], pos[1], pos[2], color=color, label=point)
-                ax4.text(pos[0], pos[1], pos[2], point, color=color)
-    
+                ax4.scatter(pos[0], pos[1], pos[2], color='w', label=point)
+                ax4.text(pos[0], pos[1], pos[2], point, color='w')
+
         return fig, ax1, ax2, ax3, ax4
     input_type = check_numpy_array(r)
 
@@ -432,13 +434,13 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
     ax2 = fig.add_subplot(2, 2, 2)
     ax3 = fig.add_subplot(2, 2, 3)
     ax4 = fig.add_subplot(2, 2, 4, projection='3d')
-    
+
     if input_type == "numpy array":
-        fig, ax1, ax2, ax3, ax4 = _make_scatter(fig, ax1, ax2, ax3, ax4, r=r, t=t, limits=limits, title=title, frame=frame)
+        fig, ax1, ax2, ax3, ax4 = _make_scatter(fig, ax1, ax2, ax3, ax4, r=r, t=t, title=title, frame=frame)
     if input_type == "list of numpy array":
         num_orbits = np.shape(r)[0]
         for i, row in enumerate(r):
-            fig, ax1, ax2, ax3, ax4 = _make_scatter(fig, ax1, ax2, ax3, ax4, r=row, t=t, limits=limits, title=title, orbit_index=i, num_orbits=num_orbits, frame=frame)
+            fig, ax1, ax2, ax3, ax4 = _make_scatter(fig, ax1, ax2, ax3, ax4, r=row, t=t, title=title, orbit_index=i, num_orbits=num_orbits, frame=frame)
 
     # Set axis color to white
     for i, ax in enumerate([ax1, ax2, ax3, ax4]):
@@ -458,8 +460,8 @@ def orbit_plot(r, t=[], limits=False, title='', figsize=(7, 7), save_path=False,
     for ax in [ax1, ax2, ax3, ax4]:
         for text in ax.get_xticklabels() + ax.get_yticklabels() + [ax.xaxis.label, ax.yaxis.label]:
             text.set_color('white')
-    
-    #Save the plot
+
+    # Save the plot
     fig.patch.set_facecolor('black')
     if show:
         plt.show()
