@@ -564,6 +564,9 @@ def test_MG_3_4_scipy():
 
 @timer
 def test_MG_3_4_rk78():
+    """Exercise 3.4 from Montenbruck and Gill.  Tests SSAPy orbit propagation
+    with perturbations.
+    """
     t = Time("1999-03-01", scale='utc')
     # LEO sat
     kElements = [7178e3, 0.001, np.deg2rad(98.57), 0.0, 0.0, 0.0]
