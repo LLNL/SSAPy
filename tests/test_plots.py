@@ -165,7 +165,7 @@ ssapy.plotUtils.save_plot(fig, save_path=f"{save_folder}/lagrange_points")
 
 print("Lagrange points were calculated correctly.")
 print("Rotate vector plot successfully created.")
-print("save_plot() executed succesfully.")
-print("save_animated_gif() executed succesfully.")
+print("save_plot() executed successfully.")
+print("save_animated_gif() executed successfully.")
 
 print("\nFinished plot testing!\n")
