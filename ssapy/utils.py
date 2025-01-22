@@ -2080,33 +2080,23 @@ def find_nearest_indices(A, B):
     return nearest_indices
 
 
-def find_smallest_bounding_cube(r):
+def find_smallest_bounding_cube(r: np.ndarray, pad: float = 0.0) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Find the smallest bounding cube for a set of 3D coordinates.
+    Find the smallest bounding cube for a set of 3D coordinates, with optional padding.
 
     Parameters:
     r (np.ndarray): An array of shape (n, 3) containing the 3D coordinates.
+    pad (float): Amount to increase the bounding cube in all dimensions.
 
     Returns:
     tuple: A tuple containing the lower and upper bounds of the bounding cube.
     """
-    # Find the minimum and maximum coordinates for each axis
     min_coords = np.min(r, axis=0)
     max_coords = np.max(r, axis=0)
-
-    # Determine the range for each axis
     ranges = max_coords - min_coords
-
-    # Calculate the maximum range to ensure the bounding cube
     max_range = np.max(ranges)
-
-    # Calculate the center of the bounding cube
     center = (max_coords + min_coords) / 2
-
-    # Calculate the half side length of the cube
-    half_side_length = max_range / 2
-
-    # Find the limits of the cube
+    half_side_length = max_range / 2 + pad
     lower_bound = center - half_side_length
     upper_bound = center + half_side_length
 
