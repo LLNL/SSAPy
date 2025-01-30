@@ -7,7 +7,7 @@ tags:
   - cislunar space
 authors:
   - name: Joshua E. Meyers
-    affiliation: [1, 2]
+    affiliation: "1, 2"
     orcid: 0000-0002-2308-4230
   - name: Michael D. Schneider
     affiliation: 3
