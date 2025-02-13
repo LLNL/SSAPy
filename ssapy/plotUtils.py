@@ -204,23 +204,58 @@ def groundTrackVideo(r, time):
     ipv.show()
 
 
-def check_numpy_array(variable):
+def check_numpy_array(variable: Union[np.ndarray, list]) -> str:
+    """
+    Checks if the input variable is a NumPy array, a list of NumPy arrays, or neither.
+
+    Parameters
+    ----------
+    variable : Union[np.ndarray, list]
+        The variable to check. It can either be a NumPy array or a list of NumPy arrays.
+
+    Returns
+    -------
+    str
+        Returns a string indicating the type of the variable:
+        - "numpy array" if the variable is a single NumPy array,
+        - "list of numpy array" if it is a list of NumPy arrays,
+        - "not numpy" if it is neither.
+    """
     if isinstance(variable, np.ndarray):
         return "numpy array"
-    elif isinstance(variable, list) and all(isinstance(item, np.ndarray) for item in variable):
-        return "list of numpy array"
+    elif isinstance(variable, list):
+        if len(variable) == 0:  # Handle empty list explicitly
+            return "not numpy"
+        elif all(isinstance(item, np.ndarray) for item in variable):
+            return "list of numpy array"
+    return "not numpy"
+
+
+def check_type(t):
+    if t is None:
+        return None
+    elif isinstance(t, list):
+        # Check if each element is a list or array
+        if all(isinstance(item, (list, np.ndarray)) for item in t):
+            return "List of arrays"
+        else:
+            return "List of non-arrays"
+    elif isinstance(t, (Time, np.ndarray)):
+        return "Single array or list"
     else:
-        return "not numpy"
+        return "Not a list or array"
+    
 
-
-def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
+def orbit_plot(r, t=None, title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
     input_type = check_numpy_array(r)
+    t_type = check_type(t)
+    
     if input_type == "numpy array":
         num_orbits = 1
         r = [r]
 
     if input_type == "list of numpy array":
-        num_orbits = np.shape(r)[0]
+        num_orbits = len(r)
 
     fig = plt.figure(dpi=100, figsize=figsize, facecolor='black')
     ax1 = fig.add_subplot(2, 2, 1)
@@ -230,13 +265,49 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
     
     bounds = {"lower": np.array([np.inf, np.inf, np.inf]), "upper": np.array([-np.inf, -np.inf, -np.inf])}
 
-    for orbit_index, xyz in enumerate(r):
-        if np.size(t) < 1:
-            if frame in ["itrf", "lunar", "lunar_fixed"]:
-                raise ValueError("Need to provide t for itrf, lunar or lunar fixed frames")
-            r_moon = np.atleast_2d(get_body("moon").position(Time("2000-1-1")))
+    # Check if all arrays in `r` are the same shape
+    same_shape = all(np.shape(arr)[0] == np.shape(r[0]) for arr in r)
+    for orbit_index in range(num_orbits):
+        xyz = r[orbit_index]
+        
+        if t_type is None:
+            if frame == "gcrf":
+                r_moon = np.atleast_2d(get_body("moon").position(Time("2000-1-1")))
+            else:
+                raise ValueError("Need to provide t or list of t for each orbit in itrf, lunar or lunar fixed frames")
         else:
-            r_moon = get_body("moon").position(t).T
+            if frame == "gcrf":
+                if t_type == "Single array or list":
+                    t_current = t
+                elif t_type == "List of non-arrays" or t_type == "List of arrays":
+                    t_current = max(t, key=len)
+            else:
+                if input_type == "numpy array":
+                    # Single array case
+                    if np.shape(t)[0] != np.shape(r)[0]:
+                        raise ValueError("For a single numpy array 'r', 't' must be a 1D array of the same length as the first dimension of 'r'.")
+
+                elif input_type == "list of numpy array":
+                    if same_shape:
+                        if t_type == "Single array or list":
+                            t_current = t
+                        elif t_type == "List of non-arrays" or t_type == "List of arrays":
+                            t_current = max(t, key=len)
+                        # Single `t` array is allowed
+                        if len(t_current) != len(xyz):
+                            raise ValueError("When 'r' is a list of arrays with the same shape, 't' must be a single 1D array matching the length of the first dimension of the arrays in 'r'.")
+                    else:
+                        # `t` must be a list of 1D arrays
+                        if t_type == "Single array or list":
+                            raise ValueError("When 'r' is a list of differing size numpy arrays, 't' must be a list of 1D arrays of equal length to the corresponding arrays in 'r'.")
+                        elif t_type == "List of non-arrays" or t_type == "List of arrays":
+                            if len(xyz) == len(t[orbit_index]):
+                                t_current = t[orbit_index]
+                            else:
+                                print(f"length of t: {len(t_current)} and r: {len(xyz)}")
+                                raise ValueError(f"'t' must be a 1D array matching the length of the first dimension of 'r[{orbit_index}]'.")
+                                
+            r_moon = get_body("moon").position(t_current).T
         r_earth = np.zeros(np.shape(r_moon))
 
         # Dictionary of frame transformations and titles
@@ -271,9 +342,9 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
         if frame in frame_transformations:
             title2, transform_func = frame_transformations[frame]
             if transform_func:
-                xyz = transform_func(xyz, t)
-                r_moon = transform_func(r_moon, t)
-                r_earth = transform_func(r_earth, t)
+                xyz = transform_func(xyz, t_current)
+                r_moon = transform_func(r_moon, t_current)
+                r_earth = transform_func(r_earth, t_current)
         else:
             raise ValueError("Unknown plot type provided. Accepted: gcrf, itrf, lunar, lunar fixed")
 
@@ -294,39 +365,39 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
         plot_settings = {
             "gcrf": {
                 "primary_color": "blue",
-                "primary_size": 50,
+                "primary_size": (EARTH_RADIUS / RGEO),
                 "secondary_x": r_moon[:, 0],
                 "secondary_y": r_moon[:, 1],
                 "secondary_z": r_moon[:, 2],
                 "secondary_color": grey_colors,
-                "secondary_size": 25
+                "secondary_size": (MOON_RADIUS / RGEO)
             },
             "itrf": {
                 "primary_color": "blue",
-                "primary_size": 50,
+                "primary_size": (EARTH_RADIUS / RGEO),
                 "secondary_x": r_moon[:, 0],
                 "secondary_y": r_moon[:, 1],
                 "secondary_z": r_moon[:, 2],
                 "secondary_color": grey_colors,
-                "secondary_size": 25
+                "secondary_size": (MOON_RADIUS / RGEO)
             },
             "lunar": {
                 "primary_color": "grey",
-                "primary_size": 25,
+                "primary_size": (MOON_RADIUS / RGEO),
                 "secondary_x": r_earth[:, 0],
                 "secondary_y": r_earth[:, 1],
                 "secondary_z": r_earth[:, 2],
                 "secondary_color": blues,
-                "secondary_size": 50
+                "secondary_size": (EARTH_RADIUS / RGEO)
             },
             "lunar axis": {
                 "primary_color": "blue",
-                "primary_size": 50,
+                "primary_size": (EARTH_RADIUS / RGEO),
                 "secondary_x": r_moon[:, 0],
                 "secondary_y": r_moon[:, 1],
                 "secondary_z": r_moon[:, 2],
                 "secondary_color": grey_colors,
-                "secondary_size": 25
+                "secondary_size": (MOON_RADIUS / RGEO)
             }
         }
         try:
@@ -338,10 +409,10 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
             scatter_dot_colors = cm.rainbow(np.linspace(0, 1, len(xyz[:, 0])))
         else:
             scatter_dot_colors = cm.rainbow(np.linspace(0, 1, num_orbits))[orbit_index]
-
-        ax1.add_patch(plt.Circle((0, 0), 1, color='white', linestyle='dashed', fill=False))
+        
         ax1.scatter(xyz[:, 0], xyz[:, 1], color=scatter_dot_colors, s=1)
-        ax1.scatter(0, 0, color=stn['primary_color'], s=stn['primary_size'])
+        ax1.add_patch(plt.Circle(xy=(0, 0), radius=1, color='white', linestyle='dashed', fill=False))  # Circle marking GEO
+        ax1.add_patch(plt.Circle(xy=(0, 0), radius=stn['primary_size'], color=stn['primary_color'], linestyle='dashed', fill=False))  # Circle marking EARTH or MOON
         if r_moon[:, 0] is not False:
             ax1.scatter(stn['secondary_x'], stn['secondary_y'], color=stn['secondary_color'], s=stn['secondary_size'])
         ax1.set_aspect('equal')
@@ -356,12 +427,12 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
                 else:
                     pos[0] = pos[0] - LD / RGEO
                 if bounds["lower"][0] <= pos[0] <= bounds["upper"][0] and bounds["lower"][1] <= pos[1] <= bounds["upper"][1]:
-                    ax1.scatter(pos[0], pos[1], color='white', label=point)
+                    ax1.scatter(pos[0], pos[1], color='white', label=point, s=10)
                     ax1.text(pos[0], pos[1], point, color='white')
 
-        ax2.add_patch(plt.Circle((0, 0), 1, color='white', linestyle='dashed', fill=False))
         ax2.scatter(xyz[:, 0], xyz[:, 2], color=scatter_dot_colors, s=1)
-        ax2.scatter(0, 0, color=stn['primary_color'], s=stn['primary_size'])
+        ax2.add_patch(plt.Circle(xy=(0, 0), radius=1, color='white', linestyle='dashed', fill=False))  # Circle marking GEO
+        ax2.add_patch(plt.Circle(xy=(0, 0), radius=stn['primary_size'], color=stn['primary_color'], linestyle='dashed', fill=False))  # Circle marking EARTH or MOON
         if r_moon[:, 0] is not False:
             ax2.scatter(stn['secondary_x'], stn['secondary_z'], color=stn['secondary_color'], s=stn['secondary_size'])
         ax2.set_aspect('equal')
@@ -378,14 +449,14 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
                 else:
                     pos[0] = pos[0] - LD / RGEO
                 if bounds["lower"][0] <= pos[0] <= bounds["upper"][0] and bounds["lower"][2] <= pos[2] <= bounds["upper"][2]:
-                    ax2.scatter(pos[0], pos[2], color='white', label=point)
+                    ax2.scatter(pos[0], pos[2], color='white', label=point, s=10)
                     ax2.text(pos[0], pos[2], point, color='white')
 
-        ax3.add_patch(plt.Circle((0, 0), 1, color='white', linestyle='dashed', fill=False))
         ax3.scatter(xyz[:, 1], xyz[:, 2], color=scatter_dot_colors, s=1)
-        ax3.scatter(0, 0, color=stn['primary_color'], s=stn['primary_size'])
+        ax3.add_patch(plt.Circle(xy=(0, 0), radius=1, color='white', linestyle='dashed', fill=False))
+        ax3.add_patch(plt.Circle(xy=(0, 0), radius=stn['primary_size'], color=stn['primary_color'], linestyle='dashed', fill=False))  # Circle marking EARTH or MOON
         if r_moon[:, 0] is not False:
-            ax3.scatter(stn['secondary_y'], stn['secondary_z'], color=stn['secondary_color'], s=stn['secondary_size'])
+            ax1.scatter(stn['secondary_y'], stn['secondary_z'], color=stn['secondary_color'], s=stn['secondary_size'])
         ax3.set_aspect('equal')
         ax3.set_xlabel('y [GEO]', color='white')
         ax3.set_ylabel('z [GEO]', color='white')
@@ -397,13 +468,21 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
                 else:
                     pos[0] = pos[0] - LD / RGEO
                 if bounds["lower"][1] <= pos[1] <= bounds["upper"][1] and bounds["lower"][2] <= pos[2] <= bounds["upper"][2]:
-                    ax3.scatter(pos[1], pos[2], color='white', label=point)
+                    ax3.scatter(pos[1], pos[2], color='white', label=point, s=10)
                     ax3.text(pos[1], pos[2], point, color='white')
-
+        
+        # Create a 3d sphere of the Earth and Moon
+        u = np.linspace(0, 2 * np.pi, 180)
+        v = np.linspace(-np.pi/2, np.pi/2, 180)
+        
         ax4.scatter3D(xyz[:, 0], xyz[:, 1], xyz[:, 2], color=scatter_dot_colors, s=1)
-        ax4.scatter3D(0, 0, 0, color=stn['primary_color'], s=stn['primary_size'])
+        mesh_x = np.outer(np.cos(u), np.cos(v)).T * stn['primary_size'] + 0
+        mesh_y = np.outer(np.sin(u), np.cos(v)).T * stn['primary_size'] + 0
+        mesh_z = np.outer(np.ones(np.size(u)), np.sin(v)).T * stn['primary_size'] + 0
+        ax4.plot_surface(mesh_x, mesh_y, mesh_z, color=stn['primary_color'], alpha=0.6, edgecolor='none')
         if r_moon[:, 0] is not False:
             ax4.scatter3D(stn['secondary_x'], stn['secondary_y'], stn['secondary_z'], color=stn['secondary_color'], s=stn['secondary_size'])
+
         ax4.set_xlabel('x [GEO]', color='white')
         ax4.set_ylabel('y [GEO]', color='white')
         ax4.set_zlabel('z [GEO]', color='white')
@@ -415,37 +494,37 @@ def orbit_plot(r, t=[], title='', figsize=(7, 7), save_path=False, frame="gcrf",
                 else:
                     pos[0] = pos[0] - LD / RGEO
                 if bounds["lower"][0] <= pos[0] <= bounds["upper"][0] and bounds["lower"][1] <= pos[1] <= bounds["upper"][1] and bounds["lower"][2] <= pos[2] <= bounds["upper"][2]:
-                    ax4.scatter(pos[0], pos[1], pos[2], color='white', label=point)
+                    ax4.scatter(pos[0], pos[1], pos[2], color='white', label=point, s=10)
                     ax4.text(pos[0], pos[1], pos[2], point, color='white')
 
-        ax1.set_xlim(bounds["lower"][0], bounds["upper"][0])
-        ax1.set_ylim(bounds["lower"][1], bounds["upper"][1])
+    ax1.set_xlim(bounds["lower"][0], bounds["upper"][0])
+    ax1.set_ylim(bounds["lower"][1], bounds["upper"][1])
 
-        ax2.set_xlim(bounds["lower"][0], bounds["upper"][0])
-        ax2.set_ylim(bounds["lower"][2], bounds["upper"][2])
+    ax2.set_xlim(bounds["lower"][0], bounds["upper"][0])
+    ax2.set_ylim(bounds["lower"][2], bounds["upper"][2])
 
-        ax3.set_xlim(bounds["lower"][1], bounds["upper"][1])
-        ax3.set_ylim(bounds["lower"][2], bounds["upper"][2])
+    ax3.set_xlim(bounds["lower"][1], bounds["upper"][1])
+    ax3.set_ylim(bounds["lower"][2], bounds["upper"][2])
 
-        ax4.set_xlim(bounds["lower"][0], bounds["upper"][0])
-        ax4.set_ylim(bounds["lower"][1], bounds["upper"][1])
-        ax4.set_zlim(bounds["lower"][2], bounds["upper"][2])
+    ax4.set_xlim(bounds["lower"][0], bounds["upper"][0])
+    ax4.set_ylim(bounds["lower"][1], bounds["upper"][1])
+    ax4.set_zlim(bounds["lower"][2], bounds["upper"][2])
+    ax4.set_box_aspect([1, 1, 1])
 
+    for ax in [ax1, ax2, ax3, ax4]:
+        ax.set_facecolor('black')
+        ax.tick_params(axis='both', colors='white')
+        for label in ax.get_xticklabels() + ax.get_yticklabels():
+            label.set_color('white')
+        for spine in ax.spines.values():
+            spine.set_edgecolor('white')
 
-        for ax in [ax1, ax2, ax3, ax4]:
-            ax.set_facecolor('black')
-            ax.tick_params(axis='both', colors='white')
-            for label in ax.get_xticklabels() + ax.get_yticklabels():
-                label.set_color('white')
-            for spine in ax.spines.values():
-                spine.set_edgecolor('white')
-
-        if save_path:
-            save_plot(fig, save_path)
-        if show:
-            plt.show()
-        plt.close()
-        return fig, [ax1, ax2, ax3, ax4]
+    if save_path:
+        save_plot(fig, save_path)
+    if show:
+        plt.show()
+    plt.close()
+    return fig, [ax1, ax2, ax3, ax4]
 
 
 def globe_plot(r, t, limits=False, title='', figsize=(7, 8), save_path=False, el=30, az=0, scale=1):
