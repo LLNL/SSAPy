@@ -284,6 +284,7 @@ def orbit_plot(r, t=None, title='', figsize=(7, 7), save_path=False, frame="gcrf
             else:
                 if input_type == "numpy array":
                     # Single array case
+                    t_current = t
                     if np.shape(t)[0] != np.shape(r)[1]:
                         raise ValueError("For a single numpy array 'r', 't' must be a 1D array of the same length as the first dimension of 'r'.")
 
