@@ -22,6 +22,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 from PIL import Image as PILImage
 import ipyvolume as ipv
 
+from typing import Union
+
 
 def load_earth_file():
     earth = PILImage.open(find_file("earth", ext=".png"))
