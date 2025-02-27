@@ -1508,11 +1508,11 @@ def calc_M_v(r_sat, r_earth, r_sun, r_moon=False, radius=0.4, albedo=0.20, sun_M
     ----------
     r_sat : (n, 3) numpy.ndarray
         Position of the satellite in meters.
-    r_earth : (3,) numpy.ndarray
+    r_earth : (n, 3) numpy.ndarray
         Position of the Earth in meters.
-    r_sun : (3,) numpy.ndarray
+    r_sun : (n, 3) numpy.ndarray
         Position of the Sun in meters.
-    r_moon : (3,) numpy.ndarray or False, optional
+    r_moon : (n, 3) numpy.ndarray or False, optional
         Position of the Moon in meters. If False, the Moon's contribution is ignored (default is False).
     radius : float, optional
         Radius of the satellite in meters (default is 0.4 m).
