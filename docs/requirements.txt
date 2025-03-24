@@ -16,5 +16,5 @@ graphviz
 scipy
 matplotlib
 pandas
-# ssapy
+ssapy
 scikit-learn
