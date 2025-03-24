@@ -101,7 +101,7 @@ Propagator
 
 
 Position and Velocity Sampler
----------------
+------------------------------
 
 .. automodule:: ssapy.rvsampler
    :members:

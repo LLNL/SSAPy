@@ -6,20 +6,16 @@
 .. include:: ../../README.rst
 
 .. toctree::
+   :titlesonly:
    :maxdepth: 2
-   :caption: Basics
 
    installation
    examples
    benchmarks
    concepts
    contribution_guide
-
-.. toctree::
-   :maxdepth: 2
-   :caption: API DOCS
-
-   API Reference Guide <reference>
+   references
+   api
 
 Indices and tables
 ==================
