@@ -12,28 +12,28 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../../ssapy/')) 
 
-from unittest.mock import Mock
-MOCK_MODULES = [
-    'ssapy.accel',
-    'ssapy.body',
-    'ssapy.compute',
-    'ssapy.constants',
-    'ssapy.correlate_tracks',
-    'ssapy.ellipsoid',
-    'ssapy.gravity',
-    'ssapy.io',
-    'ssapy.linker',
-    'ssapy.orbit_solver',
-    'ssapy.orbit',
-    'ssapy.particles',
-    'ssapy.plotUtils',
-    'ssapy.propagator',
-    'ssapy.rvsampler',
-    'ssapy.simple',
-    'ssapy.utils',
-    'ssapy._ssapy',  # Add this since it was part of the original error
-]
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+# from unittest.mock import Mock
+# MOCK_MODULES = [
+#     'ssapy.accel',
+#     'ssapy.body',
+#     'ssapy.compute',
+#     'ssapy.constants',
+#     'ssapy.correlate_tracks',
+#     'ssapy.ellipsoid',
+#     'ssapy.gravity',
+#     'ssapy.io',
+#     'ssapy.linker',
+#     'ssapy.orbit_solver',
+#     'ssapy.orbit',
+#     'ssapy.particles',
+#     'ssapy.plotUtils',
+#     'ssapy.propagator',
+#     'ssapy.rvsampler',
+#     'ssapy.simple',
+#     'ssapy.utils',
+#     'ssapy._ssapy',  # Add this since it was part of the original error
+# ]
+# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 
 
