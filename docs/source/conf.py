@@ -41,29 +41,46 @@ extensions = [
 ]
 
 
-def linkcode_resolve(domain, info):
-    if domain != "py":
-        return None
-    if not info["module"]:
-        return None
-    mod = importlib.import_module(info["module"])
-    modpath = [p for p in sys.path if mod.__file__.startswith(p)]
-    if len(modpath) < 1:
-        raise RuntimeError("Cannot deduce module path")
-    modpath = modpath[0]
-    obj = reduce(getattr, [mod] + info["fullname"].split("."))
-    try:
-        path = inspect.getsourcefile(obj)
-        relpath = path[len(modpath) + 1:]
-        relpath = relpath.split(".egg/")[-1]
-        _, lineno = inspect.getsourcelines(obj)
-    except TypeError:
-        # skip property or other type that inspect doesn't like
-        return None
-    return "http://github.com/LLNL/SSAPy/blob/{}/{}#L{}".format(
-        githash, relpath, lineno
-    )
+# def linkcode_resolve(domain, info):
+#     if domain != "py":
+#         return None
+#     if not info["module"]:
+#         return None
+#     mod = importlib.import_module(info["module"])
+#     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
+#     if len(modpath) < 1:
+#         raise RuntimeError("Cannot deduce module path")
+#     modpath = modpath[0]
+#     obj = reduce(getattr, [mod] + info["fullname"].split("."))
+#     try:
+#         path = inspect.getsourcefile(obj)
+#         relpath = path[len(modpath) + 1:]
+#         relpath = relpath.split(".egg/")[-1]
+#         _, lineno = inspect.getsourcelines(obj)
+#     except TypeError:
+#         # skip property or other type that inspect doesn't like
+#         return None
+#     return "http://github.com/LLNL/SSAPy/blob/{}/{}#L{}".format(
+#         githash, relpath, lineno
+#     )
 
+def linkcode_resolve(domain, info):
+    """Create a link to the source code on GitHub."""
+    if domain != 'py':
+        return None  # Only resolve links for Python code
+    
+    # Get the object path from `info`
+    module_name = info['module']
+    object_name = info['fullname']
+
+    # Construct the GitHub URL
+    github_url = f"http://github.com/LLNL/SSAPy/blob/{module_name}.py"
+    
+    # If the object is a function or class, add the location in the file
+    if object_name:
+        github_url += f"#L{inspect.stack()[0].lineno}"
+    
+    return github_url
 
 autosummary_generate = False
 numpydoc_show_class_members = False
