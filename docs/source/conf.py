@@ -63,7 +63,6 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
     'sphinx.ext.napoleon',
-    "numpy": ("https://numpy.org/doc/stable/", None)
 ]
 
 def linkcode_resolve(domain, info):
