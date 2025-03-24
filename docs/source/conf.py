@@ -8,9 +8,11 @@
 from functools import reduce
 import subprocess
 
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('../../')) 
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../')) 
+autodoc_mock_imports = ['ssapy']
+
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
