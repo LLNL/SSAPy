@@ -8,9 +8,9 @@ import inspect
 from functools import reduce
 import subprocess
 
-import os
-import sys
-sys.path.insert(0, os.path.abspath('/p/lustre1/dehiggin/stunning_env/lib/python3.8/site-packages/ssapy/'))
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('/p/lustre1/dehiggin/stunning_env/lib/python3.8/site-packages/ssapy/'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -64,23 +64,23 @@ extensions = [
 #         githash, relpath, lineno
 #     )
 
-def linkcode_resolve(domain, info):
-    """Create a link to the source code on GitHub."""
-    if domain != 'py':
-        return None  # Only resolve links for Python code
+# def linkcode_resolve(domain, info):
+#     """Create a link to the source code on GitHub."""
+#     if domain != 'py':
+#         return None  # Only resolve links for Python code
     
-    # Get the object path from `info`
-    module_name = info['module']
-    object_name = info['fullname']
+#     # Get the object path from `info`
+#     module_name = info['module']
+#     object_name = info['fullname']
 
-    # Construct the GitHub URL
-    github_url = f"http://github.com/LLNL/SSAPy/blob/{module_name}.py"
+#     # Construct the GitHub URL
+#     github_url = f"http://github.com/LLNL/SSAPy/blob/{module_name}.py"
     
-    # If the object is a function or class, add the location in the file
-    if object_name:
-        github_url += f"#L{inspect.stack()[0].lineno}"
+#     # If the object is a function or class, add the location in the file
+#     if object_name:
+#         github_url += f"#L{inspect.stack()[0].lineno}"
     
-    return github_url
+#     return github_url
 
 autosummary_generate = False
 numpydoc_show_class_members = False
