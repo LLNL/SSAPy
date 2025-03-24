@@ -1,0 +1,15 @@
+sphinx==7.2.3
+sphinx-copybutton
+sphinx_rtd_theme
+sphinxcontrib-bibtex
+nbsphinx
+numpy
+astropy
+jupyter
+jupyterlab
+asdf
+scipy
+matplotlib
+pandas
+ssapy
+scikit-learn
