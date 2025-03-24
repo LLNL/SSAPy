@@ -88,3 +88,6 @@ html_theme_options = {
     'logo_only': True,
 }
 html_favicon = '_static/images/logo/ssapy_logo.ico'
+
+bibtex_bibfiles = ["refs.bib"]
+bibtex_reference_style = "author_year"
