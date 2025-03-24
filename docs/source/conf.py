@@ -10,7 +10,7 @@ import subprocess
 
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('../../ssapy/'))
+sys.path.insert(0, os.path.abspath('/p/lustre1/dehiggin/stunning_env/lib/python3.8/site-packages/ssapy/'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
