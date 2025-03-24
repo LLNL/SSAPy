@@ -2,6 +2,7 @@ sphinx
 sphinx-copybutton
 myst-parser
 sphinx-tabs
+sphinx-automodapi
 sphinx_rtd_theme
 sphinxcontrib-bibtex
 nbsphinx
