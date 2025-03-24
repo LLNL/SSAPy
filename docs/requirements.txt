@@ -9,8 +9,13 @@ nbsphinx
 numpy
 astropy
 jupyter
-jupyterlab
 asdf
+git 
+git-lfs 
+python3 
+python3-distutils 
+python3-venv 
+graphviz
 scipy
 matplotlib
 pandas

@@ -3,14 +3,14 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import importlib
-import inspect
+# import importlib
+# import inspect
 from functools import reduce
 import subprocess
 
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('/p/lustre1/dehiggin/stunning_env/lib/python3.8/site-packages/ssapy/'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../')) 
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -34,10 +34,10 @@ extensions = [
     'sphinx_automodapi.automodapi',
     'sphinx_automodapi.smart_resolver',
     'myst_parser',
-    "sphinx_rtd_theme",
-    "sphinx.ext.mathjax",
-    "sphinxcontrib.bibtex",
-    "sphinx.ext.napoleon",
+    'sphinx_rtd_theme',
+    'sphinx.ext.mathjax',
+    'sphinxcontrib.bibtex',
+    'sphinx.ext.napoleon'
 ]
 
 

@@ -117,5 +117,5 @@ Simple
 Utilities
 ---------------
 
-.. automodule:: ssapy.simple
+.. automodule:: ssapy.utils
    :members:
