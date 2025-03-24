@@ -34,31 +34,35 @@ extensions = [
     'sphinx_automodapi.automodapi',
     'sphinx_automodapi.smart_resolver',
     'myst_parser',
+    "sphinx_rtd_theme",
+    "sphinx.ext.mathjax",
+    "sphinxcontrib.bibtex",
+    "sphinx.ext.napoleon",
 ]
 
 
-def linkcode_resolve(domain, info):
-    if domain != "py":
-        return None
-    if not info["module"]:
-        return None
-    mod = importlib.import_module(info["module"])
-    modpath = [p for p in sys.path if mod.__file__.startswith(p)]
-    if len(modpath) < 1:
-        raise RuntimeError("Cannot deduce module path")
-    modpath = modpath[0]
-    obj = reduce(getattr, [mod] + info["fullname"].split("."))
-    try:
-        path = inspect.getsourcefile(obj)
-        relpath = path[len(modpath) + 1:]
-        relpath = relpath.split(".egg/")[-1]
-        _, lineno = inspect.getsourcelines(obj)
-    except TypeError:
-        # skip property or other type that inspect doesn't like
-        return None
-    return "http://github.com/LLNL/SSAPy/blob/{}/{}#L{}".format(
-        githash, relpath, lineno
-    )
+# def linkcode_resolve(domain, info):
+#     if domain != "py":
+#         return None
+#     if not info["module"]:
+#         return None
+#     mod = importlib.import_module(info["module"])
+#     modpath = [p for p in sys.path if mod.__file__.startswith(p)]
+#     if len(modpath) < 1:
+#         raise RuntimeError("Cannot deduce module path")
+#     modpath = modpath[0]
+#     obj = reduce(getattr, [mod] + info["fullname"].split("."))
+#     try:
+#         path = inspect.getsourcefile(obj)
+#         relpath = path[len(modpath) + 1:]
+#         relpath = relpath.split(".egg/")[-1]
+#         _, lineno = inspect.getsourcelines(obj)
+#     except TypeError:
+#         # skip property or other type that inspect doesn't like
+#         return None
+#     return "http://github.com/LLNL/SSAPy/blob/{}/{}#L{}".format(
+#         githash, relpath, lineno
+#     )
 
 
 autosummary_generate = False
