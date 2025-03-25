@@ -12,11 +12,17 @@ build:
   apt_packages:
     - graphviz
   commands:
+    # Download and extract CMake
     - curl -L https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-linux-x86_64.tar.gz -o cmake.tar.gz
     - tar -xzf cmake.tar.gz
-    - mv cmake-3.27.0-linux-x86_64/bin/cmake /usr/local/bin/cmake
-    - export PATH="/usr/local/bin:$PATH"
+    # Create a local bin directory and move cmake there
+    - mkdir -p ~/bin
+    - mv cmake-3.27.0-linux-x86_64/bin/cmake ~/bin/cmake
+    # Add the local bin directory to PATH
+    - export PATH="$HOME/bin:$PATH"
+    # Verify cmake installation
     - cmake --version
+    # Build and install the project
     - python3 setup.py build
     - python3 setup.py install
   
