@@ -11,6 +11,9 @@ build:
     python: "3.8"
   apt_packages:
     - graphviz
+  commands:
+    - python3 setup.py build
+    - python3 setup.py install
   
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
