@@ -12,8 +12,9 @@ build:
   apt_packages:
     - graphviz
   commands:
-    - curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
-    - sudo apt-get install git-lfs
+    - curl -s https://github.com/git-lfs/git-lfs/releases/download/v3.4.0/git-lfs-linux-amd64-v3.4.0.tar.gz -o git-lfs.tar.gz
+    - tar -xzf git-lfs.tar.gz
+    - ./install.sh
     - git lfs install
     - git lfs pull
     - git submodule update --init --recursive
