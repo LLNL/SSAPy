@@ -31,11 +31,11 @@ build:
       # Make LFS available in current repository
       - ./git-lfs install
       # Download content from remote
-      - ./git-lfs fetch
+      - ./git-lfs fetch --all
+      - ./git-lfs pull
       # Make local files to have the real content on them
       - ./git-lfs checkout
-      - ./git-lfs pull
-
+ 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
   configuration: docs/source/conf.py
