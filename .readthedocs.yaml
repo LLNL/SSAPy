@@ -11,6 +11,9 @@ build:
     python: "3.8"
   apt_packages:
     - graphviz
+    - git 
+    - git-lfs 
+    - python3
   commands:
     - git submodule update --init --recursive
     - git lfs install
