@@ -64,6 +64,7 @@ html_theme_options = {
 }
 html_favicon = '_static/images/logo/ssapy_logo.ico'
 
+bibtex_cache = 'none' 
 bibtex_bibfiles = ["refs.bib"]
 bibtex_reference_style = "author_year"
 bibtex_debug = True
