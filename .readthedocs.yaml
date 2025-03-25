@@ -13,6 +13,7 @@ build:
   apt_packages:
     - graphviz
     - cmake
+    - git-lfs
   jobs:
     post_checkout:
       # Taken from: https://docs.readthedocs.io/en/stable/build-customization.html#support-git-lfs-large-file-storage
@@ -29,10 +30,8 @@ build:
       - git config filter.lfs.smudge  "`pwd`/git-lfs smudge -- %f"
       - git config filter.lfs.clean "`pwd`/git-lfs clean -- %f"
       # Make LFS available in current repository
-      # - ./git-lfs install
-      # - ./git-lfs pull
-      - git lfs install
-      - git lfs pull
+      - ./git-lfs install
+      - ./git-lfs pull
 
  
 # Build documentation in the "docs/" directory with Sphinx
