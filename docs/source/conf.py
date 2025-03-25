@@ -74,13 +74,13 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-# def linkcode_resolve(domain, info):
-#     if domain != 'py':
-#         return None
-#     if not info['module']:
-#         return None
-#     filename = info['module'].replace('.', '/')
-#     return "https://github.com/LLNL/SSAPy/tree/main/ssapy/%s.py" % filename
+def linkcode_resolve(domain, info):
+    if domain != 'py':
+        return None
+    if not info['module']:
+        return None
+    filename = info['module'].replace('.', '/')
+    return "https://github.com/LLNL/SSAPy/tree/main/ssapy/%s.py" % filename
 
 autosummary_generate = True
 numpydoc_show_class_members = False
