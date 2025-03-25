@@ -11,21 +11,14 @@ build:
     python: "3.8"
   apt_packages:
     - graphviz
-    - cmake
   commands:
-   # # Download and extract CMake
-   #  - curl -L https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-linux-x86_64.tar.gz -o cmake.tar.gz
-   #  - tar -xzf cmake.tar.gz
-   #  # Create a local bin directory and move cmake there
-   #  - mkdir -p $HOME/bin
-   #  - mv cmake-3.27.0-linux-x86_64/bin/cmake $HOME/bin/cmake
-   #  # Add the local bin directory to PATH
-   #  - echo "Adding CMake to PATH"
-   #  - export PATH="$HOME/bin:$PATH"
-   #  - echo $PATH
-   #  - which cmake  # This will print the path to the cmake executable, if it's installed correctly
-   #  - cmake --version
-   #  # Build and install the project
+    - curl -L https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-linux-x86_64.tar.gz -o cmake.tar.gz
+    - tar -xzf cmake.tar.gz
+    - mkdir -p $HOME/bin
+    - mv cmake-3.27.0-linux-x86_64/bin/cmake $HOME/bin/cmake
+    - export PATH="$HOME/bin:$PATH"
+    - which cmake
+    - cmake --version
     - python3 setup.py build
     - python3 setup.py install
   
