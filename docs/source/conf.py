@@ -6,9 +6,8 @@
 # import importlib
 # import inspect
 from functools import reduce
-import subprocess
-
 import os
+import subprocess
 import sys
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -19,11 +18,15 @@ if on_rtd:
     # Initialize Git submodules
     subprocess.run(["git", "submodule", "update", "--init", "--recursive"], check=True)
 
-    # Install Git LFS
-    subprocess.run(["git", "lfs", "install"], check=True)
-
-    # Pull files managed by Git LFS
-    subprocess.run(["git", "lfs", "pull"], check=True)
+    # Check if Git LFS is available
+    try:
+        subprocess.run(["git-lfs", "--version"], check=True)
+        # Install Git LFS
+        subprocess.run(["git-lfs", "install"], check=True)
+        # Pull files managed by Git LFS
+        subprocess.run(["git-lfs", "pull"], check=True)
+    except FileNotFoundError:
+        print("Git LFS is not available. Skipping LFS commands.")
 
     # Build and install the package
     subprocess.run(["python3", "setup.py", "build"],  check=True)
