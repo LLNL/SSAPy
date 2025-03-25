@@ -20,12 +20,15 @@ build:
   commands:
    # Add the Git LFS binary to PATH
     - export PATH=$PATH:$PWD/bin
+    # Verify that the binary is accessible
+    - ls $PWD/bin/git-lfs
+    - which git-lfs
    # Initialize Git submodules
     - git submodule update --init --recursive
    # Install Git LFS
-    - git-lfs install
+    - git lfs install
    # Pull files managed by Git LFS
-    - git-lfs pull
+    - git lfs pull
    # Build and install the package
     - python3 setup.py build
     - python3 setup.py install
