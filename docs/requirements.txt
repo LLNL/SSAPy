@@ -5,6 +5,8 @@ sphinx-tabs
 sphinx-automodapi
 sphinx_rtd_theme
 sphinxcontrib-bibtex
+sphinx-rtd-theme
+sphinx-autobuild
 nbsphinx
 numpy
 astropy

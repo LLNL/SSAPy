@@ -10,6 +10,7 @@ import subprocess
 
 import os
 import sys
+
 def install_cmake():
     cmake_url = "https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-linux-x86_64.tar.gz"
     cmake_tar = "cmake.tar.gz"
@@ -36,38 +37,12 @@ def install_cmake():
     print("CMake installed successfully:")
     print(cmake_version.stdout)
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-if on_rtd:
-    # Install cmake
-    install_cmake()
-    sys.path.insert(0, os.path.abspath('../../ssapy'))
-    subprocess.run(["python3", "setup.py", "build"], cwd=os.path.abspath("../.."))
-    subprocess.run(["python3", "setup.py", "install"], cwd=os.path.abspath("../.."))
-
-
-# from unittest.mock import Mock
-# MOCK_MODULES = [
-#     'ssapy.accel',
-#     'ssapy.body',
-#     'ssapy.compute',
-#     'ssapy.constants',
-#     'ssapy.correlate_tracks',
-#     'ssapy.ellipsoid',
-#     'ssapy.gravity',
-#     'ssapy.io',
-#     'ssapy.linker',
-#     'ssapy.orbit_solver',
-#     'ssapy.orbit',
-#     'ssapy.particles',
-#     'ssapy.plotUtils',
-#     'ssapy.propagator',
-#     'ssapy.rvsampler',
-#     'ssapy.simple',
-#     'ssapy.utils',
-#     'ssapy._ssapy',  # Add this since it was part of the original error
-# ]
-# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
-
+# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+# if on_rtd:
+#     install_cmake()
+#     sys.path.insert(0, os.path.abspath('../../ssapy'))
+#     subprocess.run(["python3", "setup.py", "build"], cwd=os.path.abspath("../.."))
+#     subprocess.run(["python3", "setup.py", "install"], cwd=os.path.abspath("../.."))
 
 
 # -- Project information -----------------------------------------------------
@@ -99,13 +74,13 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-def linkcode_resolve(domain, info):
-    if domain != 'py':
-        return None
-    if not info['module']:
-        return None
-    filename = info['module'].replace('.', '/')
-    return "https://github.com/LLNL/SSAPy/tree/main/ssapy/%s.py" % filename
+# def linkcode_resolve(domain, info):
+#     if domain != 'py':
+#         return None
+#     if not info['module']:
+#         return None
+#     filename = info['module'].replace('.', '/')
+#     return "https://github.com/LLNL/SSAPy/tree/main/ssapy/%s.py" % filename
 
 autosummary_generate = True
 numpydoc_show_class_members = False
@@ -133,3 +108,4 @@ html_favicon = '_static/images/logo/ssapy_logo.ico'
 
 bibtex_bibfiles = ["refs.bib"]
 bibtex_reference_style = "author_year"
+bibtex_debug = True
