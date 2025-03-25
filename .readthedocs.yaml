@@ -16,8 +16,6 @@ build:
   jobs:
     post_checkout:
       # Taken from: https://docs.readthedocs.io/en/stable/build-customization.html#support-git-lfs-large-file-storage
-      # NOTE(alexmillane): Modified to put lfs files in a sub-directory to stop lfs README.md overwriting ours.
-      - ls -a
       # Download LFS
       - wget https://github.com/git-lfs/git-lfs/releases/download/v3.1.4/git-lfs-linux-amd64-v3.1.4.tar.gz
       # Uncompress
@@ -36,6 +34,7 @@ build:
       - ./git-lfs fetch
       # Make local files to have the real content on them
       - ./git-lfs checkout
+      - ./git-lfs pull
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
