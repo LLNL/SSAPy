@@ -4,6 +4,11 @@
 # Required
 version: 2
 
+# Declare the Python requirements required to build your documentation
+python:
+  install:
+    - requirements: docs/requirements.txt
+
 # Set the OS, Python version, and other tools you might need
 build:
   os: ubuntu-24.04
@@ -19,8 +24,5 @@ build:
 sphinx:
   configuration: docs/source/conf.py
 
-# Declare the Python requirements required to build your documentation
-python:
-  install:
-    - requirements: docs/requirements.txt
+
    
