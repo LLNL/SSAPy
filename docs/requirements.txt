@@ -16,5 +16,5 @@ graphviz
 scipy
 matplotlib
 pandas
-ssapy
+git+https://github.com/LLNL/SSAPy.git
 scikit-learn

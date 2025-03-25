@@ -10,7 +10,7 @@ import subprocess
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../ssapy/')) 
+sys.path.insert(0, os.path.abspath('../../ssapy')) 
 
 # from unittest.mock import Mock
 # MOCK_MODULES = [
@@ -63,6 +63,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinxcontrib.bibtex',
     'sphinx.ext.napoleon',
+    'sphinx.ext.viewcode',
 ]
 
 def linkcode_resolve(domain, info):
