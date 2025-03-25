@@ -12,6 +12,8 @@ build:
   apt_packages:
     - graphviz
     - cmake
+  commands:
+    - ./post-build.sh
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
@@ -22,7 +24,3 @@ python:
   install:
     - requirements: docs/requirements.txt
    
-build:
-  os: ubuntu-24.04
-  commands:
-    - ./post-build.sh
