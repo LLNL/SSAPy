@@ -14,8 +14,6 @@ build:
   commands:
     - curl -L https://github.com/git-lfs/git-lfs/releases/download/v3.4.0/git-lfs-linux-amd64-v3.4.0.tar.gz -o git-lfs.tar.gz
     - tar -xzf git-lfs.tar.gz
-    - mv git-lfs /usr/local/bin/git-lfs
-    - ls -l git-lfs
     - git lfs install
     - git lfs pull
     - git submodule update --init --recursive
