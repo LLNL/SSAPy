@@ -41,7 +41,7 @@ project = 'SSAPy'
 copyright = '2018, Lawrence Livermore National Security, LLC'
 author = 'Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert, Travis Yeager, et al.'
 
-githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
+# githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
