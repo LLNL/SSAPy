@@ -11,6 +11,24 @@ import subprocess
 import os
 import sys
 
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if on_rtd:
+    # Initialize Git submodules
+    subprocess.run(["git", "submodule", "update", "--init", "--recursive"], cwd=os.path.abspath("../.."), check=True)
+
+    # Install Git LFS
+    subprocess.run(["git", "lfs", "install"], cwd=os.path.abspath("../.."), check=True)
+
+    # Pull files managed by Git LFS
+    subprocess.run(["git", "lfs", "pull"], cwd=os.path.abspath("../.."), check=True)
+
+    # Add the ssapy directory to the Python path
+    sys.path.insert(0, os.path.abspath('../../ssapy'))
+
+    # Build and install the package
+    subprocess.run(["python3", "setup.py", "build"], cwd=os.path.abspath("../.."), check=True)
+    subprocess.run(["python3", "setup.py", "install"], cwd=os.path.abspath("../.."), check=True)
+
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
