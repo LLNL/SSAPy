@@ -22,7 +22,7 @@ python:
   install:
     - requirements: docs/requirements.txt
 
-commands:
-   - apt-get update && apt-get install -y git-lfs
-   - git lfs install
-   - git lfs pull
+   commands:
+    - apt-get update && apt-get install -y git-lfs
+    - git lfs install
+    - git lfs pull
