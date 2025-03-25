@@ -23,5 +23,6 @@ python:
     - requirements: docs/requirements.txt
    
 build:
+  os: ubuntu-24.04
   commands:
     - ./post-build.sh
