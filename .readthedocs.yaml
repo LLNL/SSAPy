@@ -19,9 +19,9 @@ build:
     - cmake
   commands:
    # Add the Git LFS binary to PATH
-    - export PATH=$PATH:$PWD/bin
+    - export PATH=$PATH:/home/docs/checkouts/readthedocs.org/user_builds/ssapy-test/checkouts/latest/bin
     # Verify that the binary is accessible
-    - ls $PWD/bin/git-lfs
+    - ls /home/docs/checkouts/readthedocs.org/user_builds/ssapy-test/checkouts/latest/bin/git-lfs
     - which git-lfs
    # Initialize Git submodules
     - git submodule update --init --recursive
