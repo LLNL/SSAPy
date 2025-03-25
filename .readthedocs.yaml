@@ -30,11 +30,8 @@ build:
       - git config filter.lfs.clean "`pwd`/git-lfs clean -- %f"
       # Make LFS available in current repository
       - ./git-lfs install
-      # Download content from remote
-      - ./git-lfs fetch --all
       - ./git-lfs pull
-      # Make local files to have the real content on them
-      - ./git-lfs checkout
+
  
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
