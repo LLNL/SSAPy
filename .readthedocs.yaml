@@ -11,11 +11,11 @@ build:
     python: "3.8"
   apt_packages:
     - graphviz
-  commands:
-    - conda install -c conda-forge cmake
-    - cmake --version
-    - python3 setup.py build
-    - python3 setup.py install
+#   commands:
+#     - conda install -c conda-forge cmake
+#     - cmake --version
+#     - python3 setup.py build
+#     - python3 setup.py install
   
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
