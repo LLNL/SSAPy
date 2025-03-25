@@ -13,7 +13,8 @@ import sys
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
     # Add the ssapy directory to the Python path
-    sys.path.insert(0, os.path.abspath('../../ssapy'))
+    sys.path.insert(0, os.path.abspath('../..'))
+    os.environ["PATH"] += os.pathsep + os.path.abspath('../../bin')
 
     # Initialize Git submodules
     subprocess.run(["git", "submodule", "update", "--init", "--recursive"], check=True)
