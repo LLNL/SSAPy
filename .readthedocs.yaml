@@ -41,14 +41,6 @@ build:
 sphinx:
   configuration: docs/source/conf.py
 
-before_install:
-  - git lfs install
-  - git lfs pull
-
-install:
-  - pip install -r requirements.txt
-
-
 # Declare the Python requirements required to build your documentation
 python:
   install:
