@@ -12,8 +12,12 @@ build:
   apt_packages:
     - graphviz
   commands:
-    - curl -L https://github.com/git-lfs/git-lfs/releases/download/v3.4.0/git-lfs-linux-amd64-v3.4.0.tar.gz -o git-lfs.tar.gz
-    - tar -xzf git-lfs.tar.gz
+    - wget https://github.com/git-lfs/git-lfs/releases/download/v3.2.0/git-lfs-linux-amd64-v3.2.0.tar.gz
+    - tar xvf git-lfs-linux-amd64-v3.2.0.tar.gz
+    - cd git-lfs-3.2.0/
+    - chmod +x install.sh
+    - sed -i 's|^prefix="/usr/local"$|prefix="$HOME/.local"|' install.sh
+    - ./install.sh
     - git lfs install
     - git lfs pull
     - git submodule update --init --recursive
