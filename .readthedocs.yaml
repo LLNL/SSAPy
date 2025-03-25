@@ -31,6 +31,7 @@ build:
       # Make LFS available in current repository
       - ./git-lfs install
       - ./git-lfs pull
+      - git lfs pull
 
  
 # Build documentation in the "docs/" directory with Sphinx
