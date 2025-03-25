@@ -12,6 +12,10 @@ build:
   apt_packages:
     - graphviz
     - cmake
+  commands:
+    - git submodule update --init --recursive
+    - git lfs install
+    - git lfs pull
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:

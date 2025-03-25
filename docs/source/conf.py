@@ -11,39 +11,6 @@ import subprocess
 import os
 import sys
 
-def install_cmake():
-    cmake_url = "https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-linux-x86_64.tar.gz"
-    cmake_tar = "cmake.tar.gz"
-    cmake_dir = "cmake-3.27.0-linux-x86_64"
-    local_bin = os.path.expanduser("~/bin")
-
-    # Download cmake
-    subprocess.run(["curl", "-L", cmake_url, "-o", cmake_tar], check=True)
-
-    # Extract cmake
-    subprocess.run(["tar", "-xzf", cmake_tar], check=True)
-
-    # Create local bin directory if it doesn't exist
-    os.makedirs(local_bin, exist_ok=True)
-
-    # Move cmake binary to local bin
-    subprocess.run(["mv", f"{cmake_dir}/bin/cmake", local_bin], check=True)
-
-    # Add local bin to PATH
-    os.environ["PATH"] = f"{local_bin}:{os.environ['PATH']}"
-
-    # Verify cmake installation
-    cmake_version = subprocess.run(["cmake", "--version"], check=True, capture_output=True, text=True)
-    print("CMake installed successfully:")
-    print(cmake_version.stdout)
-
-# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-# if on_rtd:
-#     install_cmake()
-#     sys.path.insert(0, os.path.abspath('../../ssapy'))
-#     subprocess.run(["python3", "setup.py", "build"], cwd=os.path.abspath("../.."))
-#     subprocess.run(["python3", "setup.py", "install"], cwd=os.path.abspath("../.."))
-
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information

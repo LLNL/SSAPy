@@ -36,7 +36,6 @@ Correlate Tracks
 .. automodule:: ssapy.correlate_tracks
    :members:
 
-
 Ellipsoid
 ---------------
 
