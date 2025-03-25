@@ -8,8 +8,8 @@
 from functools import reduce
 import subprocess
 
-import os
-import sys
+# import os
+# import sys
 
 # on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 # if on_rtd:
