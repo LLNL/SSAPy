@@ -3,33 +3,6 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-# import importlib
-# import inspect
-from functools import reduce
-import os
-import subprocess
-import sys
-
-# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-# if on_rtd:
-#     # Add the ssapy directory to the Python path
-#     sys.path.insert(0, os.path.abspath('../../ssapy'))
-
-#     # Add the Git LFS binary to PATH
-#     os.environ["PATH"] += os.pathsep + os.path.abspath('../../bin')
-
-#     # Initialize Git submodules
-#     subprocess.run(["git", "submodule", "update", "--init", "--recursive"], check=True)
-
-#     # Install Git LFS
-#     subprocess.run(["git-lfs", "install"], check=True)
-
-#     # Pull files managed by Git LFS
-#     subprocess.run(["git-lfs", "pull"], check=True)
-
-#     # Build and install the package
-#     subprocess.run(["python3", "setup.py", "build"],  check=True)
-#     subprocess.run(["python3", "setup.py", "install"], check=True)
 
 
 # -- Project information -----------------------------------------------------
@@ -38,8 +11,6 @@ import sys
 project = 'SSAPy'
 copyright = '2018, Lawrence Livermore National Security, LLC'
 author = 'Michael Schneider, Josh Meyers, Edward Schlafly, Julia Ebert, Travis Yeager, et al.'
-
-# githash = subprocess.check_output(["git", "rev-parse", "HEAD"]).strip().decode("ascii")
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
