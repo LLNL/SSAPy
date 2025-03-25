@@ -13,12 +13,6 @@ import sys
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
-    if not os.path.exists('./git-lfs'):
-        os.system('wget https://github.com/git-lfs/git-lfs/releases/download/v3.2.0/git-lfs-linux-amd64-v3.2.0.tar.gz')
-        os.system('tar xvfz git-lfs-linux-amd64-v3.2.0.tar.gz')
-        os.system('./git-lfs-3.2.0 install')  # make lfs available in current repository
-        os.system('./git-lfs-3.2.0 fetch')  # download content from remote
-        os.system('./git-lfs-3.2.0 checkout')
     sys.path.insert(0, os.path.abspath('../../ssapy'))
     subprocess.run(["python3", "setup.py", "build"], cwd=os.path.abspath("../.."))
     subprocess.run(["python3", "setup.py", "install"], cwd=os.path.abspath("../.."))
