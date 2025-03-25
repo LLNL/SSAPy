@@ -13,21 +13,19 @@ import sys
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 if on_rtd:
     # Add the ssapy directory to the Python path
-    sys.path.insert(0, os.path.abspath('../..'))
+    sys.path.insert(0, os.path.abspath('../../ssapy'))
+
+    # Add the Git LFS binary to PATH
     os.environ["PATH"] += os.pathsep + os.path.abspath('../../bin')
 
     # Initialize Git submodules
     subprocess.run(["git", "submodule", "update", "--init", "--recursive"], check=True)
 
-    # Check if Git LFS is available
-    try:
-        subprocess.run(["git-lfs", "--version"], check=True)
-        # Install Git LFS
-        subprocess.run(["git-lfs", "install"], check=True)
-        # Pull files managed by Git LFS
-        subprocess.run(["git-lfs", "pull"], check=True)
-    except FileNotFoundError:
-        print("Git LFS is not available. Skipping LFS commands.")
+    # Install Git LFS
+    subprocess.run(["git-lfs", "install"], check=True)
+
+    # Pull files managed by Git LFS
+    subprocess.run(["git-lfs", "pull"], check=True)
 
     # Build and install the package
     subprocess.run(["python3", "setup.py", "build"],  check=True)
