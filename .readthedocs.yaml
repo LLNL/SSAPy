@@ -12,6 +12,7 @@ build:
   apt_packages:
     - graphviz
   commands:
+    - git submodule update --init --recursive
     - git lfs install
     - git lfs pull
     - python3 setup.py build
