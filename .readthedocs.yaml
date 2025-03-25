@@ -11,8 +11,12 @@ build:
     python: "3.8"
   apt_packages:
     - graphviz
-    - cmake
   commands:
+    - curl -L https://github.com/Kitware/CMake/releases/download/v3.27.0/cmake-3.27.0-linux-x86_64.tar.gz -o cmake.tar.gz
+    - tar -xzf cmake.tar.gz
+    - mv cmake-3.27.0-linux-x86_64/bin/cmake /usr/local/bin/cmake
+    - export PATH="/usr/local/bin:$PATH"
+    - cmake --version
     - python3 setup.py build
     - python3 setup.py install
   
