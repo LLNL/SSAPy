@@ -17,6 +17,7 @@ build:
     - mkdir -p $HOME/bin
     - mv cmake-3.27.0-linux-x86_64/bin/cmake $HOME/bin/cmake
     - export PATH="$HOME/bin:$PATH"
+    - echo PATH
     - which cmake
     - cmake --version
     - python3 setup.py build
