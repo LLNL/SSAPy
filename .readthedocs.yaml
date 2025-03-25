@@ -13,8 +13,7 @@ build:
   apt_packages:
     - graphviz
     - cmake
-  extra_requirements:
-    - git-lfs
+
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
