@@ -11,6 +11,9 @@ import subprocess
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../ssapy')) 
+subprocess.run(["python3", "setup.py", "build"], cwd=os.path.abspath("../.."))
+subprocess.run(["python3", "setup.py", "install"], cwd=os.path.abspath("../.."))
+
 
 # from unittest.mock import Mock
 # MOCK_MODULES = [
