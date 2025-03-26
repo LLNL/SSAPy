@@ -38,7 +38,7 @@ def linkcode_resolve(domain, info):
     if not info['module']:
         return None
     filename = info['module'].replace('.', '/')
-    return "https://github.com/LLNL/SSAPy/tree/main/ssapy/%s.py" % filename
+    return "https://github.com/LLNL/SSAPy/tree/main/%s.py" % filename
 
 autosummary_generate = True
 numpydoc_show_class_members = False
