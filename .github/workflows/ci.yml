@@ -93,6 +93,7 @@ jobs:
         git submodule update --init --recursive
         git lfs install
         git lfs pull
+        pip install -r docs/requirements.txt
         cd docs && make html && make html
         touch _build/html/.nojekyll
     - name: Deploy documentation
