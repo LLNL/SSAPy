@@ -79,6 +79,10 @@ jobs:
     #  run: |
     #    python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
     #    pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
+    - name: Run tests
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      run: |
+        coverage run -m pytest ./tests/
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: codecov/codecov-action@v4
