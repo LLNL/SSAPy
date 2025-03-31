@@ -4,7 +4,7 @@ import astropy.units as u
 
 import ssapy
 from ssapy.utils import norm, iers_interp
-from ssapy_test_helpers import timer
+from ssapy_test_helpers import timer, sample_LEO_orbit, sample_GEO_orbit
 
 iers_interp(0.0)  # Prime the IERS interpolant cache
 earth = ssapy.get_body("earth")
@@ -718,25 +718,7 @@ def test_RK4_vs_analytic():
 
     for _ in range(10):
         while True:
-            # Pick a distance near GEO
-            r = np.random.uniform(4e7, 5e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VGEO
-            v = np.random.uniform(2.7e3, 3.3e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0)
+            orbit = sample_GEO_orbit(t0)
             if norm(orbit.periapsis) > 1e7:
                 break
 
@@ -750,25 +732,7 @@ def test_RK4_vs_analytic():
     times = t0 + np.linspace(0, 5, 1000)*u.h
     for _ in range(10):
         while True:
-            # Repeat near LEO
-            r = np.random.uniform(7e6, 1e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VLEO
-            v = np.random.uniform(7.7e3, 7.9e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0.gps)
+            orbit = sample_LEO_orbit(t0)
             if norm(orbit.periapsis) > 6475e3:
                 break
 
@@ -790,25 +754,7 @@ def test_scipy_propagator():
 
     for _ in range(10):
         while True:
-            # Pick a distance near GEO
-            r = np.random.uniform(4e7, 5e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VGEO
-            v = np.random.uniform(2.7e3, 3.3e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0)
+            orbit = sample_GEO_orbit(t0)
             if norm(orbit.periapsis) > 1e7:
                 break
 
@@ -822,25 +768,7 @@ def test_scipy_propagator():
     times = t0 + np.linspace(0, 5, 1000)*u.h
     for _ in range(10):
         while True:
-            # Repeat near LEO
-            r = np.random.uniform(7e6, 1e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VLEO
-            v = np.random.uniform(7.7e3, 7.9e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0.gps)
+            orbit = sample_LEO_orbit(t0)
             if norm(orbit.periapsis) > 6475e3:
                 break
 
@@ -863,25 +791,7 @@ def test_RK8():
 
     for _ in range(10):
         while True:
-            # Pick a distance near GEO
-            r = np.random.uniform(4e7, 5e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VGEO
-            v = np.random.uniform(2.7e3, 3.3e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0)
+            orbit = sample_GEO_orbit(t0)
             if norm(orbit.periapsis) > 1e7:
                 break
 
@@ -898,25 +808,7 @@ def test_RK8():
     times = t0 + np.arange(0, 500)*30*u.s
     for _ in range(10):
         while True:
-            # Repeat near LEO
-            r = np.random.uniform(7e6, 1e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VLEO
-            v = np.random.uniform(7.7e3, 7.9e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0.gps)
+            orbit = sample_LEO_orbit(t0)
             if norm(orbit.periapsis) > 6475e3:
                 break
 
@@ -942,25 +834,7 @@ def test_RK78():
 
     for _ in range(10):
         while True:
-            # Pick a distance near GEO
-            r = np.random.uniform(4e7, 5e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VGEO
-            v = np.random.uniform(2.7e3, 3.3e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0)
+            orbit = sample_GEO_orbit(t0)
             if norm(orbit.periapsis) > 1e7:
                 break
 
@@ -978,25 +852,7 @@ def test_RK78():
     times = t0 + np.arange(0, 500)*30*u.s
     for _ in range(10):
         while True:
-            # Repeat near LEO
-            r = np.random.uniform(7e6, 1e7)
-            # Pick a random direction (not uniform on sphere)
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            x = r * np.cos(theta) * np.sin(phi)
-            y = r * np.sin(theta) * np.sin(phi)
-            z = r * np.cos(phi)
-            r = np.array([x, y, z])
-            # Pick a velocity near VLEO
-            v = np.random.uniform(7.7e3, 7.9e3)
-            # and a randomish direction
-            theta = np.random.uniform(0, 2*np.pi)
-            phi = np.random.uniform(0, np.pi)
-            vx = v * np.cos(theta) * np.sin(phi)
-            vy = v * np.sin(theta) * np.sin(phi)
-            vz = v * np.cos(phi)
-            v = np.array([vx, vy, vz])
-            orbit = ssapy.Orbit(r, v, t0.gps)
+            orbit = sample_LEO_orbit(t0)
             if norm(orbit.periapsis) > 6475e3:
                 break
 
