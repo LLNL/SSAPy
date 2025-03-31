@@ -88,8 +88,8 @@ jobs:
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
-        apt update
-        apt install build-essential git git-lfs python3 python3-distutils python3-venv graphviz cmake
+        apt-get update
+        apt-get install build-essential git git-lfs python3 python3-distutils python3-venv graphviz cmake
         git submodule update --init --recursive
         git lfs install
         git lfs pull
