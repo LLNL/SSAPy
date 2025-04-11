@@ -1,6 +1,6 @@
 {{ fullname | escape | underline}}
 
-.. automodule:: ssapy.{{ fullname }}
+.. automodule:: {{ ssapy.fullname }}
   
    {% block attributes %}
    {% if attributes %}
