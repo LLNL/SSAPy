@@ -13,7 +13,7 @@ and/or heavy dependencies.  Below lists the packages available in the ``ssapy`` 
 
    .. autosummary::
       :toctree: _autosummary
-      :template: module-template.rst
+      :template: module_template.rst
       :recursive:
 
       ssapy.accel
