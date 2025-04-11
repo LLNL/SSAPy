@@ -32,3 +32,89 @@ and/or heavy dependencies.  Below lists the packages available in the ``ssapy`` 
       ssapy.rvsampler
       ssapy.simple
       ssapy.utils
+
+   
+   .. automodule:: ssapy.accel
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.body
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.compute
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.constants
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.correlate_tracks
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.ellipsoid
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.gravity
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.io
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.linker
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.orbit_solver
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.orbit
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.particles
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.plotUtils
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.propagator
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.rvsampler
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.simple
+       :members:
+       :undoc-members:
+       :show-inheritance:
+
+   .. automodule:: ssapy.utils
+       :members:
+       :undoc-members:
+       :show-inheritance:
