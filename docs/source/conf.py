@@ -30,7 +30,18 @@ extensions = [
     'sphinxcontrib.bibtex',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.inheritance_diagram',
+    'sphinx.ext.autosectionlabel',
 ]
+
+source_suffix = {
+	'.rst': 'restructuredtext',
+	'.txt': 'markdown',
+	'.md': 'markdown',
+}
+
 
 def linkcode_resolve(domain, info):
     if domain != 'py':
@@ -42,6 +53,7 @@ def linkcode_resolve(domain, info):
 
 autosummary_generate = True
 numpydoc_show_class_members = False
+autodoc_member_order = 'bysource'
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']
 templates_path = ['_templates']
