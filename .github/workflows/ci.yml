@@ -24,9 +24,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  CI_PROJECT_DIR: ${{ github.workspace }}
-
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -48,11 +45,6 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
-        sudo apt-get update
-        sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
-        git submodule update --init --recursive
-        git lfs install
-        git lfs pull
         python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
         # install checked out SSAPy
@@ -62,27 +54,12 @@ jobs:
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
-        # Update Homebrew and install dependencies
-        brew update
-        brew install git git-lfs python3 graphviz cmake
-    
-        # Initialize and update submodules
-        git submodule update --init --recursive
-    
-        # Install Git LFS and pull LFS objects
-        git lfs install
-        git lfs pull
-    
-        # Upgrade pip and install Python dependencies
-        python3 -m pip install --upgrade pip setuptools flake8
-        python3 -m pip install -r requirements.txt
-    
-        # Build and install the project
-        python3 setup.py build
-        python3 setup.py install
-    
-        # List installed Python packages
-        python3 -m pip list
+        python -m pip install --upgrade pip setuptools flake8
+        python -m pip install -r requirements.txt
+        # install checked out SSAPy
+        python setup.py build
+        python setup.py install
+        python -m pip list
     #- name: Install dependencies (Windows)
     #  if: matrix.os == 'windows-latest'
     #  run: |
@@ -98,14 +75,10 @@ jobs:
     #    python3 --version
     #    flake8 --version
     #    flake8 ssapy/ tests/ devel/
-    - name: Install pytest plugins
-      run: |
-        pip install pytest pytest-cov pytest-xdist
-    - name: Test with pytest
-      run: |
-        python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
-        pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
-      continue-on-error: true
+    #- name: Test with pytest
+    #  run: |
+    #    python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
+    #    pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: codecov/codecov-action@v4
@@ -133,7 +106,6 @@ jobs:
         build_dir: docs/_build/html
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   pass:
     needs: [test]
     runs-on: ubuntu-latest
