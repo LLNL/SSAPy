@@ -48,6 +48,13 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
+        sudo apt-get update
+        sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
+        git submodule update --init --recursive
+        git lfs install
+        git lfs pull
+        python3 setup.py build
+        python3 setup.py install
         python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
         # install checked out SSAPy
@@ -57,6 +64,13 @@ jobs:
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
+        sudo apt-get update
+        sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
+        git submodule update --init --recursive
+        git lfs install
+        git lfs pull
+        python3 setup.py build
+        python3 setup.py install
         python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
         # install checked out SSAPy
@@ -78,6 +92,16 @@ jobs:
     #    python3 --version
     #    flake8 --version
     #    flake8 ssapy/ tests/ devel/
+    - name: Test with pytest
+      run: |
+        python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
+        pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
+    - name: Upload coverage reports to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        slug: LLNL/SSAPy
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
@@ -91,16 +115,6 @@ jobs:
         pip install -r docs/requirements.txt
         cd docs && make html && make html
         touch _build/html/.nojekyll
-    - name: Test with pytest
-      run: |
-       python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
-       pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
-    - name: Upload coverage reports to Codecov
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
-      uses: codecov/codecov-action@v4
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: LLNL/SSAPy
     - name: Deploy documentation
       if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: crazy-max/ghaction-github-pages@v4
