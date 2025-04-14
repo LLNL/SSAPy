@@ -64,19 +64,27 @@ jobs:
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
-        sudo apt-get update
-        sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
+        # Update Homebrew and install dependencies
+        brew update
+        brew install git git-lfs python3 graphviz cmake
+    
+        # Initialize and update submodules
         git submodule update --init --recursive
+    
+        # Install Git LFS and pull LFS objects
         git lfs install
         git lfs pull
+    
+        # Upgrade pip and install Python dependencies
+        python3 -m pip install --upgrade pip setuptools flake8
+        python3 -m pip install -r requirements.txt
+    
+        # Build and install the project
         python3 setup.py build
         python3 setup.py install
-        python -m pip install --upgrade pip setuptools flake8
-        python -m pip install -r requirements.txt
-        # install checked out SSAPy
-        python setup.py build
-        python setup.py install
-        python -m pip list
+    
+        # List installed Python packages
+        python3 -m pip list
     #- name: Install dependencies (Windows)
     #  if: matrix.os == 'windows-latest'
     #  run: |
