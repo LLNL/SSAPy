@@ -98,6 +98,9 @@ jobs:
     #    python3 --version
     #    flake8 --version
     #    flake8 ssapy/ tests/ devel/
+    - name: Install pytest plugins
+      run: |
+        pip install pytest pytest-cov pytest-xdist
     - name: Test with pytest
       run: |
         python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
