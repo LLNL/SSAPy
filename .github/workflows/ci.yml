@@ -24,6 +24,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  CI_PROJECT_DIR: ${{ github.workspace }}
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -75,7 +78,6 @@ jobs:
     #    python3 --version
     #    flake8 --version
     #    flake8 ssapy/ tests/ devel/
-
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
@@ -107,6 +109,7 @@ jobs:
         build_dir: docs/_build/html
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   pass:
     needs: [test]
     runs-on: ubuntu-latest
