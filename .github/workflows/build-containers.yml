@@ -1,16 +1,9 @@
-yaml
 on: 
   repository_dispatch:
     types: [trigger-container-build]
 
 jobs:
-  pass:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Initial job to satisfy dependency requirement"
-
   deploy-images:
-    needs: [pass]
     if: ${{ github.event_name == 'push' || github.event_name == 'release' }}
     runs-on: ubuntu-latest
     permissions:
