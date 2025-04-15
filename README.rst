@@ -1,13 +1,10 @@
 SSAPy - Space Situational Awareness for Python
 ==============================================
 
-|ci_badge| |container_badge| |docs_badge| |codecov_badge|
+|ci_badge|  |docs_badge| |codecov_badge| 
 
 .. |ci_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml
-
-.. |container_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml/badge.svg
-    :target: https://github.com/LLNL/SSAPy/actions/workflows/build-containers.yml
 
 .. |docs_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/pages/pages-build-deployment/badge.svg
     :target: https://LLNL.github.io/SSAPy
@@ -144,3 +141,7 @@ See `Link to license <https://github.com/LLNL/SSAPy/blob/main/LICENSE>`_ and `NO
 SPDX-License-Identifier: MIT
 
 LLNL-CODE-862420
+
+Documentation Inspiration
+-------------------------
+The structure and organization of this repository's documentation were inspired by the excellent design and layout of the `Coffea <https://coffea-hep.readthedocs.io/en/latest/index.html>` project. 

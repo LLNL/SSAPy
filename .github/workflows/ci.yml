@@ -139,13 +139,3 @@ jobs:
     steps:
       - run: echo "All jobs passed"
   
-  trigger-container-build:
-    runs-on: ubuntu-latest
-    needs: [pass]
-    steps:
-      - name: Trigger container build workflow
-        uses: peter-evans/repository-dispatch@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          event-type: trigger-container-build
-
