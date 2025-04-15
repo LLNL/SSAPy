@@ -101,16 +101,36 @@ jobs:
     - name: Install pytest plugins
       run: |
         pip install pytest pytest-cov pytest-xdist
+    - name: Install Xcode Command Line Tools (macOS only)
+      if: matrix.os == 'macos-latest'
+      run: |
+        xcode-select --install || echo "Xcode Command Line Tools already installed"
+    - name: Install gcov (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcov
     - name: Test with pytest
       run: |
         python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
         pytest --cov-report=xml --cov=ssapy --deselect=test_taskvine || true
+    - name: Verify coverage files
+      run: |
+        if [ -f coverage.xml ]; then
+          echo "Coverage report generated successfully."
+        else
+          echo "Coverage report not found. Check pytest configuration."
+          exit 1
+        fi
     - name: Upload coverage reports to Codecov
-      if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4
       with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        slug: LLNL/SSAPy
+        token: ${{ secrets.CODECOV_TOKEN }}  # Only needed for private repos
+        slug: LLNL/SSAPy                     # Correct slug: owner/repo
+        files: coverage.xml                  # Optional if coverage.xml is in root
+        flags: unittests                     # Optional, helps categorize
+        name: codecov-ubuntu-py312           # Optional, helps identify the upload
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
