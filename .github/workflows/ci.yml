@@ -104,8 +104,7 @@ jobs:
     - name: Test with pytest
       run: |
         python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
-        pytest --cov-report=xml --cov=coffea --deselect=test_taskvine
-      continue-on-error: true
+        pytest --cov-report=xml --cov=coffea --deselect=test_taskvine || true
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: codecov/codecov-action@v4
@@ -143,9 +142,8 @@ jobs:
   trigger-container-build:
     runs-on: ubuntu-latest
     needs: [pass]
-    if: success()
     steps:
-      - name: Trigger contianer build workflow
+      - name: Trigger container build workflow
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
