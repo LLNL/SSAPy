@@ -104,7 +104,7 @@ jobs:
     - name: Test with pytest
       run: |
         python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
-        pytest --cov-report=xml --cov=coffea --deselect=test_taskvine || true
+        pytest --cov-report=xml --cov=ssapy --deselect=test_taskvine || true
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: codecov/codecov-action@v4
