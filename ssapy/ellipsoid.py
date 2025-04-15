@@ -14,7 +14,48 @@ from .utils import continueClass
 
 @continueClass
 class Ellipsoid:
+    """
+    A class representing an ellipsoid, providing methods to convert between spherical and Cartesian coordinates.
+
+    Methods
+    -------
+    sphereToCart(lon, lat, height)
+        Converts spherical coordinates (longitude, latitude, height) to Cartesian coordinates (x, y, z).
+    
+    cartToSphere(x, y, z)
+        Converts Cartesian coordinates (x, y, z) to spherical coordinates (longitude, latitude, height).
+    """
+    
     def sphereToCart(self, lon, lat, height):
+        """
+        Converts spherical coordinates to Cartesian coordinates.
+
+        Parameters
+        ----------
+        lon : array-like
+            Longitude values in radians.
+        lat : array-like
+            Latitude values in radians.
+        height : array-like
+            Height above the ellipsoid surface.
+
+        Returns
+        -------
+        tuple of array-like
+            A tuple containing:
+            - x : array-like
+                Cartesian x-coordinate.
+            - y : array-like
+                Cartesian y-coordinate.
+            - z : array-like
+                Cartesian z-coordinate.
+
+        Notes
+        -----
+        This method uses broadcasting to handle inputs of varying shapes and ensures 
+        contiguous arrays for efficient computation.
+        """
+
         lon, lat, height = np.broadcast_arrays(lon, lat, height)
         lon = np.ascontiguousarray(lon)
         lat = np.ascontiguousarray(lat)
@@ -32,6 +73,35 @@ class Ellipsoid:
         return x, y, z
 
     def cartToSphere(self, x, y, z):
+        """
+        Converts Cartesian coordinates to spherical coordinates.
+
+        Parameters
+        ----------
+        x : array-like
+            Cartesian x-coordinate.
+        y : array-like
+            Cartesian y-coordinate.
+        z : array-like
+            Cartesian z-coordinate.
+
+        Returns
+        -------
+        tuple of array-like
+            A tuple containing:
+            - lon : array-like
+                Longitude values in radians.
+            - lat : array-like
+                Latitude values in radians.
+            - height : array-like
+                Height above the ellipsoid surface.
+
+        Notes
+        -----
+        This method uses broadcasting to handle inputs of varying shapes and ensures 
+        contiguous arrays for efficient computation.
+        """
+
         x, y, z = np.broadcast_arrays(x, y, z)
         x = np.ascontiguousarray(x)
         y = np.ascontiguousarray(y)
