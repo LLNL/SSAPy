@@ -101,15 +101,6 @@ jobs:
     - name: Install pytest plugins
       run: |
         pip install pytest pytest-cov pytest-xdist
-    - name: Install Xcode Command Line Tools (macOS only)
-      if: matrix.os == 'macos-latest'
-      run: |
-        xcode-select --install || echo "Xcode Command Line Tools already installed"
-    - name: Install gcov (Ubuntu only)
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc
     - name: Test with pytest
       run: |
         python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
