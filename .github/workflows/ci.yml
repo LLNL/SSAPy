@@ -109,7 +109,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcov
+        sudo apt-get install -y gcc
     - name: Test with pytest
       run: |
         python3 ${CI_PROJECT_DIR}/tests/test_orbit.py
