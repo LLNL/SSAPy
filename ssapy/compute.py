@@ -201,6 +201,40 @@ def _processObserver(
 
 
 class HashableArrayContainer:
+    """
+    A container for NumPy arrays that makes them hashable and immutable.
+
+    This class wraps a NumPy array and ensures that it is immutable by setting
+    its `writeable` flag to `False`. It also provides implementations for
+    `__hash__` and `__eq__`, enabling the wrapped array to be used as a key in
+    hash-based data structures like dictionaries and sets.
+
+    Attributes:
+        arr (numpy.ndarray): The wrapped NumPy array, which is immutable.
+
+    Methods:
+        __hash__():
+            Returns a hash value for the array based on its byte representation.
+        
+        __eq__(rhs):
+            Compares the wrapped array with another `HashableArrayContainer` instance
+            for equality based on element-wise comparison.
+    
+    Examples:
+        >>> import numpy as np
+        >>> arr1 = np.array([1, 2, 3])
+        >>> arr2 = np.array([1, 2, 3])
+        >>> container1 = HashableArrayContainer(arr1)
+        >>> container2 = HashableArrayContainer(arr2)
+        >>> container1 == container2
+        True
+        >>> hash(container1) == hash(container2)
+        True
+        >>> my_dict = {container1: "value"}
+        >>> my_dict[container2]
+        'value'
+    """
+
     def __init__(self, arr):
         self.arr = arr
         self.arr.flags.writeable = False
@@ -1201,6 +1235,43 @@ def refine_pass(
 
 
 def nby3shape(arr_):
+    """
+    Reshapes or transforms an input NumPy array into a shape compatible with (n, 3).
+
+    This function takes a NumPy array and ensures it has a shape of `(n, 3)`, 
+    where `n` is the number of rows. The behavior depends on the dimensionality of the input array:
+
+    - If the input array is 1-dimensional, it reshapes it into a `(1, 3)` array.
+    - If the input array is 2-dimensional:
+        - If the second dimension already has size 3, the array is returned as-is.
+        - Otherwise, the array is transposed.
+
+    Parameters:
+        arr_ (numpy.ndarray): The input NumPy array to reshape or transform.
+
+    Returns:
+        numpy.ndarray: The reshaped or transformed array with a shape of `(n, 3)`.
+
+    Raises:
+        ValueError: If the input array cannot be reshaped or transformed into the desired shape.
+
+    Examples:
+        >>> import numpy as np
+        >>> arr1 = np.array([1, 2, 3])
+        >>> nby3shape(arr1)
+        array([[1, 2, 3]])
+
+        >>> arr2 = np.array([[1, 2, 3], [4, 5, 6]])
+        >>> nby3shape(arr2)
+        array([[1, 2, 3],
+               [4, 5, 6]])
+
+        >>> arr3 = np.array([[1, 4], [2, 5], [3, 6]])
+        >>> nby3shape(arr3)
+        array([[1, 2, 3],
+               [4, 5, 6]])
+    """
+    
     if arr_.ndim == 1:
         return np.reshape(arr_, (1, 3))
     if arr_.ndim == 2:
