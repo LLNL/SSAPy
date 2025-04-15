@@ -1,3 +1,7 @@
+"""
+Tools for orbital dynamics, satellite tracking, and celestial mechanics.
+"""
+
 import numpy as np
 from astropy.time import Time
 import astropy.units as u
@@ -1271,7 +1275,7 @@ def nby3shape(arr_):
         array([[1, 2, 3],
                [4, 5, 6]])
     """
-    
+
     if arr_.ndim == 1:
         return np.reshape(arr_, (1, 3))
     if arr_.ndim == 2:
