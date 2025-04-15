@@ -112,10 +112,10 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's (
 - `Joshua Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Former Lead Developer
 - `Caleb Miller <https://people.llnl.gov/miller294>`_ (`LLNL <https://www.llnl.gov/>`_)
 - `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Kerianne Pruett <https://people.llnl.gov/pruett6>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Kerianne Pruett <https://orcid.org/0000-0002-2911-8657>`_ ( formerly `LLNL <https://www.llnl.gov/>`_)
 - `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Former Lead Developer
 - `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_) - Creator, Former Lead Developer
-- `Travis Yeager <https://people.llnl.gov/yeager7>`_ (`LLNL <https://www.llnl.gov/>`_) - Current Lead Developer
+- `Travis Yeager <https://orcid.org/0000-0002-2582-0190>`_ (`LLNL <https://www.llnl.gov/>`_) - Current Lead Developer
 
 Many thanks go to SSAPy's other `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
 
@@ -144,4 +144,4 @@ LLNL-CODE-862420
 
 Documentation Inspiration
 -------------------------
-The structure and organization of this repository's documentation were inspired by the excellent design and layout of the `Coffea <https://coffea-hep.readthedocs.io/en/latest/index.html>` project. 
+The structure and organization of this repository's documentation were inspired by the excellent design and layout of the `Coffea <https://coffea-hep.readthedocs.io/en/latest/index.html>`_ project. 
