@@ -2,9 +2,10 @@ include README.md
 include include/*.h
 include pysrc/*.cpp
 include src/*.cpp
-recursive-include ssapy/data/ *
 recursive-include pybind11/include/ *
 include pybind11/CMakeLists.txt
 include pybind11/LICENSE
 recursive-include pybind11/tools *
 include CMakeLists.txt
+exclude ssapy/data/*
+recursive-exclude ssapy/data *
