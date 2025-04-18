@@ -11,14 +11,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories(include)
-add_subdirectory(pybind11)
-set(PYSRC_FILES
-  pysrc/ssapy.cpp
-)
-set(SRC_FILES
-  src/ssapy.cpp
-)
+
+# add_subdirectory(pybind11)
+# set(PYSRC_FILES
+#   pysrc/ssapy.cpp
+# )
+# set(SRC_FILES
+#   src/ssapy.cpp
+# )
+
+project(ssapy)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(pybind11 REQUIRED)
+pybind11_add_module(_ssapy src/ssapy.cpp)
+
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
-add_library(ssapy STATIC ${SRC_FILES})
-pybind11_add_module(_ssapy ${PYSRC_FILES})
-target_link_libraries(_ssapy PUBLIC ssapy)
+# add_library(ssapy STATIC ${SRC_FILES})
+# pybind11_add_module(_ssapy ${PYSRC_FILES})
+# target_link_libraries(_ssapy PUBLIC ssapy)

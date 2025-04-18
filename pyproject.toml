@@ -1,0 +1,26 @@
+[project]
+name = "test_ssapy_denvirhiggins"
+version = "0.7.0"
+authors = [
+  { name="Denvir Higgins", email="denvir.j.higgins@gmail.com" },
+]
+description = "A small example package"
+readme = "README.rst"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = { file = "LICENSE" }
+
+[project.urls]
+Homepage = "https://github.com/LLNL/SSAPy"
+Issues = "https://github.com/LLNL/SSAPy/issues"
+
+[build-system]
+requires = ["scikit-build-core", "cmake", "setuptools", "wheel"]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+build-dir = "build"
+wheel.packages = ["ssapy"]
