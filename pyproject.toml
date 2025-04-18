@@ -1,6 +1,6 @@
 [project]
 name = "test_ssapy_denvirhiggins"
-version = "0.7.4"
+version = "0.7.8"
 authors = [
     { name="Denvir Higgins", email="denvir.j.higgins@gmail.com" },
 ]
@@ -12,6 +12,27 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 license = { file = "LICENSE" }
+dependencies = [
+        'numpy',
+        'scipy',
+        'astropy',
+        'pyerfa',
+        'emcee',
+        'lmfit',
+        'sgp4',
+        'matplotlib',
+        'pandas',
+        'h5py',
+        'pypdf2',
+        'imageio',
+        'ipython',
+        'ipyvolume',
+        'ipython_genutils',
+        'jplephem',
+        'tqdm',
+        'myst-parser',
+        'graphviz',
+    ]
 
 [project.urls]
 Homepage = "https://github.com/LLNL/SSAPy"

@@ -43,3 +43,6 @@ from . import simple
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from datetime import timedelta
+
+from .data_utils import ensure_data_downloaded
+ensure_data_downloaded()

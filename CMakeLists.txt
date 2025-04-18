@@ -32,7 +32,9 @@ FetchContent_MakeAvailable(pybind11)
 # Include dirs
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-pybind11_add_module(_ssapy src/ssapy.cpp)
+pybind11_add_module(_ssapy pysrc/ssapy.cpp)
+add_library(ssapy STATIC src/ssapy.cpp)
+target_link_libraries(_ssapy PUBLIC ssapy)
 
 install(TARGETS _ssapy
     LIBRARY DESTINATION ssapy
