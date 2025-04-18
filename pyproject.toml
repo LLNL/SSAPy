@@ -1,6 +1,6 @@
 [project]
 name = "test_ssapy_denvirhiggins"
-version = "0.7.0"
+version = "0.7.4"
 authors = [
     { name="Denvir Higgins", email="denvir.j.higgins@gmail.com" },
 ]
@@ -18,12 +18,15 @@ Homepage = "https://github.com/LLNL/SSAPy"
 Issues = "https://github.com/LLNL/SSAPy/issues"
 
 [build-system]
-requires = ["setuptools", "wheel", "scikit-build-core"]
+requires = ["setuptools>=42", "wheel", "scikit-build", "pybind11"]
 build-backend = "setuptools.build_meta"
 
-[tool.scikit-build]
-build-dir = "build"
-wheel.packages = ["ssapy"]
+[tool.setuptools]
+packages = ["ssapy"]
+include-package-data = true
 
 [tool.setuptools.package-data]
-exclude = ["ssapy/data/**"]
+ssapy = ["*.cpp", "*.h"]
+
+[tool.setuptools.exclude-package-data]
+ssapy = ["data/*"]
