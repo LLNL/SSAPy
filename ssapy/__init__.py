@@ -3,6 +3,9 @@ from . import _ssapy
 import os
 datadir = os.path.join(os.path.dirname(__file__), "data")
 
+from .data_utils import ensure_data_downloaded
+ensure_data_downloaded()
+
 from .orbit import Orbit, EarthObserver, OrbitalObserver
 from .propagator import (
     KeplerianPropagator, SeriesPropagator, RK4Propagator, SGP4Propagator,
@@ -44,5 +47,4 @@ from astropy.time import Time, TimeDelta
 import astropy.units as u
 from datetime import timedelta
 
-from .data_utils import ensure_data_downloaded
-ensure_data_downloaded()
+
