@@ -34,10 +34,6 @@ dependencies = [
         'graphviz',
     ]
 
-[project.urls]
-Homepage = "https://github.com/LLNL/SSAPy"
-Issues = "https://github.com/LLNL/SSAPy/issues"
-
 [build-system]
 requires = ["setuptools>=42", "wheel", "scikit-build", "pybind11"]
 build-backend = "setuptools.build_meta"
@@ -51,3 +47,8 @@ ssapy = ["*.cpp", "*.h"]
 
 [tool.setuptools.exclude-package-data]
 ssapy = ["data/*"]
+
+[project.urls]
+Homepage = "https://github.com/LLNL/SSAPy"
+Issues = "https://github.com/LLNL/SSAPy/issues"
+Documentation = "https://software.llnl.gov/SSAPy/" 
