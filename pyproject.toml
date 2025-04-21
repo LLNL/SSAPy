@@ -1,6 +1,6 @@
 [project]
 name = "test_ssapy_denvirhiggins"
-version = "0.7.9"
+version = "0.7.10"
 authors = [
     { name="Denvir Higgins", email="denvir.j.higgins@gmail.com" },
 ]

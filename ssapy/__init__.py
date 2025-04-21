@@ -1,4 +1,4 @@
-from . import _ssapy
+# from . import _ssapy
 
 import os
 datadir = os.path.join(os.path.dirname(__file__), "data")
