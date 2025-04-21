@@ -106,7 +106,7 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's (
 
 - `Robert Armstrong <https://orcid.org/0000-0002-6911-1038>`_ (`LLNL <https://www.llnl.gov/>`_)
 - `Nathan Golovich <https://orcid.org/0000-0003-2632-572X>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Julia Ebert <https://orcid.org/0000-0002-1975-772X>` (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics)
+- `Julia Ebert <https://orcid.org/0000-0002-1975-772X>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics)
 - `Noah Lifset <https://orcid.org/0000-0003-3397-7021>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now PhD student at `UT Austin <https://www.utexas.edu>`_)
 - `Dan Merl <https://orcid.org/0000-0003-4196-5354>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
 - `Joshua Meyers <https://orcid.org/0000-0002-2308-4230>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Former Lead Developer
