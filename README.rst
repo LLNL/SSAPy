@@ -104,17 +104,17 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's (
 `19-SI-004 <https://ldrd-annual.llnl.gov/archives/ldrd-annual-2021/project-highlights/high-performance-computing-simulation-and-data-science/madstare-modeling-and-analysis-data-starved-or-ambiguous-environments>`_ and
 `22-ERD-054 <https://ldrd-annual.llnl.gov/ldrd-annual-2023/project-highlights/space-security/data-demand-capable-space-domain-awareness-architecture>`_, by the following individuals (in alphabetical order):
 
-- `Robert Armstrong <https://people.llnl.gov/armstrong46>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Nathan Golovich <https://people.llnl.gov/golovich1>`_ (`LLNL <https://www.llnl.gov/>`_)
-- Julia Ebert (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics)
-- Noah Lifset (formerly `LLNL <https://www.llnl.gov/>`_, now PhD student at `UT Austin <https://www.utexas.edu>`_)
-- `Dan Merl <https://people.llnl.gov/merl1>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
-- `Joshua Meyers <https://kipac.stanford.edu/people/josh-meyers>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Former Lead Developer
+- `Robert Armstrong <https://orcid.org/0000-0002-6911-1038>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Nathan Golovich <https://orcid.org/0000-0003-2632-572X>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Julia Ebert <https://orcid.org/0000-0002-1975-772X>` (formerly `LLNL <https://www.llnl.gov/>`_, now at Fleet Robotics)
+- `Noah Lifset <https://orcid.org/0000-0003-3397-7021>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now PhD student at `UT Austin <https://www.utexas.edu>`_)
+- `Dan Merl <https://orcid.org/0000-0003-4196-5354>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
+- `Joshua Meyers <https://orcid.org/0000-0002-2308-4230>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Former Lead Developer
 - `Caleb Miller <https://people.llnl.gov/miller294>`_ (`LLNL <https://www.llnl.gov/>`_)
-- `Alexx Perloff <https://people.llnl.gov/perloff1>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Alexx Perloff <https://orcid.org/0000-0001-5230-0396>`_ (`LLNL <https://www.llnl.gov/>`_)
 - `Kerianne Pruett <https://orcid.org/0000-0002-2911-8657>`_ (formerly `LLNL <https://www.llnl.gov/>`_)
-- `Edward Schlafly <https://www.stsci.edu/stsci-research/research-directory/edward-schlafly>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Former Lead Developer
-- `Michael Schneider <https://people.llnl.gov/schneider42>`_ (`LLNL <https://www.llnl.gov/>`_) - Creator, Former Lead Developer
+- `Edward Schlafly <https://orcid.org/0000-0002-3569-7421>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Former Lead Developer
+- `Michael Schneider <https://orcid.org/0000-0002-8505-7094>`_ (`LLNL <https://www.llnl.gov/>`_) - Creator, Former Lead Developer
 - `Travis Yeager <https://orcid.org/0000-0002-2582-0190>`_ (`LLNL <https://www.llnl.gov/>`_) - Current Lead Developer
 
 Many thanks go to SSAPy's other `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
