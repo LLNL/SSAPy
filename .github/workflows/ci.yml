@@ -48,16 +48,26 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.os == 'ubuntu-latest'
       run: |
+        # Install dependencies
         sudo apt-get update
         sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
+
+        # Initialize and update submodules
         git submodule update --init --recursive
+
+        # Install Git LFS and pull LFS objects
         git lfs install
         git lfs pull
+
+        # Upgrade pip and install Python dependencies
         python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
-        # install checked out SSAPy
+
+        # Build and install the project
         python setup.py build
         python setup.py install
+
+        # List installed Python packages
         python -m pip list
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
