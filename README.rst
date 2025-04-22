@@ -110,7 +110,7 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's (
 - `Noah Lifset <https://orcid.org/0000-0003-3397-7021>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now PhD student at `UT Austin <https://www.utexas.edu>`_)
 - `Dan Merl <https://orcid.org/0000-0003-4196-5354>`_ (`LLNL <https://www.llnl.gov/>`_) - Developer
 - `Joshua Meyers <https://orcid.org/0000-0002-2308-4230>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now at `KIPAC <https://kipac.stanford.edu/>`_) - Former Lead Developer
-- `Caleb Miller <https://people.llnl.gov/miller294>`_ (`LLNL <https://www.llnl.gov/>`_)
+- `Caleb Miller <https://orcid.org/0000-0001-6249-0031>`_ (`LLNL <https://www.llnl.gov/>`_)
 - `Alexx Perloff <https://orcid.org/0000-0001-5230-0396>`_ (`LLNL <https://www.llnl.gov/>`_)
 - `Kerianne Pruett <https://orcid.org/0000-0002-2911-8657>`_ (formerly `LLNL <https://www.llnl.gov/>`_)
 - `Edward Schlafly <https://orcid.org/0000-0002-3569-7421>`_ (formerly `LLNL <https://www.llnl.gov/>`_, now `STScI <https://www.stsci.edu/>`_) - Former Lead Developer
