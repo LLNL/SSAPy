@@ -96,7 +96,7 @@ jobs:
         python3 setup.py build
         python3 setup.py install
         pip install -r docs/requirements.txt
-        cd docs && sphinx-autogen source/reference.rst -t source/_templates -o source/modules && cd ../
+        cd docs && sphinx-autogen source/api.rst -t source/_templates -o source/modules && cd ../
         cd docs && make html && make html
         touch _build/html/.nojekyll
     - name: Deploy documentation
