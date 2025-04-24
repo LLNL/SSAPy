@@ -119,6 +119,7 @@ SSAPy was developed with support from Lawrence Livermore National Laboratory's (
 
 Many thanks go to SSAPy's other `contributors <https://github.com/llnl/ssapy/graphs/contributors>`_.
 
+
 Citing SSAPy
 ^^^^^^^^^^^^
 
