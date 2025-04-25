@@ -1,10 +1,10 @@
-# from . import _ssapy
+from .data_utils import ensure_data_downloaded
+ensure_data_downloaded()
 
 import os
 datadir = os.path.join(os.path.dirname(__file__), "data")
 
-from .data_utils import ensure_data_downloaded
-ensure_data_downloaded()
+from . import _ssapy
 
 from .orbit import Orbit, EarthObserver, OrbitalObserver
 from .propagator import (
