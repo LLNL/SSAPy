@@ -4,7 +4,7 @@ Classes for modeling accelerations.
 
 import numpy as np
 
-# from . import _ssapy
+from . import _ssapy
 from .constants import EARTH_MU, EARTH_RADIUS
 from .utils import norm, sunPos, _gpsToTT, ntw_to_r
 from .ellipsoid import Ellipsoid
