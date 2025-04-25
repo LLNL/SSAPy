@@ -32,7 +32,6 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-
 def linkcode_resolve(domain, info):
     if domain != 'py':
         return None
