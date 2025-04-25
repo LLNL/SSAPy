@@ -1,120 +1,33 @@
-===
-API
-===
+API Reference Guide
+*******************
+SSAPy: Space Situational Awareness for Python
 
-Acceleration
----------------
+When executing
 
-.. automodule:: ssapy.accel
-   :members:
+    >>> import SSAPy
 
+a subset of the full SSAPy package is imported into the python environment.
+Some packages must be imported explicitly, so as to avoid importing unnecessary
+and/or heavy dependencies.  Below lists the packages available in the ``ssapy`` namespace.
 
-Body
----------------
+   .. autosummary::
+      :toctree: modules
+      :template: automodapi_templ.rst
 
-.. automodule:: ssapy.body
-   :members:
-
-
-Compute
----------------
-
-.. automodule:: ssapy.compute
-   :members:
-
-
-Constants
----------------
-
-.. automodule:: ssapy.constants
-   :members:
-
-
-Correlate Tracks
-----------------
-
-.. automodule:: ssapy.correlate_tracks
-   :members:
-
-Ellipsoid
----------------
-
-.. automodule:: ssapy.ellipsoid
-   :members:
-
-
-Gravity
----------------
-
-.. automodule:: ssapy.gravity
-   :members:
-
-
-Io
----------------
-
-.. automodule:: ssapy.io
-   :members:
-
-
-Linker
----------------
-
-.. automodule:: ssapy.linker
-   :members:
-
-
-Orbit Solver
----------------
-
-.. automodule:: ssapy.orbit_solver
-   :members:
-
-
-Orbit
----------------
-
-.. automodule:: ssapy.orbit
-   :members:
-
-
-Particles
----------------
-
-.. automodule:: ssapy.particles
-   :members:
-
-
-Plot Utilities
----------------
-
-.. automodule:: ssapy.plotUtils
-   :members:
-
-
-Propagator
----------------
-
-.. automodule:: ssapy.propagator
-   :members:
-
-
-Position and Velocity Sampler
-------------------------------
-
-.. automodule:: ssapy.rvsampler
-   :members:
-
-
-Simple
----------------
-
-.. automodule:: ssapy.simple
-   :members:
-
-
-Utilities
----------------
-
-.. automodule:: ssapy.utils
-   :members:
+      ssapy.accel
+      ssapy.body
+      ssapy.compute
+      ssapy.constants
+      ssapy.correlate_tracks
+      ssapy.ellipsoid
+      ssapy.gravity
+      ssapy.io
+      ssapy.linker
+      ssapy.orbit_solver
+      ssapy.orbit
+      ssapy.particles
+      ssapy.plotUtils
+      ssapy.propagator
+      ssapy.rvsampler
+      ssapy.simple
+      ssapy.utils
