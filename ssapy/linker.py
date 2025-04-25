@@ -1,3 +1,11 @@
+"""
+Module for Monte Carlo-based orbit track linking and model selection.
+
+References:
+- Carlin & Chib (1995): Bayesian model choice via MCMC methods.
+- Godsill (2001): MCMC methods for model uncertainty.
+"""
+
 import numpy as np
 
 from .particles import Particles
