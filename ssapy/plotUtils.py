@@ -26,6 +26,17 @@ from typing import Union
 
 
 def load_earth_file():
+    """
+    Loads and resizes an image of the Earth.
+
+    This function locates a file named "earth.png" using the `find_file` function, 
+    opens it as an image using the `PILImage.open` method, and resizes it to 
+    1/5th of its original dimensions (5400x2700 scaled down to 1080x540). 
+    The resized image is then returned.
+
+    Returns:
+        PIL.Image.Image: The resized Earth image.
+    """
     earth = PILImage.open(find_file("earth", ext=".png"))
     earth = earth.resize((5400 // 5, 2700 // 5))
     return earth
@@ -83,6 +94,17 @@ def draw_earth(time, ngrid=100, R=EARTH_RADIUS, rfactor=1):
 
 
 def load_moon_file():
+    """
+    Loads and resizes an image of the Moon.
+
+    This function locates a file named "moon.png" using the `find_file` function, 
+    opens it as an image using the `PILImage.open` method, and resizes it to 
+    1/5th of its original dimensions (5400x2700 scaled down to 1080x540). 
+    The resized image is then returned.
+
+    Returns:
+        PIL.Image.Image: The resized Moon image.
+    """
     moon = PILImage.open(find_file("moon", ext=".png"))
     moon = moon.resize((5400 // 5, 2700 // 5))
     return moon
@@ -234,6 +256,23 @@ def check_numpy_array(variable: Union[np.ndarray, list]) -> str:
 
 
 def check_type(t):
+    """
+    Determines the type of the input and provides a description based on its structure.
+
+    This function checks the input `t` and returns a string describing its type or structure:
+    - If `t` is `None`, it returns `None`.
+    - If `t` is a `list`, it checks whether all elements in the list are either lists or NumPy arrays:
+        - Returns "List of arrays" if all elements are lists or arrays.
+        - Returns "List of non-arrays" if not all elements are lists or arrays.
+    - If `t` is a `Time` object or a NumPy array, it returns "Single array or list".
+    - For any other type, it returns "Not a list or array".
+
+    Args:
+        t (Any): The input to be checked.
+
+    Returns:
+        str or None: A description of the type or structure of `t`.
+    """
     if t is None:
         return None
     elif isinstance(t, list):
@@ -249,6 +288,50 @@ def check_type(t):
     
 
 def orbit_plot(r, t=None, title='', figsize=(7, 7), save_path=False, frame="gcrf", show=False):
+    """
+    Plots the trajectory of one or more orbits in various views and coordinate frames.
+
+    This function visualizes the position data of one or more orbits in 2D and 3D plots. 
+    It supports different reference frames (e.g., GCRF, ITRF, Lunar) and allows customization 
+    of plot appearance, including figure size, title, and saving the output.
+
+    The function generates the following plots:
+    - XY plane scatter plot with Earth/Moon markers and optional Lagrange points.
+    - XZ plane scatter plot with Earth/Moon markers.
+    - YZ plane scatter plot with Earth/Moon markers.
+    - 3D scatter plot of the orbit(s) with Earth/Moon represented as spheres.
+
+    Args:
+        r (numpy.ndarray or list of numpy.ndarray): The position data of the orbit(s). 
+            Can be a single NumPy array for one orbit or a list of arrays for multiple orbits.
+        t (numpy.ndarray or list, optional): Time data corresponding to the position data. 
+            Must match the shape of `r` or be a list of arrays for multiple orbits. 
+            Defaults to None.
+        title (str, optional): The title of the plot. Defaults to an empty string.
+        figsize (tuple, optional): The size of the figure in inches (width, height). 
+            Defaults to (7, 7).
+        save_path (str or bool, optional): Path to save the plot. If False, the plot is not saved. 
+            Defaults to False.
+        frame (str, optional): The reference frame for the plot. Accepted values are 
+            "gcrf", "itrf", "lunar", "lunar fixed", or "lunar axis". Defaults to "gcrf".
+        show (bool, optional): Whether to display the plot. Defaults to False.
+
+    Returns:
+        tuple: A tuple containing:
+            - fig (matplotlib.figure.Figure): The figure object.
+            - axes (list): A list of subplot axes [ax1, ax2, ax3, ax4].
+
+    Raises:
+        ValueError: If the input `r` or `t` is not in a valid format or if the specified frame is not recognized.
+
+    Notes:
+        - The function supports transformations between coordinate frames and adjusts the plot accordingly.
+        - Orbital bodies (Earth, Moon) are represented as spheres, scaled appropriately.
+        - Lagrange points are plotted for Lunar frames, with markers and labels.
+        - The bounds of the plots are dynamically adjusted based on the input data.
+        - The function allows saving the plot to a specified path and optionally displaying it.
+        - The axes are styled with a black background and white labels/ticks for better visibility.
+    """
     input_type = check_numpy_array(r)
     t_type = check_type(t)
     
@@ -908,6 +991,26 @@ def scatter_3d(x, y=None, z=None, cs=None, xlabel='x', ylabel='y', zlabel='z', c
 
 
 def scatter_dot_colors_scaled(num_colors):
+    """
+    Generates a scaled array of colors using the rainbow colormap.
+
+    This function creates a list of colors evenly spaced across the rainbow colormap. 
+    The number of colors generated is determined by the `num_colors` parameter.
+
+    Args:
+        num_colors (int): The number of colors to generate.
+
+    Returns:
+        numpy.ndarray: An array of RGBA color values, where each entry corresponds to a color in the rainbow colormap.
+
+    Example:
+        >>> scatter_dot_colors_scaled(5)
+        array([[1.        , 0.        , 0.        , 1.        ],
+               [0.75      , 0.75      , 0.        , 1.        ],
+               [0.        , 1.        , 0.        , 1.        ],
+               [0.        , 0.75      , 0.75      , 1.        ],
+               [0.        , 0.        , 1.        , 1.        ]])
+    """
     return cm.rainbow(np.linspace(0, 1, num_colors))
 
 
