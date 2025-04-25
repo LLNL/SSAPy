@@ -1,16 +1,6 @@
 """
 Classes to solve for Keplerian orbital parameters from different initial inputs
 
-# TODO: Provide overview of different solvers
-
-GaussTwoPosOrbitSolver:
-
-DanchickTwoPosOrbitSolver:
-
-SheferTwoPosOrbitSolver:
-
-ThreeAngleOrbitSolver
-
 References:
 - Shefer, V. A. (2010). New method of orbit determination from two position vectors based on solving Gauss’s equations. Solar System Research, 44, 252-266.
 - Montenbruck, O., Gill, E., & Lutze, F. H. (2002). Satellite orbits: models, methods, and applications. Appl. Mech. Rev., 55(2), B27-B28.
