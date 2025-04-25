@@ -1,7 +1,10 @@
-from . import _ssapy
+from .data_utils import ensure_data_downloaded
+ensure_data_downloaded()
 
 import os
 datadir = os.path.join(os.path.dirname(__file__), "data")
+
+# from . import _ssapy
 
 from .orbit import Orbit, EarthObserver, OrbitalObserver
 from .propagator import (
@@ -43,3 +46,5 @@ from . import simple
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from datetime import timedelta
+
+
