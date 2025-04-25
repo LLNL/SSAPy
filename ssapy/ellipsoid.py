@@ -8,7 +8,7 @@ parameter f, but that's good enough for simple Earth models.
 
 import numpy as np
 
-from ._ssapy import Ellipsoid
+# from ._ssapy import Ellipsoid
 from .utils import continueClass
 
 
