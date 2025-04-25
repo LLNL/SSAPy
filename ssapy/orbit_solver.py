@@ -3,8 +3,6 @@ Classes to solve for Keplerian orbital parameters from different initial inputs
 
 # TODO: Provide overview of different solvers
 
-TwoPosOrbitSolver:
-
 GaussTwoPosOrbitSolver:
 
 DanchickTwoPosOrbitSolver:
@@ -129,6 +127,29 @@ class TwoPosOrbitSolver(metaclass=abc.ABCMeta):
 
 
 class GaussTwoPosOrbitSolver(TwoPosOrbitSolver):
+    """
+    A class for solving two-position orbit determination problems using 
+    the Gauss method. This class extends the `TwoPosOrbitSolver` base class 
+    and implements a method to compute the orbital parameter `p` based on 
+    Shefer's equations.
+
+    Attributes:
+        eps (float): Convergence tolerance for iterative calculations.
+        maxiter (int): Maximum number of iterations allowed for convergence.
+        m (float): A parameter related to the orbit determination problem.
+        ell (float): A parameter related to the orbit determination problem.
+        kappa (float): A constant used in orbital calculations.
+        sigma (float): A constant used in orbital calculations.
+        tau (float): A constant used in orbital calculations.
+        mu (float): Standard gravitational parameter.
+
+    Methods:
+        _getP():
+            Computes the orbital parameter `p` using an iterative approach 
+            based on Shefer's equations. This method solves for `eta` 
+            iteratively until convergence and then calculates `p` using the 
+            converged value of `eta`.
+    """
     def __init__(self, *args, **kwargs):
         TwoPosOrbitSolver.__init__(self, *args, **kwargs)
 
@@ -157,6 +178,41 @@ class GaussTwoPosOrbitSolver(TwoPosOrbitSolver):
 
 
 class DanchickTwoPosOrbitSolver(TwoPosOrbitSolver):
+    """
+    A class for solving two-position orbit determination problems using 
+    the Danchick method. This class extends the `TwoPosOrbitSolver` base 
+    class and implements methods to compute the orbital parameter `p` 
+    based on Shefer's equations.
+
+    Attributes:
+        eps (float): Convergence tolerance for iterative calculations.
+        maxiter (int): Maximum number of iterations allowed for convergence.
+        m (float): A parameter related to the orbit determination problem.
+        ell (float): A parameter related to the orbit determination problem.
+        kappa (float): A constant used in orbital calculations.
+        sigma (float): A constant used in orbital calculations.
+        tau (float): A constant used in orbital calculations.
+        mu (float): Standard gravitational parameter.
+        cos2f (float): Cosine of twice the true anomaly, used to determine 
+            the branch of the solution.
+
+    Methods:
+        X(g):
+            Compute the function X(g) as described in Shefer's equation (11).
+            This is used in the iterative solution process.
+
+        dXdg(g):
+            Compute the derivative of X(g) with respect to g, based on 
+            Shefer's equation (12). This is used to refine the solution 
+            during iteration.
+
+        _getP():
+            Computes the orbital parameter `p` using iterative methods 
+            based on Shefer's equations. Depending on the value of `cos2f`, 
+            the method selects the appropriate branch of the solution and 
+            iteratively solves for `eta` or `x` until convergence. The final 
+            value of `p` is calculated using Shefer's equation (2).
+    """
     def __init__(self, *args, **kwargs):
         TwoPosOrbitSolver.__init__(self, *args, **kwargs)
 
@@ -214,6 +270,101 @@ class DanchickTwoPosOrbitSolver(TwoPosOrbitSolver):
 
 
 class SheferTwoPosOrbitSolver(TwoPosOrbitSolver):
+    """
+    A class for solving two-position orbit determination problems using 
+    Shefer's method. This class extends the `TwoPosOrbitSolver` base class 
+    and implements a robust algorithm for determining the orbital parameter 
+    `p` (semi-latus rectum) and auxiliary values based on Shefer's equations.
+
+    Attributes:
+        robust (bool): If True, enables a robust solution method that examines 
+            all possible solutions when the initial guess fails.
+        nExam (int): Number of points to examine when searching for zeros of 
+            the function F(x) during the robust solution process.
+        eps (float): Convergence tolerance for iterative calculations.
+        maxiter (int): Maximum number of iterations allowed for convergence.
+        m (float): A parameter related to the orbit determination problem.
+        ell (float): A parameter related to the orbit determination problem.
+        kappa (float): A constant used in orbital calculations.
+        sigma (float): A constant used in orbital calculations.
+        tau (float): A constant used in orbital calculations.
+        mu (float): Standard gravitational parameter.
+        lam (float): A parameter related to Shefer's equations.
+        rbar (float): A normalized radial distance used in Shefer's calculations.
+
+    Methods:
+        alpha(x):
+            Compute the alpha(x) function and its derivative based on Shefer's 
+            equation (18).
+
+        beta(xi):
+            Compute the beta(xi) function and its derivative based on Shefer's 
+            equations (A.4) and (A.9).
+
+        Y(x):
+            Compute the Y(x) function and its derivative based on Shefer's 
+            equation (17).
+
+        Yxi(xi):
+            Compute the Y(xi) function using Shefer's equation (A.15).
+
+        X(x):
+            Compute the X(x) function and its derivative for elliptical orbits 
+            (Shefer 19) and hyperbolic orbits (Shefer 20). Handles special 
+            cases for small values of x.
+
+        Z(xi):
+            Compute the Z(xi) function and its derivative based on Shefer's 
+            equation (A.5).
+
+        D(x):
+            Compute the D(x) function and its derivative based on Shefer's 
+            equation (43).
+
+        semiMajorAxis(x):
+            Compute the semi-major axis a(x) and its derivative based on 
+            Shefer's equation (42).
+
+        Flam0(x):
+            Compute Flam0(x) and its derivative based on Shefer's equations 
+            (21) and (22).
+
+        F(x):
+            Compute F(x) and its derivative based on Shefer's equations (40) 
+            and (41).
+
+        G(xi):
+            Compute G(xi) and its derivative based on Shefer's equations (A.7) 
+            and (A.8).
+
+        yPoly(y):
+            Compute the polynomial for y and its derivative based on Shefer's 
+            equations (44) and (38).
+
+        _getInitialXGuess():
+            Compute the initial guess for x using Shefer's step B. Handles 
+            both cases where lam is zero and non-zero.
+
+        _getInitialXiGuess():
+            Compute the initial guess for xi using Shefer's equation (A.16).
+
+        _getP():
+            Compute the semi-latus rectum (p) using Shefer's algorithm. This 
+            is the main result of the orbit determination process.
+
+        _getAllP():
+            Compute all possible values of p by finding zeros of the function 
+            F(x) within a given range.
+
+        _getEta(p):
+            Compute the auxiliary value eta defined in Shefer's equation (2).
+
+        solve():
+            Solve the orbit determination problem. First attempts to find a 
+            solution using Shefer's initial guess. If the solution fails, 
+            employs a robust method to examine all possible zeros of F(x) 
+            and determine a valid orbit.
+    """
     def __init__(self, *args, **kwargs):
         self.robust = kwargs.pop('robust', False)
         self.nExam = kwargs.pop('nExam', 100)
