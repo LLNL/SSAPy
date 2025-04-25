@@ -11,8 +11,8 @@ Some packages must be imported explicitly, so as to avoid importing unnecessary
 and/or heavy dependencies.  Below lists the packages available in the ``ssapy`` namespace.
 
    .. autosummary::
-      :toctree: _autosummary
-      :template: module_template.rst
+      :toctree: modules
+      :template: automodapi_templ.rst
       :recursive:
 
       ssapy.accel
