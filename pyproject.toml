@@ -1,10 +1,10 @@
 [project]
-name = "test_ssapy_denvirhiggins"
-version = "0.7.12"
+name = "ssapy"
+version = "1.0.0"
 authors = [
-    { name="Denvir Higgins", email="denvir.j.higgins@gmail.com" },
+    { name="LLNL SSAPy Software Team", email="yeager7@llnl.gov" },
 ]
-description = "A small example package"
+description = "A fast, flexible, high-fidelity orbital modeling and analysis tool for orbits spanning from low-Earth orbit into the cislunar regime."
 readme = "README.rst"
 requires-python = ">=3.8"
 classifiers = [

@@ -17,11 +17,13 @@ permissions:
 
 jobs:
   release-build:
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        python-version: ["3.8", "3.12"]
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
@@ -29,17 +31,22 @@ jobs:
       - name: Install dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
+          # Install dependencies
           sudo apt-get update
           sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
+
+          # Initialize and update submodules
           git submodule update --init --recursive
+
+          # Install Git LFS and pull LFS objects
           git lfs install
           git lfs pull
+          
+          # Upgrade pip and install Python dependencies
           python -m pip install --upgrade pip setuptools flake8
           python -m pip install -r requirements.txt
-          # install checked out SSAPy
-          python setup.py build
-          python setup.py install
           python -m pip list
+      
       - name: Install dependencies (MacOS)
         if: matrix.os == 'macOS-latest'
         run: |
@@ -58,10 +65,6 @@ jobs:
           python3 -m pip install --upgrade pip setuptools flake8
           python3 -m pip install -r requirements.txt
       
-          # Build and install the project
-          python3 setup.py build
-          python3 setup.py install
-      
           # List installed Python packages
           python3 -m pip list
   pypi-publish:
@@ -78,11 +81,6 @@ jobs:
       name: pypi
       # OPTIONAL: uncomment and update to include your PyPI project URL in the deployment status:
       # url: https://pypi.org/p/YOURPROJECT
-      #
-      # ALTERNATIVE: if your GitHub Release name is the PyPI project version string
-      # ALTERNATIVE: exactly, uncomment the following line instead:
-      # url: https://pypi.org/project/YOURPROJECT/${{ github.event.release.name }}
-
     steps:
       - name: Retrieve release distributions
         uses: actions/download-artifact@v4
