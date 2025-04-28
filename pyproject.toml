@@ -2,7 +2,7 @@
 name = "ssapy"
 version = "1.0.0"
 authors = [
-    { name="LLNL SSAPy Software Team", email="yeager7@llnl.gov" },
+    { name="LLNL SSAPy Software Team", email="yeagerastro@gmail.com" },
 ]
 description = "A fast, flexible, high-fidelity orbital modeling and analysis tool for orbits spanning from low-Earth orbit into the cislunar regime."
 readme = "README.rst"
