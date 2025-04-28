@@ -475,6 +475,27 @@ overpunched = ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']
 
 
 def parse_overpunched(line):
+    """
+    Parse and adjust a string containing overpunched numeric values.
+
+    This function processes a given string to handle overpunched numeric values, 
+    which are a legacy encoding method for representing negative numbers in specific 
+    positions. If the first character of the string matches an overpunched value, 
+    it is replaced with its corresponding negative numeric value.
+
+    Overpunched values are defined as:
+        ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R']
+
+    The index of the overpunched character determines the numeric value, starting 
+    from -1 for 'J', -2 for 'K', and so on.
+
+    Args:
+        line (str): The input string to be parsed and adjusted.
+
+    Returns:
+        str: The modified string where overpunched values have been replaced 
+             with their numeric equivalents.
+    """
     line_vals = [x for x in line]
     if line_vals[0] in overpunched:
         val = -(overpunched.index(line_vals[0]) + 1)
@@ -781,10 +802,25 @@ def listdir(dir_path='*', files_only=False, exclude=None, sorted=False, index=0)
 
 
 def get_memory_usage():
+    """
+    Print the memory usage of the current process.
+
+    This function retrieves the memory usage of the current Python process 
+    using the `psutil` library and prints it in gigabytes (GB). The memory 
+    usage is calculated based on the resident set size (RSS), which represents 
+    the portion of memory occupied by the process in RAM.
+
+    Args:
+        None
+
+    Returns:
+        None: The function does not return a value. It prints the memory usage directly.
+    """
     import os
     import psutil
 
     print(f"Memory used: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 3:.2f} GB")
+
 ######################################################################
 # Load and Save Functions
 ######################################################################
@@ -794,6 +830,20 @@ def get_memory_usage():
 
 
 def save_pickle(filename_, data_):
+    """
+    Save data to a pickle file.
+
+    This function serializes the given data and saves it to the specified file path 
+    using the pickle module. The file is opened in write-binary mode to ensure 
+    proper saving of the data.
+
+    Args:
+        filename_ (str): The path to the file where the data will be saved.
+        data_ (object): The data to be serialized and saved to the pickle file.
+
+    Returns:
+        None: The function does not return a value. The data is saved to the specified file.
+    """
     from six.moves import cPickle as pickle  # for performance
     with open(filename_, 'wb') as f:
         pickle.dump(data_, f)
@@ -802,6 +852,16 @@ def save_pickle(filename_, data_):
 
 
 def load_pickle(filename_):
+    """
+    Load data from a pickle file.
+
+    Args:
+        filename_ (str): The path to the pickle file to be loaded.
+
+    Returns:
+        object: The data loaded from the pickle file. If an error occurs, 
+                an empty list is returned.
+    """
     from six.moves import cPickle as pickle  # for performance
     try:
         # print('Openning: ' + current_filename)
@@ -815,6 +875,16 @@ def load_pickle(filename_):
 
 
 def merge_dicts(file_names, save_path):
+    """
+    Merge multiple dictionaries stored in pickle files into a single dictionary and save the result.
+
+    Args:
+        file_names (list of str): A list of file paths to pickle files containing dictionaries to merge.
+        save_path (str): The file path where the merged dictionary will be saved as a pickle file.
+
+    Returns:
+        None: The function does not return a value. The merged dictionary is saved to `save_path`.
+    """
     number_of_files = len(file_names); master_dict = {}
     for count, file in enumerate(file_names):
         print(f'Merging dict: {count+1} of {number_of_files}, name: {file}, num of master keys: {len(master_dict.keys())}, num of new keys: {len(master_dict.keys())}')
@@ -1566,6 +1636,24 @@ def exists_in_csv(csv_file, column, number, sep='\t'):
 
 
 def exists_in_csv_old(csv_file, column, number, sep='\t'):
+    """
+    Check if a specific value exists in a given column of a CSV file.
+
+    This function reads a CSV file and checks whether the specified `number` 
+    exists in the specified `column`. If the file cannot be opened or read, 
+    the function returns `False`.
+
+    Args:
+        csv_file (str): The path to the CSV file.
+        column (str): The name of the column to search in.
+        number (int or str): The value to search for in the specified column.
+        sep (str, optional): The delimiter used in the CSV file. Defaults to '\t'.
+
+    Returns:
+        bool: 
+            - `True` if the value exists in the specified column.
+            - `False` if the value does not exist or if the file cannot be opened.
+    """
     try:
         with open(csv_file, 'r') as f:
             reader = csv.DictReader(f, delimiter=sep)
@@ -1577,6 +1665,24 @@ def exists_in_csv_old(csv_file, column, number, sep='\t'):
 
 
 def pd_flatten(data, factor=1):
+    """
+    Flatten and process a list of data values.
+
+    This function takes a list of data values, attempts to split each value 
+    based on commas (excluding the first and last characters), and flattens 
+    the resulting list. If splitting fails (e.g., due to a `TypeError`), the 
+    original value is added to the result. Finally, all values are converted 
+    to floats and divided by the specified `factor`.
+
+    Args:
+        data (list): A list of data values to be processed. Each value can be 
+                     a string or a type that supports slicing and splitting.
+        factor (float, optional): A divisor applied to each processed value. 
+                                  Defaults to 1.
+
+    Returns:
+        list: A list of processed float values, flattened and divided by `factor`.
+    """
     tmp = []
     for x in data:
         try:
@@ -1590,16 +1696,61 @@ def pd_flatten(data, factor=1):
 
 
 def str_to_array(s):
+    """
+    Convert a string representation of an array back into a NumPy array.
+
+    This function takes a string formatted as an array (e.g., "[1.0, 2.0, 3.0]"),
+    removes the square brackets, splits the elements by commas, and converts 
+    them into a NumPy array of floats.
+
+    Args:
+        s (str): A string representation of an array, with elements separated 
+                 by commas and enclosed in square brackets.
+
+    Returns:
+        numpy.ndarray: A NumPy array containing the float values extracted 
+                       from the input string.
+    """
     s = s.replace('[', '').replace(']', '')  # Remove square brackets
     return np.array([float(x) for x in s.split(',')])
 
 
 def pdstr_to_arrays(df):
+    """
+    Convert a pandas Series or DataFrame with string representations of arrays 
+    into a NumPy array of actual arrays.
+
+    This function applies the `str_to_array` function to each element of the 
+    input pandas object (Series or DataFrame), converting string representations 
+    of arrays into NumPy arrays. The result is returned as a NumPy array.
+
+    Args:
+        df (pandas.Series or pandas.DataFrame): A pandas object containing 
+                                                string representations of arrays.
+
+    Returns:
+        numpy.ndarray: A NumPy array where each element is a NumPy array 
+                       derived from the corresponding string in the input.
+    """
     return df.apply(str_to_array).to_numpy()
 
 
 def get_all_files_recursive(path_name=os.getcwd()):
-    # Get the list of all files in directory tree at given path
+    """
+    Recursively retrieve all file paths from a directory and its subdirectories.
+
+    This function walks through the directory tree starting from the specified 
+    path and collects the full paths of all files found. If no path is provided, 
+    it defaults to the current working directory.
+
+    Args:
+        path_name (str, optional): The root directory to start the search. 
+                                   Defaults to the current working directory.
+
+    Returns:
+        list: A list of full file paths for all files found in the directory 
+              tree starting at `path_name`.
+    """    
     listOfFiles = list()
     for (dirpath, dirnames, filenames) in os.walk(path_name):
         listOfFiles += [os.path.join(dirpath, file) for file in filenames]

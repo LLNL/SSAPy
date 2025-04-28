@@ -211,9 +211,11 @@ def cluster_emcee_walkers(
     chain, lnprob, lnprior, thresh_multiplier=1, verbose=False
 ):
     """
-    Down-select emcee walkers to those with the largest mean posteriors
+    Down-select emcee walkers to those with the largest posterior mean.
 
-    Follows the algorithm of Hou, Goodman, Hogg et al. (2012)
+    Follows the algorithm of Hou, Goodman, Hogg et al. (2012), An affine-invariant
+    sampler for exoplanet fitting and discovery in radial velocity data.
+    The Astrophysical Journal, 745(2), 198.
     """
     import emcee
     from distutils.version import LooseVersion
@@ -381,7 +383,7 @@ def regularize_default(particles, weights, num_particles_out=None, dimension=6):
     :type dimension: int, optional
 
     :return: Deltas from original particles and their weights
-    :rtype: (numpy.ndarray, numpy.ndarry)
+    :rtype: (numpy.ndarray, numpy.ndarray)
     """
     num_particles_in, dim_in = particles.shape
     if num_particles_out is None:
@@ -769,7 +771,7 @@ def xyz_to_lb(x, y, z):
 def lb_to_tan(lb, b, mul=None, mub=None, lcen=None, bcen=None):
     """Convert lb-like coordinates & proper motions to orthographic tangent plane.
 
-    Everything is in radians.  If mul is None (default), transformed
+    All units are in radians.  If mul is None (default), transformed
     proper motions will not be returned.  The tangent plane is always chosen
     so that +Y is towards b = 90, and +X is towards +lb.
 
@@ -962,8 +964,8 @@ def sigma_points(f, x, C, scale=1, fixed_dimensions=None):
 
 
 def unscented_transform_mean_covar(f, x, C, scale=1):
-    """Compute mean and covar using unscented transform given a transformation
-    f, a point x, and a covariance C.
+    """Compute mean and covariance matrix using unscented transform given a
+    transformation f, a point x, and a covariance C.
 
     This uses the sigma point convention from sigma_points.  It assumes that
     f(sigma_points)[i] is f evaluated at the ith sigma point.  If f does
@@ -989,10 +991,26 @@ def unscented_transform_mean_covar(f, x, C, scale=1):
 
 
 def _gpsToTT(t):
-    # Check if t is astropy Time object if so convert to GPS seconds if not assume GPS seconds.  Convert to TT seconds by adding 51.184.
-    # Divide by 86400 to get TT days.
-    # Then add the TT time of the GPS epoch, expressed as an MJD, which
-    # is 44244.0
+    """
+    Convert GPS time to Terrestrial Time (TT).
+
+    Parameters:
+    ----------
+    t : Time or float
+        If `t` is an instance of `astropy.time.Time`, it is assumed to represent GPS time in the form of an Astropy Time object.
+        If `t` is a float, it is assumed to be GPS time in seconds.
+
+    Returns:
+    -------
+    float
+        The equivalent time in Terrestrial Time (TT) expressed in days since the GPS epoch (January 6, 1980).
+
+    Notes:
+    -----
+    The conversion involves adding a constant offset of 51.184 seconds to the GPS time,
+    then converting the result into days by dividing by 86400 (the number of seconds in a day).
+    The epoch for GPS is represented as a Modified Julian Date (MJD) of 44244.0.
+    """
     if isinstance(t, Time):
         t = t.gps
     return 44244.0 + (t + 51.184) / 86400
@@ -1170,7 +1188,7 @@ def unit_vector(vector):
     return vector / np.linalg.norm(vector)
 
 
-def get_angle(a, b, c):  # a,b,c where b is the vertex
+def get_angle(a, b, c):
     """
     Calculate the angle between two vectors where b is the vertex of the angle.
 
@@ -1511,17 +1529,35 @@ def ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=None, vz=None, r_
 
 
 def lonlat_distance(lat1, lat2, lon1, lon2):
-    # Haversine formula
+    """Calculate the great-circle distance between two points 
+    on Earth's surface using the Haversine formula.
+
+    Parameters
+    ----------
+    lat1 : float
+        Latitude of the first point in radians.
+    lat2 : float
+        Latitude of the second point in radians.
+    lon1 : float
+        Longitude of the first point in radians.
+    lon2 : float
+        Longitude of the second point in radians.
+
+    Returns
+    -------
+    distance : float
+        Distance between the two points in kilometers.
+    """
     dlon = lon2 - lon1
     dlat = lat2 - lat1
     a = np.sin(dlat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2)**2
     c = 2 * np.arcsin(np.sqrt(a))
-    # Radius of earth in kilometers. Use 3956 for miles
-    # calculate the result
-    return (c * EARTH_RADIUS)
+    # Calculate distance in kilometers, use 3956 for miles
+    distance = c * EARTH_RADIUS
+    return distance
 
 
-def altitude2zenithangle(altitude, deg=True):
+def altitude_to_zenithangle(altitude, deg=True):
     if deg:
         out = 90 - altitude
     else:
@@ -1529,7 +1565,7 @@ def altitude2zenithangle(altitude, deg=True):
     return out
 
 
-def zenithangle2altitude(zenith_angle, deg=True):
+def zenithangle_to_altitude(zenith_angle, deg=True):
     if deg:
         out = 90 - zenith_angle
     else:
@@ -1537,7 +1573,7 @@ def zenithangle2altitude(zenith_angle, deg=True):
     return out
 
 
-def rightasension2hourangle(right_ascension, local_time):
+def rightascension_to_hourangle(right_ascension, local_time):
     if type(right_ascension) is not str:
         right_ascension = dd_to_hms(right_ascension)
     if type(local_time) is not str:
@@ -1553,7 +1589,7 @@ def rightasension2hourangle(right_ascension, local_time):
 
 def equatorial_to_horizontal(observer_latitude, declination, right_ascension=None, hour_angle=None, local_time=None, hms=False):
     if right_ascension is not None:
-        hour_angle = rightasension2hourangle(right_ascension, local_time)
+        hour_angle = rightascension_to_hourangle(right_ascension, local_time)
         if hms:
             hour_angle = hms_to_dd(hour_angle)
     elif hour_angle is not None:
@@ -1570,7 +1606,7 @@ def equatorial_to_horizontal(observer_latitude, declination, right_ascension=Non
 
     zenith_angle = np.arccos(np.sin(observer_latitude) * np.sin(declination) + np.cos(observer_latitude) * np.cos(declination) * np.cos(hour_angle))
 
-    altitude = zenithangle2altitude(zenith_angle, deg=False)
+    altitude = zenithangle_to_altitude(zenith_angle, deg=False)
 
     _num = np.sin(declination) - np.sin(observer_latitude) * np.cos(zenith_angle)
     _den = np.cos(observer_latitude) * np.sin(zenith_angle)
@@ -1585,7 +1621,7 @@ def equatorial_to_horizontal(observer_latitude, declination, right_ascension=Non
 
 def horizontal_to_equatorial(observer_latitude, azimuth, altitude):
     altitude, azimuth, latitude = np.radians([altitude, azimuth, observer_latitude])
-    zenith_angle = zenithangle2altitude(altitude)
+    zenith_angle = zenithangle_to_altitude(altitude)
 
     zenith_angle = [-zenith_angle if latitude < 0 else zenith_angle][0]
 
@@ -2101,42 +2137,3 @@ def find_smallest_bounding_cube(r: np.ndarray, pad: float = 0.0) -> Tuple[np.nda
     upper_bound = center + half_side_length
 
     return lower_bound, upper_bound
-
-
-def points_on_circle(r, v, rad, num_points=4):
-    # Convert inputs to numpy arrays
-    r = np.array(r)
-    v = np.array(v)
-
-    # Find the perpendicular vectors to the given vector v
-    if np.all(v[:2] == 0):
-        if np.all(v[2] == 0):
-            raise ValueError("The given vector v must not be the zero vector.")
-        else:
-            u = np.array([1, 0, 0])
-    else:
-        u = np.array([-v[1], v[0], 0])
-    u = u / np.linalg.norm(u)
-    w = np.cross(u, v)
-    w_norm = np.linalg.norm(w)
-    if w_norm < 1e-15:
-        # v is parallel to z-axis
-        w = np.array([0, 1, 0])
-    else:
-        w = w / w_norm
-    # Generate a sequence of angles for equally spaced points
-    angles = np.linspace(0, 2 * np.pi, num_points, endpoint=False)
-
-    # Compute the x, y, z coordinates of each point on the circle
-    x = rad * np.cos(angles) * u[0] + rad * np.sin(angles) * w[0]
-    y = rad * np.cos(angles) * u[1] + rad * np.sin(angles) * w[1]
-    z = rad * np.cos(angles) * u[2] + rad * np.sin(angles) * w[2]
-
-    # Apply rotation about z-axis by 90 degrees
-    rot_matrix = np.array([[0, 1, 0], [-1, 0, 0], [0, 0, 1]])
-    rotated_points = np.dot(rot_matrix, np.column_stack((x, y, z)).T).T
-
-    # Translate the rotated points to the center point r
-    points_rotated = rotated_points + r.reshape(1, 3)
-
-    return points_rotated
