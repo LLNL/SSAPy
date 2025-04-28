@@ -543,12 +543,66 @@ def circular_guess(arc, indices=[0, 1]):
     # circular orbit.
 
     def vr2(r):
+        """
+        Calculate the radial velocity difference based on the provided position vector.
+
+        Parameters:
+        -----------
+        r : numpy.ndarray
+            A position vector representing the relative location along the line of sight.
+
+        Returns:
+        --------
+        float
+            The calculated radial velocity difference based on the Earth's gravitational constant,
+            position, and velocity components.
+
+        Example:
+        --------
+        >>> r = np.array([1.0, 2.0, 3.0])
+        >>> vr2(r)
+        -12345.678  # Example output (depends on global variable values)
+        """
+
         pos = rStation + r*lineOfSight
         R = np.sqrt(np.sum(pos**2))
         return WGS84_EARTH_MU/R - normSq(muAlpha*rAlpha*r + muDelta*rDelta*r +
                                          vGroundSky)
 
     def vR(r, ub=np.inf, verbose=False, square=False):
+        """
+        Compute the radial velocity at a given position along the line of sight, 
+        with optional bounds and verbosity.
+
+        Parameters:
+        -----------
+        r : float
+            The position along the line of sight.
+        ub : float, optional
+            Upper bound for the position `r`. If `r` exceeds this bound, it is reflected 
+            back within the bounds. Default is `np.inf` (no bound).
+        verbose : bool, optional
+            If `True`, additional information may be printed during execution. 
+            Default is `False`.
+        square : bool, optional
+            If `True`, the squared radial velocity (`vrsquared`) is returned instead 
+            of the computed radial velocity. Default is `False`.
+
+        Returns:
+        --------
+        float
+            The computed radial velocity at the given position `r`. If `square=True`, 
+            the squared radial velocity is returned instead.
+
+        Example:
+        --------
+        >>> r = 5.0
+        >>> vR(r, ub=10.0, verbose=True, square=False)
+        123.456  # Example output (depends on global variable values)
+
+        >>> vR(r, ub=10.0, square=True)
+        15234.789  # Example squared radial velocity output
+        """
         if r > ub:
             sgn = -1
             r = 2*ub - r
@@ -1333,6 +1387,99 @@ class ParamOrbitRV(ParamOrbitTranslator):
 
 
 class ParamOrbitEquinoctial(ParamOrbitTranslator):
+    """
+    A class for translating orbital parameters in equinoctial form, 
+    including input/output transformations and conversions between 
+    parameters and orbit objects.
+
+    Inherits:
+    ---------
+    ParamOrbitTranslator : Base class providing foundational functionality 
+    for orbital parameter translation.
+
+    Methods:
+    --------
+    __init__(*args, **kwargs):
+        Initialize the `ParamOrbitEquinoctial` object, inheriting behavior 
+        from the `ParamOrbitTranslator` base class.
+
+    input_param_translation(p):
+        Transform input orbital parameters by scaling the first parameter 
+        (typically semi-major axis) for internal use.
+
+        Parameters:
+        -----------
+        p : array-like
+            Input orbital parameters.
+
+        Returns:
+        --------
+        numpy.ndarray
+            Transformed orbital parameters with the first element scaled.
+
+    output_covar_translation(covar):
+        Transform covariance matrix for output by scaling the first row 
+        and column (typically related to semi-major axis).
+
+        Parameters:
+        -----------
+        covar : array-like
+            Input covariance matrix.
+
+        Returns:
+        --------
+        numpy.ndarray
+            Transformed covariance matrix with scaled elements.
+
+    param_to_orbit(p):
+        Convert equinoctial orbital parameters to an `Orbit` object, 
+        ensuring constraints on eccentricity and semi-major axis.
+
+        Parameters:
+        -----------
+        p : array-like
+            Equinoctial orbital parameters.
+
+        Returns:
+        --------
+        Orbit
+            An `Orbit` object created from the equinoctial parameters.
+
+        Notes:
+        ------
+        - The semi-major axis (`p[0]`) is scaled and clipped to a minimum value of 1.
+        - The eccentricity vector (`p[3]`, `p[4]`) is normalized if its magnitude exceeds 0.999.
+        - Additional propagation keywords are extracted from the full parameter set.
+
+    orbit_to_param(orbit):
+        Convert an `Orbit` object to a list of equinoctial orbital parameters 
+        and associated propagation keywords.
+
+        Parameters:
+        -----------
+        orbit : Orbit
+            An `Orbit` object containing equinoctial elements.
+
+        Returns:
+        --------
+        list
+            A list of equinoctial orbital parameters and propagation keywords.
+
+    Notes:
+    ------
+    - This class assumes equinoctial orbital elements are used for parameterization.
+    - The `Orbit` class is expected to provide methods for handling equinoctial elements.
+    - Scaling factors (e.g., 1e7 for semi-major axis) are applied for numerical stability.
+
+    Example:
+    --------
+    >>> translator = ParamOrbitEquinoctial()
+    >>> params = [7000000, 0, 0, 0.01, 0.01, 0]  # Example equinoctial parameters
+    >>> orbit = translator.param_to_orbit(params)
+    >>> new_params = translator.orbit_to_param(orbit)
+    >>> print(new_params)
+    [7000000, 0, 0, 0.01, 0.01, 0]  # Example output matching input
+    """
     def __init__(self, *args, **kwargs):
         super(ParamOrbitEquinoctial, self).__init__(*args, **kwargs)
 
@@ -1389,40 +1536,42 @@ class ParamOrbitAngle(ParamOrbitTranslator):
 
 
 class LMOptimizerAngular:
+    """
+    Optimizer that employs Levenberg-Marquardt least-squares fitting.
+    Instead of rv, works in angle/proper motion/range/range rate of initial obs.
+
+    Parameters
+    ----------
+    probfn : RVProbability
+        The RVProbability object that has both an epoch attribute to use for
+        the orbit fitting model, and a chi method to use for the fit
+        evaluation.
+    initGuess : array_like (6,)
+        Initial guess.  (ra, dec, range, pmra, pmdec, rangerate).
+        (rad, rad, m, rad/s, rad/s, m/s)
+    initObsPos : array_like (3,)
+        Position of observer at probfn.epoch.
+    initObsVel : array_like (3,)
+        Position of observer at probfn.epoch.
+
+    Attributes
+    ----------
+    result : lmfit.MinimizerResult
+        Most recently run result object.  Could be useful for inspecting
+        error estimates or success/failure conditions.
+
+    Methods
+    -------
+    optimize()
+        Return the optimized parameters list [r, v]
+    """
     def __init__(self, probfn, initGuess, initObsPos, initObsVel,
                  fracstep=[1e-7]*6,
                  absstep=[0.01/60/60, 0.01/60/60, 1,
                           0.01/60/60/10/100, 0.01/60/60/10/100,
                           1e-2],
                  orbitattr=None):
-        """Optimizer that employs Levenberg-Marquardt least-squares fitting.
-        Instead of rv, works in angle/proper motion/range/range rate of initial obs.
-
-        Parameters
-        ----------
-        probfn : RVProbability
-            The RVProbability object that has both an epoch attribute to use for
-            the orbit fitting model, and a chi method to use for the fit
-            evaluation.
-        initGuess : array_like (6,)
-            Initial guess.  (ra, dec, range, pmra, pmdec, rangerate).
-            (rad, rad, m, rad/s, rad/s, m/s)
-        initObsPos : array_like (3,)
-            Position of observer at probfn.epoch.
-        initObsVel : array_like (3,)
-            Position of observer at probfn.epoch.
-
-        Attributes
-        ----------
-        result : lmfit.MinimizerResult
-            Most recently run result object.  Could be useful for inspecting
-            error estimates or success/failure conditions.
-
-        Methods
-        -------
-        optimize()
-            Return the optimized parameters list [r, v]
-        """
+        
         import warnings
         warnings.warn("This class is deprecated; use "
                       "ssapy.rvsampler.LeastSquaresOptimizer")
@@ -1503,33 +1652,35 @@ class LMOptimizerAngular:
 
 
 class LMOptimizer:
+    """
+    Optimizer that employs Levenberg-Marquardt least-squares fitting.
+
+    Parameters
+    ----------
+    probfn : RVProbability
+        The RVProbability object that has both an epoch attribute to use for
+        the orbit fitting model, and a chi method to use for the fit
+        evaluation.
+    initRV : array_like (6,)
+        Initial position and velocity.  Essentially a single output from one
+        of the initializers above.
+
+    Attributes
+    ----------
+    result : lmfit.MinimizerResult
+        Most recently run result object.  Could be useful for inspecting
+        error estimates or success/failure conditions.
+
+    Methods
+    -------
+    optimize()
+        Return the optimized parameters list [r, v]
+    """
     def __init__(self, probfn, initRV,
                  fracstep=[1e-8, 1e-8, 1e-8, 1e-9, 1e-9, 1e-9],
                  absstep=[1, 1, 1, 1e-6, 1e-6, 1e-6],
                  orbitattr=None):
-        """Optimizer that employs Levenberg-Marquardt least-squares fitting.
 
-        Parameters
-        ----------
-        probfn : RVProbability
-            The RVProbability object that has both an epoch attribute to use for
-            the orbit fitting model, and a chi method to use for the fit
-            evaluation.
-        initRV : array_like (6,)
-            Initial position and velocity.  Essentially a single output from one
-            of the initializers above.
-
-        Attributes
-        ----------
-        result : lmfit.MinimizerResult
-            Most recently run result object.  Could be useful for inspecting
-            error estimates or success/failure conditions.
-
-        Methods
-        -------
-        optimize()
-            Return the optimized parameters list [r, v]
-        """
         import lmfit
 
 
@@ -1617,31 +1768,33 @@ def eq2kep(eq):
 
 
 class SGP4LMOptimizer:
+    """
+    Optimizer that employs Levenberg-Marquardt least-squares fitting
+    and fits in Kozai mean Keplerian element space.
+
+    Parameters
+    ----------
+    probfn : RVProbability
+        The RVProbability object that has both an epoch attribute to use for the
+        orbit fitting model, and a chi method to use for the fit evaluation.
+    initel : array_like (6,)
+        Initial Kozai mean Keplerian elements.
+
+    Attributes
+    ----------
+    result : lmfit.MinimizerResult
+        Most recently run result object.  Could be useful for inspecting error
+        estimates or success/failure conditions.
+
+    Methods
+    -------
+    optimize()
+        Return the optimized parameters list [r, v]
+    """
     def __init__(self, probfn, initel,
                  fracstep=[1e-8]*6,
                  absstep=[100, 1e-5, 1e-5, 1e-4, 1e-4, 1e-4]):
-        """Optimizer that employs Levenberg-Marquardt least-squares fitting
-        and fits in Kozai mean Keplerian element space.
 
-        Parameters
-        ----------
-        probfn : RVProbability
-            The RVProbability object that has both an epoch attribute to use for the
-            orbit fitting model, and a chi method to use for the fit evaluation.
-        initel : array_like (6,)
-            Initial Kozai mean Keplerian elements.
-
-        Attributes
-        ----------
-        result : lmfit.MinimizerResult
-            Most recently run result object.  Could be useful for inspecting error
-            estimates or success/failure conditions.
-
-        Methods
-        -------
-        optimize()
-            Return the optimized parameters list [r, v]
-        """
         self.probfn = probfn
         self.initel = initel
         self.fieldnames = ['a', 'hx', 'hy', 'ex', 'ey', 'lv']
@@ -1697,32 +1850,33 @@ class SGP4LMOptimizer:
 
 
 class EquinoctialLMOptimizer:
+    """
+    Optimizer that employs Levenberg-Marquardt least-squares fitting
+    and fits in Kozai mean Keplerian element space.
+
+    Parameters
+    ----------
+    probfn : RVProbability
+        The RVProbability object that has both an epoch attribute to use for the
+        orbit fitting model, and a chi method to use for the fit evaluation.
+    initel : array_like (6,)
+        Initial Kozai mean Keplerian elements.
+
+    Attributes
+    ----------
+    result : lmfit.MinimizerResult
+        Most recently run result object.  Could be useful for inspecting error
+        estimates or success/failure conditions.
+
+    Methods
+    -------
+    optimize()
+        Return the optimized parameters list [r, v]
+    """
     def __init__(self, probfn, initel,
                  fracstep=[1e-7, 1e-9, 1e-9, 1e-6, 1e-6, 1e-9],
                  absstep=[1e-7, 1e-5, 1e-5, 1e-4, 1e-4, 1e-4],
                  orbitattr=None):
-        """Optimizer that employs Levenberg-Marquardt least-squares fitting
-        and fits in Kozai mean Keplerian element space.
-
-        Parameters
-        ----------
-        probfn : RVProbability
-            The RVProbability object that has both an epoch attribute to use for the
-            orbit fitting model, and a chi method to use for the fit evaluation.
-        initel : array_like (6,)
-            Initial Kozai mean Keplerian elements.
-
-        Attributes
-        ----------
-        result : lmfit.MinimizerResult
-            Most recently run result object.  Could be useful for inspecting error
-            estimates or success/failure conditions.
-
-        Methods
-        -------
-        optimize()
-            Return the optimized parameters list [r, v]
-        """
 
         import warnings
         warnings.warn("This class is deprecated; use "
