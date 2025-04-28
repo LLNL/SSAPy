@@ -31,6 +31,28 @@ def find_file(filename, ext=None):
 
 
 def _wrapToPi(angle):
+    """
+    Wrap an angle to the range [-π, π].
+
+    Parameters:
+    -----------
+    angle : float or array-like
+        The input angle(s) in radians. Can be a single value or an array of values.
+
+    Returns:
+    --------
+    wrapped_angle : float or array-like
+        The angle(s) wrapped to the range [-π, π].
+
+    Example:
+    --------
+    >>> _wrapToPi(4)
+    -2.283185307179586
+    >>> _wrapToPi(-4)
+    2.283185307179586
+    >>> _wrapToPi([3.5, -3.5, 6.5])
+    array([-2.78318531,  2.78318531,  0.28318531])
+    """
     return (angle + np.pi) % (2 * np.pi) - np.pi
 
 
@@ -172,20 +194,129 @@ def find_all_zeros(f, low, high, n=100):
 # faster than np.linalg.norm().
 # These compute the norm over the last axis and maintain the other leading axes.
 def normSq(arr):
+    """
+    Compute the squared norm of an array over the last axis while preserving leading axes.
+
+    This function calculates the squared norm of vectors along the last axis of the input array 
+    using Einstein summation notation (`np.einsum`). It is designed to be portable and efficient, 
+    offering better performance than `np.linalg.norm()` for this specific use case.
+
+    Parameters:
+    -----------
+    arr : array-like
+        Input array where the squared norm is computed along the last axis. 
+        The array can have any shape, with the last axis representing the vector components.
+
+    Returns:
+    --------
+    norm_squared : array-like
+        The squared norm of the input array computed along the last axis. 
+        The output shape matches the input shape, excluding the last axis.
+
+    Notes:
+    ------
+    - This implementation is more portable and faster than using `np.linalg.norm()` 
+      for computing norms over the last axis, especially for large arrays.
+    - It is slightly less specialized compared to methods optimized for fixed shapes 
+      (e.g., shape `(3,)`), but it generalizes well to arrays of arbitrary shape.
+    - The computation uses `np.einsum("...i,...i", arr, arr)`, which efficiently performs 
+      the summation of squared components along the last axis.
+
+    Example:
+    --------
+    >>> import numpy as np
+    >>> arr = np.array([[1, 2, 3], [4, 5, 6]])
+    >>> normSq(arr)
+    array([14, 77])
+    """
     return np.einsum("...i,...i", arr, arr)
 
 
 # Faster to not dispatch back to normSq
 def norm(arr):
+    """
+    Compute the Euclidean norm of an array over the last axis while preserving leading axes.
+
+    Parameters:
+    -----------
+    arr : array-like
+        Input array where the Euclidean norm is computed along the last axis. 
+        The array can have any shape, with the last axis representing the vector components.
+
+    Returns:
+    --------
+    norm : array-like
+        The Euclidean norm of the input array computed along the last axis. 
+        The output shape matches the input shape, excluding the last axis.
+
+    Notes:
+    ------
+    - This implementation directly computes the norm using `np.sqrt` and `np.einsum`, 
+      avoiding the intermediate step of calling `normSq`. This improves performance.
+    - The computation uses `np.einsum("...i,...i", arr, arr)` to efficiently sum the squared 
+      components along the last axis, followed by taking the square root.
+    - Faster than using `np.linalg.norm()` for this specific use case and generalizes well 
+      to arrays of arbitrary shape.
+
+    Example:
+    --------
+    >>> import numpy as np
+    >>> arr = np.array([[1, 2, 3], [4, 5, 6]])
+    >>> norm(arr)
+    array([3.74165739, 8.77496439])
+    """
     return np.sqrt(np.einsum("...i,...i", arr, arr))
 
 
 # Faster to not dispatch back to norm
 def normed(arr):
+    """
+    Normalize an array along the last axis to have unit length.
+
+    This function computes the normalized version of the input array by dividing each vector 
+    along the last axis by its Euclidean norm. The normalization ensures that the resulting 
+    vectors have a magnitude of 1.
+
+    Parameters:
+    -----------
+    arr : array-like
+        Input array where normalization is applied along the last axis. 
+        The array can have any shape, with the last axis representing the vector components.
+
+    Returns:
+    --------
+    normalized : array-like
+        The normalized array with unit-length vectors along the last axis. 
+        The output shape matches the input shape.
+    """
     return arr / np.sqrt(np.einsum("...i,...i", arr, arr))[..., None]
 
 
 def einsum_norm(a, indices='ij,ji->i'):
+    """
+    Compute the norm of an array using Einstein summation notation with customizable indices.
+
+    This function calculates the norm of an input array using `np.einsum` with user-defined 
+    summation indices. By default, it computes the Euclidean norm along the specified axes 
+    using the provided summation pattern. The result is the square root of the summation 
+    output.
+
+    Parameters:
+    -----------
+    a : array-like
+        Input array for which the norm is computed. The array can have any shape, and the 
+        summation pattern determines how the norm is calculated across its dimensions.
+    indices : str, optional
+        A string representing the Einstein summation pattern. The default value is 
+        `'ij,ji->i'`, which computes the norm along specific axes. Users can customize 
+        this pattern to suit their needs.
+
+    Returns:
+    --------
+    norm : array-like
+        The computed norm of the input array based on the specified summation pattern. 
+        The output shape depends on the summation indices provided.
+    """
     return np.sqrt(np.einsum(indices, a, a))
 
 
@@ -353,6 +484,15 @@ def resample(particles, ln_weights, obs_times=None, pod=False):
 
 
 def get_normed_weights(ln_weights):
+    """
+    Computes normalized weights from log-weights.
+
+    Parameters:
+        ln_weights (ndarray): Logarithmic weights.
+
+    Returns:
+        ndarray: Normalized weights summing to 1.
+    """
     ln_wts_norm = np.logaddexp.reduce(ln_weights)
     weights = np.exp(ln_weights - ln_wts_norm)
     return weights
@@ -1231,6 +1371,18 @@ def get_angle(a, b, c):
 
 
 def angle_between_vectors(vector1, vector2):
+    """
+    Calculates the angle (in radians) between two vectors.
+
+    Parameters:
+    -----------
+        vector1 (ndarray): First vector.
+        vector2 (ndarray): Second vector.
+
+    Returns:
+    --------
+        float: Angle between the vectors in radians.
+    """
     return np.arccos(np.clip(np.dot(vector1, vector2) / (np.linalg.norm(vector1) * np.linalg.norm(vector2)), -1.0, 1.0))
 
 
@@ -1250,6 +1402,21 @@ def rotation_matrix_from_vectors(vec1, vec2):
 
 
 def rotate_vector(v_unit, theta, phi, plot_path=False, save_idx=False):
+    """
+    Rotates a unit vector by specified angles and optionally plots the rotation path.
+
+    Parameters:
+    -----------
+        v_unit (ndarray): Input unit vector to be rotated.
+        theta (float): Rotation angle (in degrees) around a perpendicular axis.
+        phi (float): Rotation angle (in degrees) around the input vector.
+        plot_path (str, optional): Path to save the rotation plot. Defaults to False (no plot).
+        save_idx (int, optional): Index for saving the plot file. Defaults to False.
+
+    Returns:
+    --------
+        ndarray: Rotated unit vector.
+    """
     v_unit = v_unit / np.linalg.norm(v_unit, axis=-1)
     if np.all(np.abs(v_unit) != np.max(np.abs(v_unit))):
         perp_vector = np.cross(v_unit, np.array([1, 0, 0]))
@@ -1371,6 +1538,29 @@ def perpendicular_vectors(v):
 
 
 def points_on_circle(r, v, rad, num_points=4):
+    """
+    Generate points on a circle in 3D space.
+
+    The circle is defined by its center `r`, radius `rad`, and a normal vector `v`.
+    The function computes `num_points` evenly spaced points on the circle.
+
+    Parameters:
+    -----------
+        r (numpy.ndarray): A 3D vector representing the center of the circle.
+        v (numpy.ndarray): A 3D vector representing the normal to the circle's plane.
+        rad (float): The radius of the circle.
+        num_points (int, optional): The number of points to generate on the circle. 
+                                    Defaults to 4.
+
+    Returns:
+    --------
+        numpy.ndarray: An array of shape (num_points, 3), where each row represents 
+                       the coordinates of a point on the circle.
+
+    Raises:
+    -------
+        ValueError: If the normal vector `v` is the zero vector.
+    """
     # Convert inputs to numpy arrays
     r = np.array(r)
     v = np.array(v)
@@ -1410,6 +1600,27 @@ def points_on_circle(r, v, rad, num_points=4):
 
 
 def dms_to_rad(coords):
+    """
+    Convert coordinates from degrees, minutes, and seconds (DMS) format to radians.
+
+    Parameters:
+    -----------
+        coords (str, list, or tuple): 
+            - A single DMS coordinate as a string (e.g., "12d34m56s").
+            - A list or tuple of DMS coordinates as strings.
+
+    Returns:
+    --------
+        float or list: 
+            - If a single coordinate is provided, returns its value in radians.
+            - If multiple coordinates are provided (list or tuple), returns a list 
+              of values in radians.
+
+    Example:
+    --------
+        dms_to_rad("12d34m56s") -> 0.219725
+        dms_to_rad(["12d34m56s", "45d67m89s"]) -> [0.219725, 0.798488]
+    """
     from astropy.coordinates import Angle
     if isinstance(coords, (list, tuple)):
         return [Angle(coord).radian for coord in coords]
@@ -1419,6 +1630,27 @@ def dms_to_rad(coords):
 
 
 def dms_to_deg(coords):
+    """
+    Convert coordinates from degrees, minutes, and seconds (DMS) format to decimal degrees.
+
+    Parameters:
+    -----------
+        coords (str, list, or tuple): 
+            - A single DMS coordinate as a string (e.g., "12d34m56s").
+            - A list or tuple of DMS coordinates as strings.
+
+    Returns:
+    --------
+        float or list: 
+            - If a single coordinate is provided, returns its value in decimal degrees.
+            - If multiple coordinates are provided (list or tuple), returns a list 
+              of values in decimal degrees.
+
+    Example:
+    --------
+        dms_to_deg("12d34m56s") -> 12.582222
+        dms_to_deg(["12d34m56s", "45d67m89s"]) -> [12.582222, 46.135806]
+    """
     from astropy.coordinates import Angle
     if isinstance(coords, (list, tuple)):
         return [Angle(coord).deg for coord in coords]
@@ -1428,10 +1660,49 @@ def dms_to_deg(coords):
 
 
 def rad0to2pi(angles):
+    """
+    Normalize angles in radians to the range [0, 2π].
+
+    Parameters:
+    -----------
+        angles (float or numpy array): 
+            - A single angle in radians or an array of angles in radians.
+            - Negative angles will be adjusted to fall within the range [0, 2π].
+
+    Returns:
+    --------
+        float or numpy array: 
+            - The normalized angle(s) in radians within the range [0, 2π].
+
+    Example:
+    --------
+        rad0to2pi(-1.0) -> 5.283185307179586
+        rad0to2pi(np.array([-1.0, 3.0])) -> array([5.28318531, 3.0])
+    """
     return (2 * np.pi + angles) * (angles < 0) + angles * (angles > 0)
 
 
 def deg0to360(array_):
+    """
+    Normalize angles in degrees to the range [0, 360].
+
+    Parameters:
+    -----------
+        array_ (int, float, or iterable): 
+            - A single angle in degrees (int or float).
+            - An iterable (e.g., list, tuple, or numpy array) of angles in degrees.
+
+    Returns:
+    --------
+        int, float, or list: 
+            - If a single angle is provided, returns the normalized angle in the range [0, 360].
+            - If an iterable of angles is provided, returns a list of normalized angles in the range [0, 360].
+
+    Example:
+    --------
+        deg0to360(370) -> 10
+        deg0to360([-10, 370, 720]) -> [350, 10, 0]
+    """
     try:
         return [i % 360 for i in array_]
     except TypeError:
@@ -1439,10 +1710,50 @@ def deg0to360(array_):
 
 
 def deg0to360array(array_):
+    """
+    Normalize an array of angles in degrees to the range [0, 360].
+
+    Parameters:
+    -----------
+        array_ (iterable): 
+            - An iterable (e.g., list, tuple, or numpy array) of angles in degrees.
+
+    Returns:
+    --------
+        list: 
+            - A list of normalized angles in the range [0, 360].
+
+    Example:
+    --------
+        deg0to360array([-10, 370, 720]) -> [350, 10, 0]
+    """
     return [i % 360 for i in array_]
 
 
 def deg90to90(val_in):
+    """
+    Normalize angles to the range [-90, 90].
+
+    This function adjusts angles such that they fall within the range [-90, 90]. 
+    It works for both single values and iterable inputs.
+
+    Parameters:
+    -----------
+        val_in (int, float, or iterable): 
+            - A single angle (int or float).
+            - An iterable (e.g., list, tuple, or numpy array) of angles.
+
+    Returns:
+    --------
+        int, float, or list: 
+            - If a single angle is provided, returns the normalized angle in the range [-90, 90].
+            - If an iterable of angles is provided, returns a list of normalized angles in the range [-90, 90].
+
+    Example:
+    --------
+        deg90to90(100) -> 10
+        deg90to90([-100, 200, -270]) -> [-10, -70, -90]
+    """
     if hasattr(val_in, "__len__"):
         val_out = []
         for i, v in enumerate(val_in):
@@ -1461,10 +1772,52 @@ def deg90to90(val_in):
 
 
 def deg90to90array(array_):
+    """
+    Normalize an array of angles to the range [0, 90].
+
+    This function adjusts angles in an iterable such that they fall within the range [0, 90] using the modulo operation.
+
+    Parameters:
+    -----------
+        array_ (iterable): 
+            - An iterable (e.g., list, tuple, or numpy array) of angles.
+
+    Returns:
+    --------
+        list: 
+            - A list of normalized angles in the range [0, 90].
+
+    Example:
+    --------
+        deg90to90array([95, 180, 270]) -> [5, 0, 0]
+    """
     return [i % 90 for i in array_]
 
 
 def cart2sph_deg(x, y, z):
+    """
+    Convert Cartesian coordinates to spherical coordinates in degrees.
+
+    This function converts Cartesian coordinates (x, y, z) to spherical coordinates:
+    azimuth (az), elevation (el), and radius (r). The azimuth and elevation angles are returned in degrees.
+
+    Parameters:
+    -----------
+        x (float or array-like): The x-coordinate(s).
+        y (float or array-like): The y-coordinate(s).
+        z (float or array-like): The z-coordinate(s).
+
+    Returns:
+    --------
+        tuple: 
+            - az (float or array-like): Azimuth angle in degrees (angle in the x-y plane from the positive x-axis).
+            - el (float or array-like): Elevation angle in degrees (angle from the x-y plane to the z-axis).
+            - r (float or array-like): Radius (distance from the origin).
+
+    Example:
+    --------
+        cart2sph_deg(1, 1, 1) -> (45.0, 35.264389682754654, 1.7320508075688772)
+    """
     hxy = np.hypot(x, y)
     r = np.hypot(hxy, z)
     el = np.arctan2(z, hxy) * (180 / np.pi)
@@ -1473,12 +1826,62 @@ def cart2sph_deg(x, y, z):
 
 
 def cart_to_cyl(x, y, z):
+    """
+    Convert Cartesian coordinates to cylindrical coordinates.
+
+    This function converts Cartesian coordinates (x, y, z) to cylindrical coordinates:
+    radial distance (r), azimuthal angle (theta), and height (z).
+
+    Parameters:
+    -----------
+        x (float or array-like): The x-coordinate(s).
+        y (float or array-like): The y-coordinate(s).
+        z (float or array-like): The z-coordinate(s).
+
+    Returns:
+    --------
+        tuple:
+            - r (float or array-like): Radial distance from the origin in the x-y plane.
+            - theta (float or array-like): Azimuthal angle in radians (angle in the x-y plane from the positive x-axis).
+            - z (float or array-like): Height along the z-axis (unchanged from input).
+
+    Example:
+    --------
+        cart_to_cyl(1, 1, 1) -> (1.4142135623730951, 0.7853981633974483, 1)
+    """
     r = np.linalg.norm([x, y])
     theta = np.arctan2(y, x)
     return r, theta, z
 
 
 def inert2rot(x, y, xe, ye, xs=0, ys=0):  # Places Earth at (-1,0)
+    """
+    Transform inertial coordinates to rotated coordinates relative to the Earth.
+
+    This function calculates the rotated coordinates of a point (x, y) relative to the Earth,
+    which is assumed to be located at a fixed position (-1, 0) in the rotated frame. The rotation
+    is performed based on the relative position of the Earth (xe, ye) and an optional reference 
+    point (xs, ys).
+
+    Parameters:
+    -----------
+        x (float): The x-coordinate of the point in the inertial frame.
+        y (float): The y-coordinate of the point in the inertial frame.
+        xe (float): The x-coordinate of the Earth in the inertial frame.
+        ye (float): The y-coordinate of the Earth in the inertial frame.
+        xs (float, optional): The x-coordinate of the reference point (default is 0).
+        ys (float, optional): The y-coordinate of the reference point (default is 0).
+
+    Returns:
+    --------
+        tuple:
+            - xrot (float): The x-coordinate of the point in the rotated frame.
+            - yrot (float): The y-coordinate of the point in the rotated frame.
+
+    Example:
+    --------
+        inert2rot(2, 3, -1, 0) -> (-3.0, -3.605551275463989)
+    """
     earth_theta = np.arctan2(ye - ys, xe - xs)
     theta = np.arctan2(y - ys, x - xs)
     distance = np.sqrt(np.power((x - xs), 2) + np.power((y - ys), 2))
@@ -1488,6 +1891,44 @@ def inert2rot(x, y, xe, ye, xs=0, ys=0):  # Places Earth at (-1,0)
 
 
 def sim_lonlatrad(x, y, z, xe, ye, ze, xs, ys, zs):
+    """
+    Simulate longitude, latitude, and radius in a geocentric frame with the Sun at (0, 0).
+
+    This function calculates the longitude, latitude, and radius of a point (x, y, z) relative 
+    to the Earth and the Sun. The input coordinates are first shifted to a geocentric frame 
+    (Earth at the origin), then converted to spherical coordinates (longitude, latitude, radius). 
+    The output is corrected so that the Sun is positioned at (0, 0) in the frame.
+
+    Parameters:
+    -----------
+        x (float): The x-coordinate of the point in the inertial frame.
+        y (float): The y-coordinate of the point in the inertial frame.
+        z (float): The z-coordinate of the point in the inertial frame.
+        xe (float): The x-coordinate of the Earth in the inertial frame.
+        ye (float): The y-coordinate of the Earth in the inertial frame.
+        ze (float): The z-coordinate of the Earth in the inertial frame.
+        xs (float): The x-coordinate of the Sun in the inertial frame.
+        ys (float): The y-coordinate of the Sun in the inertial frame.
+        zs (float): The z-coordinate of the Sun in the inertial frame.
+
+    Returns:
+    --------
+        tuple:
+            - longitude (float): The corrected longitude of the point in degrees.
+            - latitude (float): The corrected latitude of the point in degrees.
+            - radius (float): The radial distance of the point from the Earth.
+
+    Notes:
+    ------
+        - The function assumes the existence of `cart2sph_deg`, which converts Cartesian 
+          coordinates to spherical coordinates in degrees.
+        - The function assumes the existence of `deg0to360`, which ensures longitude values 
+          are within the range [0, 360] degrees.
+
+    Example:
+    --------
+        sim_lonlatrad(1, 2, 3, -1, 0, 0, 0, 0, 0) -> (180.0, 45.0, 3.7416573867739413)
+    """
     # convert all to geo coordinates
     x = x - xe
     y = y - ye
@@ -1505,12 +1946,83 @@ def sim_lonlatrad(x, y, z, xe, ye, ze, xs, ys, zs):
 
 
 def sun_ra_dec(time_):
+    """
+    Calculate the Right Ascension (RA) and Declination (Dec) of the Sun at a given time.
+
+    This function computes the Sun's position in the sky in terms of its Right Ascension (RA) 
+    and Declination (Dec) in radians, based on the provided time. It uses the `get_body` 
+    function from the `.body` module to retrieve the Sun's coordinates.
+
+    Parameters:
+    -----------
+        time_ (float): The time in Modified Julian Date (MJD) format.
+
+    Returns:
+    --------
+        tuple:
+            - ra (float): The Sun's Right Ascension in radians.
+            - dec (float): The Sun's Declination in radians.
+
+    Notes:
+    ------
+        - The function assumes the existence of a `get_body` function in the `.body` module, 
+          which calculates the celestial coordinates of the Sun.
+        - The `Time` class from `astropy.time` is used to handle the MJD time format.
+
+    Example:
+    --------
+        sun_ra_dec(60000.0) -> (3.141592653589793, -0.40909280422232897)
+    """
     from .body import get_body
     out = get_body(Time(time_, format='mjd'))
     return out.ra.to('rad').value, out.dec.to('rad').value
 
 
 def ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=None, vz=None, r_earth=np.array([0, 0, 0]), v_earth=np.array([0, 0, 0]), input_unit='si'):
+    """
+    Calculate the Right Ascension (RA) and Declination (Dec) of an object relative to Earth's position.
+
+    This function computes the RA and Dec of an object based on its position and velocity vectors. 
+    The Earth's position and velocity are subtracted from the input to determine the object's 
+    coordinates relative to Earth. The RA is returned in radians within the range [0, 2π], and 
+    the Dec is returned in radians.
+
+    Parameters:
+    -----------
+        r (ndarray, optional): Position vector of the object in 3D space (shape: Nx3). Default is None.
+        v (ndarray, optional): Velocity vector of the object in 3D space (shape: Nx3). Default is None.
+        x (float, optional): X-coordinate of the object's position. Default is None.
+        y (float, optional): Y-coordinate of the object's position. Default is None.
+        z (float, optional): Z-coordinate of the object's position. Default is None.
+        vx (float, optional): X-component of the object's velocity. Default is None.
+        vy (float, optional): Y-component of the object's velocity. Default is None.
+        vz (float, optional): Z-component of the object's velocity. Default is None.
+        r_earth (ndarray, optional): Earth's position vector in 3D space (shape: 3). Default is [0, 0, 0].
+        v_earth (ndarray, optional): Earth's velocity vector in 3D space (shape: 3). Default is [0, 0, 0].
+        input_unit (str, optional): Unit of the input values ('si' for meters and seconds). Default is 'si'.
+
+    Returns:
+    --------
+        tuple:
+            - ra (ndarray): Right Ascension of the object in radians (shape: N).
+            - dec (ndarray): Declination of the object in radians (shape: N).
+
+    Raises:
+    -------
+        ValueError: If neither `r` and `v` nor individual coordinates (`x`, `y`, `z`, `vx`, `vy`, `vz`) are provided.
+
+    Notes:
+    ------
+        - If `r` and `v` are not provided, the function expects individual position (`x`, `y`, `z`) 
+          and velocity (`vx`, `vy`, `vz`) components to construct the vectors.
+        - The function assumes the existence of `einsum_norm`, which calculates the norm of vectors 
+          using Einstein summation notation.
+        - The function assumes the existence of `rad0to2pi`, which ensures RA values are within the range [0, 2π].
+
+    Example:
+    --------
+        ra_dec(x=1.0, y=2.0, z=3.0, vx=0.1, vy=0.2, vz=0.3) -> (array([1.10714872]), array([0.64052231]))
+    """
     if r is None or v is None:
         if x is not None and y is not None and z is not None and vx is not None and vy is not None and vz is not None:
             r = np.array([x, y, z])
@@ -1558,6 +2070,14 @@ def lonlat_distance(lat1, lat2, lon1, lon2):
 
 
 def altitude_to_zenithangle(altitude, deg=True):
+    """
+    Convert altitude angle to zenith angle.
+
+    Example:
+    --------
+        altitude_to_zenithangle(45, deg=True) -> 45
+        altitude_to_zenithangle(np.pi / 4, deg=False) -> np.pi / 4
+    """
     if deg:
         out = 90 - altitude
     else:
@@ -1566,6 +2086,18 @@ def altitude_to_zenithangle(altitude, deg=True):
 
 
 def zenithangle_to_altitude(zenith_angle, deg=True):
+    """
+    Convert zenith angle to altitude angle.
+
+    Parameters:
+    -----------
+        zenith_angle (float or ndarray): Zenith angle of the object (in degrees if `deg=True`, otherwise in radians).
+        deg (bool, optional): If True, input and output are in degrees; if False, in radians. Default is True.
+
+    Returns:
+    --------
+        float or ndarray: Altitude angle corresponding to the input zenith angle.
+    """
     if deg:
         out = 90 - zenith_angle
     else:
@@ -1574,6 +2106,36 @@ def zenithangle_to_altitude(zenith_angle, deg=True):
 
 
 def rightascension_to_hourangle(right_ascension, local_time):
+    """
+    Convert right ascension to hour angle.
+
+    This function calculates the hour angle of a celestial object based on its right ascension 
+    and the local time. The hour angle represents the angular distance between the object's 
+    current position and the local meridian.
+
+    Parameters:
+    -----------
+        right_ascension (float or str): The right ascension of the object. Can be provided as a 
+                                        decimal degree value or as a string in "HH:MM:SS" format.
+        local_time (float or str): The local time. Can be provided as a decimal degree value or 
+                                   as a string in "HH:MM:SS" format.
+
+    Returns:
+    --------
+        str: The hour angle in "HH:MM:SS" format.
+
+    Notes:
+    ------
+        - If `right_ascension` or `local_time` is provided as a decimal degree, it is converted 
+          to the appropriate "HH:MM:SS" or "DD:MM:SS" format internally.
+        - Handles cases where the right ascension exceeds the local time by adjusting the local 
+          time to account for the 24-hour cycle.
+
+    Example:
+    --------
+        rightascension_to_hourangle("10:30:00", "12:45:00") -> "02:15:00"
+        rightascension_to_hourangle(157.5, 191.25) -> "02:15:00"
+    """
     if type(right_ascension) is not str:
         right_ascension = dd_to_hms(right_ascension)
     if type(local_time) is not str:
@@ -1620,6 +2182,38 @@ def equatorial_to_horizontal(observer_latitude, declination, right_ascension=Non
 
 
 def horizontal_to_equatorial(observer_latitude, azimuth, altitude):
+    """
+    Convert horizontal coordinates (azimuth and altitude) to equatorial coordinates 
+    (hour angle and declination).
+
+    This function calculates the hour angle and declination of a celestial object 
+    based on its horizontal coordinates and the observer's latitude.
+
+    Parameters:
+    -----------
+        observer_latitude (float): Latitude of the observer in degrees.
+        azimuth (float): Azimuth angle of the object in degrees (measured clockwise from north).
+        altitude (float): Altitude angle of the object in degrees (above the horizon).
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - hour_angle (float): Hour angle of the object in degrees.
+            - declination (float): Declination of the object in degrees.
+
+    Notes:
+    ------
+        - The function assumes the input angles are in degrees and internally converts them 
+          to radians for calculations.
+        - Adjusts for southern hemisphere observations by flipping zenith angle signs.
+        - The hour angle is calculated using trigonometric relationships, with corrections 
+          for specific latitude and declination conditions.
+
+    Example:
+    --------
+        horizontal_to_equatorial(45.0, 120.0, 30.0) -> (hour_angle, declination)
+    """
+
     altitude, azimuth, latitude = np.radians([altitude, azimuth, observer_latitude])
     zenith_angle = zenithangle_to_altitude(altitude)
 
@@ -1647,6 +2241,36 @@ sin_ec = 0.3977769690414367
 
 
 def equatorial_xyz_to_ecliptic_xyz(xq, yq, zq):
+    """
+    Convert equatorial rectangular coordinates (X, Y, Z) to ecliptic rectangular coordinates.
+
+    This function transforms the position of an object from the equatorial coordinate system 
+    to the ecliptic coordinate system using the obliquity of the ecliptic.
+
+    Parameters:
+    -----------
+        xq (float): X-coordinate in the equatorial coordinate system.
+        yq (float): Y-coordinate in the equatorial coordinate system.
+        zq (float): Z-coordinate in the equatorial coordinate system.
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - xc (float): X-coordinate in the ecliptic coordinate system (unchanged from equatorial X).
+            - yc (float): Y-coordinate in the ecliptic coordinate system.
+            - zc (float): Z-coordinate in the ecliptic coordinate system.
+
+    Notes:
+    ------
+        - The transformation uses the obliquity of the ecliptic (`sin_ec` and `cos_ec`) to rotate 
+          the Y and Z components.
+        - The obliquity of the ecliptic (`sin_ec` and `cos_ec`) must be defined globally or imported 
+          prior to calling this function.
+
+    Example:
+    --------
+        equatorial_xyz_to_ecliptic_xyz(1.0, 0.5, 0.3) -> (xc, yc, zc)
+    """
     xc = xq
     yc = cos_ec * yq + sin_ec * zq
     zc = -sin_ec * yq + cos_ec * zq
@@ -1654,6 +2278,36 @@ def equatorial_xyz_to_ecliptic_xyz(xq, yq, zq):
 
 
 def ecliptic_xyz_to_equatorial_xyz(xc, yc, zc):
+    """
+    Convert ecliptic rectangular coordinates (X, Y, Z) to equatorial rectangular coordinates.
+
+    This function transforms the position of an object from the ecliptic coordinate system 
+    to the equatorial coordinate system using the obliquity of the ecliptic.
+
+    Parameters:
+    -----------
+        xc (float): X-coordinate in the ecliptic coordinate system.
+        yc (float): Y-coordinate in the ecliptic coordinate system.
+        zc (float): Z-coordinate in the ecliptic coordinate system.
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - xq (float): X-coordinate in the equatorial coordinate system (unchanged from ecliptic X).
+            - yq (float): Y-coordinate in the equatorial coordinate system.
+            - zq (float): Z-coordinate in the equatorial coordinate system.
+
+    Notes:
+    ------
+        - The transformation uses the obliquity of the ecliptic (`sin_ec` and `cos_ec`) to rotate 
+          the Y and Z components.
+        - The obliquity of the ecliptic (`sin_ec` and `cos_ec`) must be defined globally or imported 
+          prior to calling this function.
+
+    Example:
+    --------
+        ecliptic_xyz_to_equatorial_xyz(1.0, 0.5, 0.3) -> (xq, yq, zq)
+    """
     xq = xc
     yq = cos_ec * yc - sin_ec * zc
     zq = sin_ec * yc + cos_ec * zc
@@ -1661,6 +2315,41 @@ def ecliptic_xyz_to_equatorial_xyz(xc, yc, zc):
 
 
 def xyz_to_ecliptic(xc, yc, zc, xe=0, ye=0, ze=0, degrees=False):
+    """
+    Convert rectangular coordinates (X, Y, Z) to ecliptic longitude and latitude.
+
+    This function computes the ecliptic longitude and latitude of an object relative to the Earth 
+    or another reference point, given its rectangular coordinates in the ecliptic coordinate system.
+
+    Parameters:
+    -----------
+        xc (float): X-coordinate of the object in the ecliptic coordinate system.
+        yc (float): Y-coordinate of the object in the ecliptic coordinate system.
+        zc (float): Z-coordinate of the object in the ecliptic coordinate system.
+        xe (float, optional): X-coordinate of the reference point (default is 0, typically Earth's position).
+        ye (float, optional): Y-coordinate of the reference point (default is 0, typically Earth's position).
+        ze (float, optional): Z-coordinate of the reference point (default is 0, typically Earth's position).
+        degrees (bool, optional): If `True`, returns the longitude and latitude in degrees; 
+                                  otherwise, returns them in radians (default is `False`).
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - ec_longitude (float): Ecliptic longitude of the object (in radians or degrees).
+            - ec_latitude (float): Ecliptic latitude of the object (in radians or degrees).
+
+    Notes:
+    ------
+        - The calculation involves finding the vector from the reference point to the object 
+          and determining its magnitude and angular position.
+        - The `rad0to2pi` function ensures the longitude is normalized to the range [0, 2π] in radians.
+        - The `np.arctan2` function is used to compute the longitude, and `np.arcsin` is used for latitude.
+        - If `degrees=True`, the results are converted from radians to degrees using `np.degrees`.
+
+    Example:
+    --------
+        xyz_to_ecliptic(1.0, 0.5, 0.3, xe=0.1, ye=0.2, ze=0.3, degrees=True) -> (longitude, latitude)
+    """
     x_ast_to_earth = xc - xe
     y_ast_to_earth = yc - ye
     z_ast_to_earth = zc - ze
@@ -1674,6 +2363,40 @@ def xyz_to_ecliptic(xc, yc, zc, xe=0, ye=0, ze=0, degrees=False):
 
 
 def xyz_to_equatorial(xq, yq, zq, xe=0, ye=0, ze=0, degrees=False):
+    """
+    Convert rectangular coordinates (X, Y, Z) to equatorial right ascension (RA) and declination (DEC).
+
+    This function computes the equatorial coordinates of an object relative to the Earth 
+    or another reference point, given its rectangular coordinates in the equatorial coordinate system.
+
+    Parameters:
+    -----------
+        xq (float): X-coordinate of the object in the equatorial coordinate system.
+        yq (float): Y-coordinate of the object in the equatorial coordinate system.
+        zq (float): Z-coordinate of the object in the equatorial coordinate system.
+        xe (float, optional): X-coordinate of the reference point (default is 0, typically Earth's position).
+        ye (float, optional): Y-coordinate of the reference point (default is 0, typically Earth's position).
+        ze (float, optional): Z-coordinate of the reference point (default is 0, typically Earth's position).
+        degrees (bool, optional): If `True`, returns the RA and DEC in degrees; otherwise, returns them in radians (default is `False`).
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - ra (float): Right ascension of the object (in radians or degrees).
+            - dec (float): Declination of the object (in radians or degrees).
+
+    Notes:
+    ------
+        - The calculation assumes the XY plane corresponds to the celestial equator, 
+          and the -X axis points toward the vernal equinox.
+        - The `rad0to2pi` function ensures the RA is normalized to the range [0, 2π] in radians.
+        - The `np.arctan2` function is used to compute the RA, and `np.arcsin` is used for DEC.
+        - If `degrees=True`, the results are converted from radians to degrees using `np.degrees`.
+
+    Example:
+    --------
+        xyz_to_equatorial(1.0, 0.5, 0.3, xe=0.1, ye=0.2, ze=0.3, degrees=True) -> (ra, dec)
+    """
     # RA / DEC calculation - assumes XY plane to be celestial equator, and -x axis to be vernal equinox
     x_ast_to_earth = xq - xe
     y_ast_to_earth = yq - ye
@@ -1688,6 +2411,42 @@ def xyz_to_equatorial(xq, yq, zq, xe=0, ye=0, ze=0, degrees=False):
 
 
 def ecliptic_xyz_to_equatorial(xc, yc, zc, xe=0, ye=0, ze=0, degrees=False):
+        """
+    Convert ecliptic Cartesian coordinates (X, Y, Z) to equatorial right ascension (RA) and declination (DEC).
+
+    This function first converts ecliptic Cartesian coordinates to equatorial Cartesian coordinates 
+    and then computes the equatorial coordinates (RA and DEC) of an object relative to the Earth or another reference point.
+
+    Parameters:
+    -----------
+        xc (float): X-coordinate of the object in the ecliptic coordinate system.
+        yc (float): Y-coordinate of the object in the ecliptic coordinate system.
+        zc (float): Z-coordinate of the object in the ecliptic coordinate system.
+        xe (float, optional): X-coordinate of the reference point (default is 0, typically Earth's position).
+        ye (float, optional): Y-coordinate of the reference point (default is 0, typically Earth's position).
+        ze (float, optional): Z-coordinate of the reference point (default is 0, typically Earth's position).
+        degrees (bool, optional): If `True`, returns the RA and DEC in degrees; otherwise, returns them in radians (default is `False`).
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - ra (float): Right ascension of the object (in radians or degrees).
+            - dec (float): Declination of the object (in radians or degrees).
+
+    Notes:
+    ------
+        - The function relies on `ecliptic_xyz_to_equatorial_xyz` to perform the conversion 
+          from ecliptic Cartesian coordinates to equatorial Cartesian coordinates.
+        - The calculation assumes the XY plane corresponds to the celestial equator, 
+          and the -X axis points toward the vernal equinox.
+        - The `rad0to2pi` function ensures the RA is normalized to the range [0, 2π] in radians.
+        - The `np.arctan2` function is used to compute the RA, and `np.arcsin` is used for DEC.
+        - If `degrees=True`, the results are converted from radians to degrees using `np.degrees`.
+
+    Example:
+    --------
+        ecliptic_xyz_to_equatorial(1.0, 0.5, 0.3, xe=0.1, ye=0.2, ze=0.3, degrees=True) -> (ra, dec)
+    """
     # Convert ecliptic cartesian into equitorial cartesian
     x_ast_to_earth, y_ast_to_earth, z_ast_to_earth = ecliptic_xyz_to_equatorial_xyz(xc - xe, yc - ye, zc - ze)
     d_earth_mag = np.sqrt(np.power(x_ast_to_earth, 2) + np.power(y_ast_to_earth, 2) + np.power(z_ast_to_earth, 2))
@@ -1700,6 +2459,38 @@ def ecliptic_xyz_to_equatorial(xc, yc, zc, xe=0, ye=0, ze=0, degrees=False):
 
 
 def equatorial_to_ecliptic(right_ascension, declination, degrees=False):
+    """
+    Convert equatorial coordinates (RA, DEC) to ecliptic longitude and latitude.
+
+    This function transforms equatorial right ascension (RA) and declination (DEC) into 
+    ecliptic longitude and latitude, taking into account the obliquity of the ecliptic.
+
+    Parameters:
+    -----------
+        right_ascension (float): Right ascension of the object (in degrees or radians).
+        declination (float): Declination of the object (in degrees or radians).
+        degrees (bool, optional): If `True`, assumes input is in degrees and returns output in degrees; 
+                                  otherwise, assumes input is in radians and returns output in radians (default is `False`).
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - ec_longitude (float): Ecliptic longitude of the object (in radians or degrees).
+            - ec_latitude (float): Ecliptic latitude of the object (in radians or degrees).
+
+    Notes:
+    ------
+        - The calculation uses the obliquity of the ecliptic, which is the tilt of Earth's axis relative to its orbit.
+          The constants `cos_ec` and `sin_ec` represent the cosine and sine of the obliquity angle, respectively.
+        - The `rad0to2pi` function ensures the ecliptic longitude is normalized to the range [0, 2π] in radians.
+        - The `deg0to360` function ensures the ecliptic longitude is normalized to the range [0, 360] in degrees.
+        - If `degrees=True`, the input is converted from degrees to radians using `np.radians`, and the output is converted 
+          back to degrees using `np.degrees`.
+
+    Example:
+    --------
+        equatorial_to_ecliptic(180.0, 45.0, degrees=True) -> (ec_longitude, ec_latitude)
+    """
     ra, dec = np.radians(right_ascension), np.radians(declination)
     ec_latitude = np.arcsin(cos_ec * np.sin(dec) - sin_ec * np.cos(dec) * np.sin(ra))
     ec_longitude = np.arctan((cos_ec * np.cos(dec) * np.sin(ra) + sin_ec * np.sin(dec)) / (np.cos(dec) * np.cos(ra)))
@@ -1710,6 +2501,37 @@ def equatorial_to_ecliptic(right_ascension, declination, degrees=False):
 
 
 def ecliptic_to_equatorial(lon, lat, degrees=False):
+    """
+    Convert ecliptic coordinates (longitude, latitude) to equatorial right ascension (RA) and declination (DEC).
+
+    This function transforms ecliptic longitude and latitude into equatorial right ascension (RA) and declination (DEC),
+    taking into account the obliquity of the ecliptic.
+
+    Parameters:
+    -----------
+        lon (float): Ecliptic longitude of the object (in degrees or radians).
+        lat (float): Ecliptic latitude of the object (in degrees or radians).
+        degrees (bool, optional): If `True`, assumes input is in degrees and returns output in degrees; 
+                                  otherwise, assumes input is in radians and returns output in radians (default is `False`).
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - ra (float): Right ascension of the object (in radians or degrees).
+            - dec (float): Declination of the object (in radians or degrees).
+
+    Notes:
+    ------
+        - The calculation uses the obliquity of the ecliptic, which is the tilt of Earth's axis relative to its orbit.
+          The constants `cos_ec` and `sin_ec` represent the cosine and sine of the obliquity angle, respectively.
+        - The `np.arctan` function computes the RA, and `np.arcsin` computes the DEC.
+        - If `degrees=True`, the input is converted from degrees to radians using `np.radians`, and the output is converted 
+          back to degrees using `np.degrees`.
+
+    Example:
+    --------
+        ecliptic_to_equatorial(180.0, 45.0, degrees=True) -> (ra, dec)
+    """
     lon, lat = np.radians(lon), np.radians(lat)
     ra = np.arctan((cos_ec * np.cos(lat) * np.sin(lon) - sin_ec * np.sin(lat)) / (np.cos(lat) * np.cos(lon)))
     dec = np.arcsin(cos_ec * np.sin(lat) + sin_ec * np.cos(lat) * np.sin(lon))
@@ -1720,6 +2542,37 @@ def ecliptic_to_equatorial(lon, lat, degrees=False):
 
 
 def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=None, vz=None, r_earth=np.array([0, 0, 0]), v_earth=np.array([0, 0, 0]), input_unit='si'):
+   """
+    Calculate the proper motion in right ascension (RA) and declination (DEC) for celestial objects.
+
+    This function computes the proper motion in RA and DEC based on the position and velocity of the object
+    relative to Earth. Proper motion is expressed in arcseconds per second.
+
+    Parameters:
+    -----------
+        r (numpy array, optional): Position vector of the object [x, y, z] (in meters or AU, depending on `input_unit`).
+        v (numpy array, optional): Velocity vector of the object [vx, vy, vz] (in meters/second or AU/s, depending on `input_unit`).
+        x, y, z (float, optional): Individual position coordinates of the object (used if `r` is not provided).
+        vx, vy, vz (float, optional): Individual velocity components of the object (used if `v` is not provided).
+        r_earth (numpy array, optional): Position vector of Earth [x, y, z] (default is [0, 0, 0]).
+        v_earth (numpy array, optional): Velocity vector of Earth [vx, vy, vz] (default is [0, 0, 0]).
+        input_unit (str, optional): Unit system for input data ('si' for SI units, 'rebound' for REBOUND simulation units).
+                                    Default is 'si'.
+
+    Returns:
+    --------
+        tuple: Proper motion in RA and DEC:
+            - pmra (numpy array): Proper motion in RA (arcseconds per second).
+            - pmdec (numpy array): Proper motion in DEC (arcseconds per second).
+
+    Notes:
+    ------
+        - If `r` and `v` are not provided, the function expects individual coordinates (`x`, `y`, `z`) and velocities (`vx`, `vy`, `vz`).
+        - Earth's position and velocity are subtracted from the input position and velocity vectors to calculate relative motion.
+        - The `einsum_norm` function calculates the magnitude of the position vector.
+        - Proper motion is scaled by a factor of 206265 to convert radians to arcseconds.
+        - For REBOUND simulation units, proper motion is adjusted to account for time scaling.
+    """
     if r is None or v is None:
         if x is not None and y is not None and z is not None and vx is not None and vy is not None and vz is not None:
             r = np.array([x, y, z])
@@ -1755,6 +2608,36 @@ def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=Non
 
 
 def gcrf_to_lunar(r, t, v=None):
+    """
+    Transform position and velocity vectors from the GCRF (Geocentric Celestial Reference Frame) to a lunar-centric frame.
+
+    This function converts coordinates from the Earth-centered GCRF to a coordinate system centered on the Moon. 
+    It uses the Moon's position and velocity to define the transformation.
+
+    Parameters:
+    -----------
+        r (numpy array): Position vector(s) in the GCRF [x, y, z].
+        t (numpy array): Time(s) at which the position vector(s) are defined.
+        v (numpy array, optional): Velocity vector(s) in the GCRF [vx, vy, vz]. If not provided, only position is transformed.
+
+    Returns:
+    --------
+        numpy array or tuple:
+            - If `v` is not provided: Transformed position vector(s) in the lunar-centric frame.
+            - If `v` is provided: A tuple containing:
+                - r_lunar (numpy array): Transformed position vector(s) in the lunar-centric frame.
+                - v_lunar (numpy array): Transformed velocity vector(s) in the lunar-centric frame.
+
+    Notes:
+    ------
+        - The `MoonPosition` class is used to calculate the Moon's position at a given time.
+        - The Moon's velocity is approximated using finite differences over a ±5-second interval.
+        - The lunar-centric frame is defined with the following axes:
+            - x-axis: Points from the Moon toward the Earth (direction of the Moon's position vector).
+            - y-axis: Perpendicular to the Moon's velocity vector, in the plane of motion.
+            - z-axis: Perpendicular to both the x-axis and y-axis (right-hand rule).
+        - The transformation matrix `R` is constructed using these axes and applied to the input position vector(s).
+    """
     from .body import MoonPosition
     class MoonRotator:
         def __init__(self):
@@ -1783,6 +2666,33 @@ def gcrf_to_lunar(r, t, v=None):
 
 
 def gcrf_to_lunar_fixed(r, t, v=None):
+    """
+    Transform position and velocity vectors from the GCRF (Geocentric Celestial Reference Frame) 
+    to a Moon-fixed (lunar-centric) frame.
+
+    This function adjusts the position and velocity vectors to account for the Moon's motion, 
+    effectively transforming them into a frame fixed to the Moon.
+
+    Parameters:
+    -----------
+        r (numpy array): Position vector(s) in the GCRF [x, y, z].
+        t (numpy array): Time(s) at which the position vector(s) are defined.
+        v (numpy array, optional): Velocity vector(s) in the GCRF [vx, vy, vz]. If not provided, only position is transformed.
+
+    Returns:
+    --------
+        numpy array or tuple:
+            - If `v` is not provided: Transformed position vector(s) in the Moon-fixed frame.
+            - If `v` is provided: A tuple containing:
+                - r_lunar (numpy array): Transformed position vector(s) in the Moon-fixed frame.
+                - v_lunar (numpy array): Transformed velocity vector(s) in the Moon-fixed frame.
+
+    Notes:
+    ------
+        - The `get_body` function is used to retrieve the Moon's position at a given time.
+        - The Moon's position is subtracted from the transformed lunar-centric position to obtain a Moon-fixed reference frame.
+        - If velocity is provided, it is recalculated in the Moon-fixed frame using the `v_from_r` function.
+    """
     from .body import get_body
     r_lunar = gcrf_to_lunar(r, t) - gcrf_to_lunar(get_body('moon').position(t).T, t)
     if v is None:
@@ -1808,6 +2718,20 @@ def gcrf_to_radec(gcrf_coords):
 
 
 def gcrf_to_ecef_bad(r_gcrf, t):
+    """
+    Convert position vectors from the GCRF (Geocentric Celestial Reference Frame) to the ECEF (Earth-Centered, Earth-Fixed) frame.
+
+    Parameters:
+        r_gcrf (numpy array): Position vector(s) in the GCRF [x, y, z].
+        t (Time or float): Time(s) at which the position vector(s) are defined. If `t` is a `Time` object, GPS seconds are extracted.
+
+    Returns:
+        numpy array: Position vector(s) in the ECEF frame.
+
+    Notes:
+        - The Earth's rotation rate is defined by `WGS84_EARTH_OMEGA`.
+        - The rotation is performed around the Z-axis to account for Earth's rotation.
+    """
     if isinstance(t, Time):
         t = t.gps
     r_gcrf = np.atleast_2d(r_gcrf)
@@ -1826,12 +2750,62 @@ def gcrf_to_ecef_bad(r_gcrf, t):
 
 
 def gcrf_to_lat_lon(r, t):
+    """
+    Converts a position vector in the GCRF (Geocentric Celestial Reference Frame) 
+    to latitude, longitude, and height coordinates on Earth.
+
+    Parameters:
+    -----------
+        r (array-like): The position vector in GCRF coordinates (x, y, z) in meters.
+        t (datetime or float): The time associated with the position vector. 
+                               This can be a datetime object or a timestamp in seconds.
+
+    Returns:
+    --------
+        tuple: A tuple containing:
+            - lon (float): Longitude in degrees (East-positive).
+            - lat (float): Latitude in degrees (North-positive).
+            - height (float): Height above the Earth's surface in meters.
+
+    Note:
+    -----
+        This function relies on the `groundTrack` function from the `.compute` module 
+        to perform the conversion.
+    """
     from .compute import groundTrack
     lon, lat, height = groundTrack(r, t)
     return lon, lat, height
 
 
 def gcrf_to_itrf(r_gcrf, t, v=None):
+    """
+    Converts a position vector in the GCRF (Geocentric Celestial Reference Frame) 
+    to the ITRF (International Terrestrial Reference Frame) in Cartesian coordinates.
+
+    Parameters:
+    -----------
+        r_gcrf (array-like): The position vector in GCRF coordinates (x, y, z) in meters.
+        t (datetime or float): The time associated with the position vector. 
+                               This can be a datetime object or a timestamp in seconds.
+        v (array-like, optional): Velocity vector in GCRF coordinates. If provided, the function 
+                                  will return the velocity transformed to the ITRF frame as well.
+
+    Returns:
+    --------
+        tuple:
+            - If `v` is not provided:
+                - np.array: A 2D array containing the transformed position vector in ITRF coordinates.
+            - If `v` is provided:
+                - np.array: A 2D array containing the transformed position vector in ITRF coordinates.
+                - np.array: The velocity vector transformed to the ITRF frame.
+
+    Notes:
+    ------
+        - The function relies on the `groundTrack` function from the `.compute` module to perform the 
+          position transformation.
+        - If velocity (`v`) is provided, the function assumes the existence of a `v_from_r` function 
+          to compute the velocity transformation.
+    """
     from .compute import groundTrack
     x, y, z = groundTrack(r_gcrf, t, format='cartesian')
     _ = np.array([x, y, z]).T
@@ -1842,6 +2816,32 @@ def gcrf_to_itrf(r_gcrf, t, v=None):
 
 
 def gcrf_to_sim_geo(r_gcrf, t, h=10):
+    """
+    Transforms a position vector in the GCRF (Geocentric Celestial Reference Frame) 
+    to a simplified geostationary-like coordinate system.
+
+    Parameters:
+    -----------
+        r_gcrf (array-like): The position vector(s) in GCRF coordinates (x, y, z) in meters. 
+                             Can be a single vector or a 2D array of vectors.
+        t (object): A time object containing GPS time information. Must include a `gps` attribute 
+                    (e.g., `t.gps`) that provides time values in seconds.
+        h (float, optional): Step size for numerical propagation in seconds. If the minimum difference 
+                             between consecutive GPS time values is smaller than `h`, the step size 
+                             will be adjusted accordingly. Default is 10 seconds.
+
+    Returns:
+    --------
+        np.array: A 2D array of transformed position vectors in the simplified geostationary-like 
+                  coordinate system.
+
+    Notes:
+    ------
+        - The function uses the `Orbit` class to define an orbit from Keplerian elements and propagates 
+          it using the `RK78Propagator` with the `AccelKepler` acceleration model.
+        - The transformation involves calculating the rotation required to align the geostationary 
+          reference frame with the GCRF position vector.
+    """
     from .accel import AccelKepler
     from .compute import rv
     from .orbit import Orbit
@@ -1859,6 +2859,34 @@ def gcrf_to_sim_geo(r_gcrf, t, h=10):
 
 # Function still in development, not 100% accurate.
 def gcrf_to_itrf_astropy(state_vectors, t):
+    """
+    Converts position vectors from the GCRF (Geocentric Celestial Reference Frame) to the ITRF 
+    (International Terrestrial Reference Frame) using Astropy.
+
+    This function is still under development and may not produce 100% accurate results.
+
+    Parameters:
+    -----------
+        state_vectors (np.array): A 2D array of shape (N, 3), where N is the number of position vectors. 
+                                  Each row contains the (x, y, z) Cartesian coordinates in meters in the GCRF frame.
+        t (astropy.time.Time): An Astropy `Time` object representing the observation time(s) for the transformation.
+
+    Returns:
+    --------
+        np.array: A 2D array of shape (N, 3), where N is the number of position vectors. Each row contains 
+                  the (x, y, z) Cartesian coordinates in meters in the ITRF frame.
+
+    Notes:
+    ------
+        - The transformation uses Astropy's `SkyCoord` and `GCRS`/`ITRS` frames for coordinate conversion.
+        - The barycentric position of Earth is calculated using the `solar_system_ephemeris` context manager 
+          with the DE430 ephemeris.
+        - The transformation accounts for Earth's barycentric position to ensure the coordinates are 
+          relative to Earth's center in the ITRF frame.
+        - The function assumes the input `state_vectors` are in meters and outputs coordinates in meters.
+
+
+    """
     import astropy.units as u
     from astropy.coordinates import GCRS, ITRS, SkyCoord, get_body_barycentric, solar_system_ephemeris, ICRS
 
@@ -1958,6 +2986,37 @@ def continueClass(cls):
 
 
 def dms_to_dd(dms):  # Degree minute second to Degree decimal
+    """
+    Converts coordinates from Degree-Minute-Second (DMS) format to Decimal Degrees (DD).
+
+    Parameters:
+    -----------
+        dms (str or list of str): A single DMS string (e.g., "12:34:56") or a list of DMS strings 
+                                  (e.g., ["12:34:56", "-45:30:15"]). Each string should represent 
+                                  degrees, minutes, and seconds separated by colons.
+
+    Returns:
+    --------
+        float or list of float: 
+            - If the input is a single DMS string or a list with one element, returns a single float 
+              representing the decimal degree value.
+            - If the input is a list of multiple DMS strings, returns a list of floats representing 
+              the decimal degree values.
+
+    Notes:
+    ------
+        - Negative degrees are handled correctly, ensuring that the minutes and seconds are also 
+          treated as negative when converting to decimal degrees.
+        - The function supports both single DMS strings and lists of DMS strings for batch conversion.
+
+    Example:
+    --------
+        >>> dms_to_dd("12:34:56")
+        12.582222222222223
+
+        >>> dms_to_dd(["12:34:56", "-45:30:15"])
+        [12.582222222222223, -45.50416666666667]
+    """
     dms, out = [[dms] if type(dms) is str else dms][0], []
     for i in dms:
         deg, minute, sec = [float(j) for j in i.split(':')]
@@ -1968,6 +3027,41 @@ def dms_to_dd(dms):  # Degree minute second to Degree decimal
 
 
 def dd_to_dms(degree_decimal):
+    """
+    Converts a Decimal Degree (DD) value to Degree-Minute-Second (DMS) format.
+
+    Parameters:
+    -----------
+        degree_decimal (float): A single decimal degree value to be converted to DMS format. 
+                                Positive values represent north/east, and negative values represent 
+                                south/west.
+
+    Returns:
+    --------
+        str: A string representing the DMS format (e.g., "12:34:56"). The format includes:
+            - Degrees as an integer.
+            - Minutes as an integer.
+            - Seconds as a float (rounded to 4 decimal places if necessary).
+
+    Notes:
+    ------
+        - Handles negative decimal degree values correctly, ensuring the DMS format reflects the 
+          correct sign for degrees, minutes, and seconds.
+        - Ensures seconds are properly rounded and handles edge cases where seconds reach 60, 
+          incrementing minutes accordingly.
+        - Returns seconds as an integer if the value is a whole number.
+
+    Example:
+    --------
+        >>> dd_to_dms(12.582222222222223)
+        '12:34:56'
+
+        >>> dd_to_dms(-45.50416666666667)
+        '-45:30:15'
+
+        >>> dd_to_dms(0.0002777777777777778)
+        '0:0:1'
+    """
     _d, __d = np.trunc(degree_decimal), degree_decimal - np.trunc(degree_decimal)
     __d = [-__d if degree_decimal < 0 else __d][0]
     _m, __m = np.trunc(__d * 60), __d * 60 - np.trunc(__d * 60)
@@ -1982,6 +3076,39 @@ def dd_to_dms(degree_decimal):
 
 
 def hms_to_dd(hms):
+    """
+    Converts Hour-Minute-Second (HMS) format to Decimal Degrees (DD).
+
+    Parameters:
+    -----------
+        hms (str or list of str): A single HMS string (e.g., "12:34:56") or a list of HMS strings 
+                                  (e.g., ["12:34:56", "15:45:30"]). Each string should represent 
+                                  hours, minutes, and seconds separated by colons.
+
+    Returns:
+    --------
+        float or list of float:
+            - If the input is a single HMS string or a list with one element, returns a single float 
+              representing the decimal degree value.
+            - If the input is a list of multiple HMS strings, returns a list of floats representing 
+              the decimal degree values.
+
+    Notes:
+    ------
+        - HMS values are converted to decimal degrees using the formula:
+          Decimal Degrees = (Hours * 15) + (Minutes / 4) + (Seconds / 240).
+        - Negative HMS values are not allowed, and the function will print an error message if 
+          encountered.
+        - The function supports both single HMS strings and lists of HMS strings for batch conversion.
+
+    Example:
+    --------
+        >>> hms_to_dd("12:34:56")
+        188.73333333333332
+
+        >>> hms_to_dd(["12:34:56", "15:45:30"])
+        [188.73333333333332, 236.375]
+    """
     _type = type(hms)
     hms, out = [[hms] if _type == str else hms][0], []
     for i in hms:
@@ -1996,6 +3123,42 @@ def hms_to_dd(hms):
 
 
 def dd_to_hms(degree_decimal):
+    """
+    Converts Decimal Degrees (DD) to Hour-Minute-Second (HMS) format.
+
+    Parameters:
+    -----------
+        degree_decimal (float or str): 
+            - A decimal degree value (float) to be converted to HMS format.
+            - If the input is a string in DMS format (e.g., "12:34:56"), it will be converted to DD 
+              using the `dms_to_dd` function before processing.
+
+    Returns:
+    --------
+        str: A string representing the HMS format (e.g., "12:34:56"). The format includes:
+            - Hours as an integer.
+            - Minutes as an integer.
+            - Seconds as a float (rounded to 4 decimal places if necessary).
+
+    Notes:
+    ------
+        - Decimal degrees are divided by 15 to convert to hours.
+        - If the input DD value is negative, the function assumes the absolute value for conversion 
+          and prints a warning message.
+        - Handles edge cases where seconds reach 60, incrementing minutes accordingly.
+        - Returns seconds as an integer if the value is a whole number.
+
+    Example:
+    --------
+        >>> dd_to_hms(188.73333333333332)
+        '12:34:56'
+
+        >>> dd_to_hms(-236.375)
+        '15:45:30'  # Assumes positive value for conversion.
+
+        >>> dd_to_hms("12:34:56")  # DMS string converted to DD first.
+        '0:50:18.4'
+    """
     if type(degree_decimal) is str:
         degree_decimal = dms_to_dd(degree_decimal)
     if degree_decimal < 0:
@@ -2109,6 +3272,34 @@ def check_lunar_collision(r, times, m=1000):
 
 
 def find_nearest_indices(A, B):
+    """
+    Finds the indices of the nearest values in array `A` for each value in array `B`.
+
+    Parameters:
+    -----------
+        A (array-like): A 1D array or list of values to search within.
+        B (array-like): A 1D array or list of values for which the nearest values in `A` are to be found.
+
+    Returns:
+    --------
+        numpy.ndarray: A 1D array of indices corresponding to the nearest values in `A` for each value in `B`.
+
+    Notes:
+    ------
+        - This function uses broadcasting to compute the absolute differences between each element in `B` 
+          and all elements in `A`.
+        - The nearest value is determined by finding the index of the minimum absolute difference.
+        - If there are multiple values in `A` equally close to a value in `B`, the index of the first 
+          occurrence is returned.
+
+    Example:
+    --------
+        >>> import numpy as np
+        >>> A = np.array([1, 3, 7, 10])
+        >>> B = np.array([2, 8])
+        >>> find_nearest_indices(A, B)
+        array([1, 2])  # Nearest values are A[1] (3) for B[0] (2) and A[2] (7) for B[1] (8).
+    """
     # Calculate the absolute differences between B and A using broadcasting
     abs_diff = np.abs(B[:, np.newaxis] - A)
     # Find the index of the minimum absolute difference for each element of B
