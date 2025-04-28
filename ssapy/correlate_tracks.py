@@ -1,3 +1,9 @@
+"""
+Provides classes and functions for orbital tracking, hypothesis testing, angle wrapping, 
+and fitting satellite observations to orbital models.
+"""
+
+
 import random
 from functools import partial
 import pdb
@@ -221,6 +227,52 @@ class VolumeDistancePrior:
 
 
 def make_param_guess(rvguess, arc, mode='rv', orbitattr=None):
+    """
+    Generates an initial parameter guess for orbital estimation based on the provided mode, observation arc, and optional orbital attributes.
+
+    Parameters:
+    -----------
+    rvguess : list or array-like
+        Initial guess for the state vector (position and velocity). 
+        Typically contains six elements: `[x, y, z, vx, vy, vz]`.
+    arc : structured array
+        Observation arc containing time and station data. Must include:
+        - `'time'`: Observation times (assumed to have a `.gps` attribute).
+        - `'rStation_GCRF'` and `'vStation_GCRF'`: Position and velocity of the station in the GCRF frame.
+        - `'pmra'` (optional): Proper motion in right ascension (used to determine if proper motion data is available).
+    mode : str, optional
+        The mode for parameter generation. Must be one of:
+        - `'rv'`: Radial velocity mode (default).
+        - `'equinoctial'`: Equinoctial orbital elements mode.
+        - `'angle'`: Angular observation mode.
+    orbitattr : list of str, optional
+        Additional orbital attributes to include in the parameter guess. Supported attributes include:
+        - `'mass'`: Mass of the object.
+        - `'area'`: Cross-sectional area.
+        - `'cr'`: Radiation pressure coefficient.
+        - `'cd'`: Drag coefficient.
+        - `'log10area'`: Logarithm of the cross-sectional area.
+
+    Returns:
+    --------
+    list
+        A list of guessed parameters based on the specified mode:
+        - For `'rv'`: `[rvguess, extraparam, epoch]`.
+        - For `'equinoctial'`: `[equinoctialElements, extraparam, epoch]`.
+        - For `'angle'`: `[radecrate, extraparam, epoch, initObsPos, initObsVel]`.
+
+    Raises:
+    -------
+    ValueError
+        If an unrecognized mode is provided.
+
+    Notes:
+    ------
+    - The `epoch` is determined based on the observation times in the `arc`. If proper motion data (`'pmra'`) is available, the epoch is set to the first observation time. Otherwise, it is calculated as the midpoint between the first two observation times.
+    - For `'equinoctial'` mode, the initial state vector (`rvguess`) is converted into equinoctial orbital elements using the `Orbit` class from `ssapy`.
+    - For `'angle'` mode, the initial observation position and velocity are computed based on the station's GCRF data. If proper motion data is available, only the first observation is used; otherwise, the average of the first two observations is used.
+    """
+      
     s = np.argsort(arc['time'])
     usepm = 'pmra' in arc.dtype.names
     if usepm:
@@ -259,6 +311,39 @@ def make_param_guess(rvguess, arc, mode='rv', orbitattr=None):
         raise ValueError('unrecognized mode')
 
 def make_optimizer(mode, param, lsq=False):
+    """
+    Creates and returns an optimizer object or function for orbital parameter estimation based on the specified mode and configuration.
+
+    Parameters:
+    -----------
+    mode : str
+        The optimization mode to use. Must be one of:
+        - `'rv'`: Radial velocity-based optimization.
+        - `'angle'`: Angular-based optimization.
+        - `'equinoctial'`: Equinoctial orbital parameter optimization.
+    param : list or array-like
+        Initial parameters for the optimizer. 
+        - For `'angle'` mode, the last six elements are expected to represent the initial position (last 6 to -3) and velocity (last 3).
+    lsq : bool, optional
+        If `True`, the optimizer will use a least-squares approach. Default is `False`.
+
+    Returns:
+    --------
+    out : callable
+        A callable optimizer object or function configured for the specified mode and parameters.
+
+    Raises:
+    -------
+    ValueError
+        If an unknown mode is provided.
+
+    Notes:
+    ------
+    - When `lsq` is `True`, the function wraps the optimizer in a least-squares optimizer (`LeastSquaresOptimizer`) and uses the appropriate translator class based on the mode.
+    - For `'angle'` mode, the function extracts the initial position and velocity from the `param` argument and passes them to the optimizer.
+    - The function relies on the `rvsampler` module for optimizer classes and partial function creation.
+    """
+
     if lsq:
         tdict = dict(rv=rvsampler.ParamOrbitRV,
                      angle=rvsampler.ParamOrbitAngle,
@@ -541,10 +626,69 @@ def data_for_satellite(data, satIDList):
 
 
 def wrap_angle_difference(dl, wrap, center=0.5):
+    """
+    Wraps an angle difference to a specified range.
+
+    This function adjusts a given angle difference (`dl`) to lie within a range defined by `wrap` and centered around `center * wrap`.
+
+    Parameters:
+    -----------
+    dl : float or array-like
+        The angle difference to be wrapped.
+    wrap : float
+        The wrap range. Typically represents the full range of the angle (e.g., `2 * pi` for radians or `360` for degrees).
+    center : float, optional
+        The center of the wrapping range, expressed as a fraction of `wrap`. Default is `0.5` (centered around `wrap / 2`).
+
+    Returns:
+    --------
+    float or array-like
+        The wrapped angle difference, adjusted to lie within the range `[center * wrap - wrap, center * wrap]`.
+    """
+
     return ((dl + center*wrap) % wrap)-center*wrap
 
 
 def radeczn(orbit, arc, **kw):
+    """
+    Computes right ascension, declination, range, proper motions, range rate, and mean anomaly wrap for a given orbit and observation arc.
+
+    Parameters:
+    -----------
+    orbit : object or list of objects
+        Orbital object(s) containing orbital parameters. Must include:
+        - `meanMotion`: Mean motion of the orbit (scalar or array-like).
+        - `t`: Epoch time of the orbit.
+        - `r` (optional): Orbital position vector (used to determine scalar or array-like orbit).
+    arc : structured array
+        Observation arc containing time and station data. Must include:
+        - `'time'`: Observation times (assumed to have a `.gps` attribute).
+        - `'rStation_GCRF'`: Position of the station in the GCRF frame (in meters).
+        - `'vStation_GCRF'`: Velocity of the station in the GCRF frame (in meters per second).
+        - `'satID'` (optional): Satellite IDs (used to determine scalar or array-like arc).
+    **kw : dict, optional
+        Additional keyword arguments to pass to the `ssapy.compute.radec` function.
+
+    Returns:
+    --------
+    tuple
+        A tuple containing the following computed values:
+        - `rr` : ndarray
+            Right ascension values (in radians).
+        - `dd` : ndarray
+            Declination values (in radians).
+        - `zz` : ndarray
+            Range values (distance from observer to object, in meters).
+        - `pmrr` : ndarray
+            Proper motion in right ascension (in radians per second).
+        - `pmdd` : ndarray
+            Proper motion in declination (in radians per second).
+        - `dzzdt` : ndarray
+            Range rate (rate of change of range, in meters per second).
+        - `nwrap` : ndarray
+            Mean anomaly wrap values, computed as `meanMotion * (arc['time'].gps - orbit.t)`.
+    """
+    
     rr, dd, zz, pmrr, pmdd, dzzdt = ssapy.compute.radec(
         orbit, arc['time'],
         obsPos=arc['rStation_GCRF'].to(u.m).value,
@@ -2047,6 +2191,37 @@ def summarize_tracklet(arc):
 # matched.
 
 def iterate_mht(data, oldmht, nminlength=20, trimends=2, **kw):
+    """
+    Iterates and refines the Multiple Hypothesis Tracking (MHT) process by updating tracks and generating new hypotheses.
+
+    Parameters:
+    -----------
+    data : dict
+        A dictionary containing satellite data. Must include a key `'satID'` with satellite IDs.
+    oldmht : MHT
+        The previous MHT object containing hypotheses and tracking information.
+    nminlength : int, optional
+        Minimum length of satellite tracks to be included in the new hypotheses. Tracks shorter than this length are excluded. Default is 20.
+    trimends : int, optional
+        Number of observations to trim from both ends of each track. This helps refine the tracks by removing edge data. Default is 2.
+    **kw : dict
+        Additional keyword arguments passed to the `MHT.run()` method.
+
+    Returns:
+    --------
+    newmht : MHT
+        A new MHT object with updated hypotheses and refined tracks.
+
+    Notes:
+    ------
+    - The function identifies the best hypothesis from the `oldmht` object based on the highest log probability (`lnprob`).
+    - Tracks are filtered based on their length (`nminlength`) and whether they are marked as "dead."
+    - If `trimends` is greater than 0, the ends of each track are trimmed, and new track objects are created.
+    - The function creates an initial hypothesis using the refined tracks and generates a new MHT object.
+    - Satellite IDs used in the updated tracks are excluded from the fitting process for the new MHT object.
+    - The `newmht.run()` method is executed with the provided keyword arguments.
+    """
+
     bestind = np.argmax([h.lnprob for h in oldmht.hypotheses])
     besthyp = oldmht.hypotheses[bestind]
     tracks = [t for t in besthyp.tracks
