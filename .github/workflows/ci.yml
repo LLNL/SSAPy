@@ -157,9 +157,10 @@ jobs:
         # python3 -m build
         # pip install dist/ssapy-1.0.0-${PYTHON_VERSION}-${PYTHON_VERSION}-linux_x86_64.whl
         
+        pip show ssapy
         pip install -r docs/requirements.txt
         cd docs && sphinx-autogen source/api.rst -t source/_templates -o source/modules && cd ../
-        cd docs && make html && make html
+        # cd docs && make html && make html
         touch _build/html/.nojekyll
     - name: Deploy documentation
       if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
