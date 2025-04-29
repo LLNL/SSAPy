@@ -42,8 +42,6 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
         subprocess.check_call(['cmake', '--install', '.'], cwd=self.build_temp)
 
-
-
 class PostInstallCommand(install):
     """Post-installation to download the ssapy/data directory."""
     def run(self):
