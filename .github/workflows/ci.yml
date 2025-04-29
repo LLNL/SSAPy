@@ -153,6 +153,7 @@ jobs:
         mkdir -p source/modules source/_templates
 
         # Autogen from properly configured api.rst
+        export PYTHONPATH=$(pwd):$PYTHONPATH
         sphinx-autogen source/api.rst -t source/_templates -o source/modules
 
         # Build the HTML docs once

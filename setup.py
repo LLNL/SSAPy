@@ -58,12 +58,16 @@ class PostInstallCommand(install):
             subprocess.run(["rm", "-rf", temp_repo_dir], check=True)
 
 setup(
+    name="ssapy",
+    version="0.1.0",
     packages=find_packages(exclude=["ssapy.data", "ssapy.data.*"]),
+    include_package_data=True,
+    package_dir={'ssapy': 'ssapy'},
+    package_data={'ssapy': ['ssapy/**/*']},
     ext_modules=[CMakeExtension('ssapy._ssapy')],
     cmdclass={
         'build_ext': CMakeBuild,
         'install': PostInstallCommand
     },
     zip_safe=False,
-    include_package_data=True,
 )
