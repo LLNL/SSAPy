@@ -2411,7 +2411,7 @@ def xyz_to_equatorial(xq, yq, zq, xe=0, ye=0, ze=0, degrees=False):
 
 
 def ecliptic_xyz_to_equatorial(xc, yc, zc, xe=0, ye=0, ze=0, degrees=False):
-        """
+    """
     Convert ecliptic Cartesian coordinates (X, Y, Z) to equatorial right ascension (RA) and declination (DEC).
 
     This function first converts ecliptic Cartesian coordinates to equatorial Cartesian coordinates 
