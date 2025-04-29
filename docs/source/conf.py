@@ -5,8 +5,9 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../ssapy'))
-print(sys.path)
+import ssapy
+# sys.path.insert(0, os.path.abspath('../../ssapy'))
+# print(sys.path)
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -51,7 +52,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("http://docs.scipy.org/doc/numpy", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
 }
 tls_verify = False
 master_doc = "index"

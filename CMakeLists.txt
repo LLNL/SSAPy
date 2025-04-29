@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)  # Updated version
 cmake_policy(SET CMP0048 NEW)
 cmake_policy(SET CMP0063 NEW)
 
 project(_ssapy VERSION 1.0 LANGUAGES CXX)
 
 # Compiler settings
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)  # Updated to C++17
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -32,10 +32,12 @@ FetchContent_MakeAvailable(pybind11)
 # Include dirs
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+# Define targets
 pybind11_add_module(_ssapy pysrc/ssapy.cpp)
 add_library(ssapy STATIC src/ssapy.cpp)
 target_link_libraries(_ssapy PUBLIC ssapy)
 
+# Installation
 install(TARGETS _ssapy
     LIBRARY DESTINATION ssapy
 )
