@@ -6,6 +6,7 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../ssapy'))
+print(sys.path)
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
