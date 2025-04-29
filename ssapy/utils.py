@@ -2542,7 +2542,7 @@ def ecliptic_to_equatorial(lon, lat, degrees=False):
 
 
 def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=None, vz=None, r_earth=np.array([0, 0, 0]), v_earth=np.array([0, 0, 0]), input_unit='si'):
-   """
+    """
     Calculate the proper motion in right ascension (RA) and declination (DEC) for celestial objects.
 
     This function computes the proper motion in RA and DEC based on the position and velocity of the object
@@ -2573,6 +2573,7 @@ def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=Non
         - Proper motion is scaled by a factor of 206265 to convert radians to arcseconds.
         - For REBOUND simulation units, proper motion is adjusted to account for time scaling.
     """
+
     if r is None or v is None:
         if x is not None and y is not None and z is not None and vx is not None and vy is not None and vz is not None:
             r = np.array([x, y, z])
