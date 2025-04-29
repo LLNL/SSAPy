@@ -20,3 +20,4 @@ imageio
 tqdm
 build
 cibuildwheel
+os-sys

@@ -8,14 +8,3 @@ sphinxcontrib-bibtex
 sphinx-autobuild
 docutils<0.21
 nbsphinx
-numpy
-astropy
-jupyter
-asdf
-python-git 
-scipy
-matplotlib
-pandas
-scikit-learn
-sys
-os
