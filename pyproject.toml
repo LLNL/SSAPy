@@ -11,35 +11,36 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 dependencies = [
-    'numpy',
-    'scipy',
-    'astropy',
-    'pyerfa',
-    'emcee',
-    'lmfit',
-    'sgp4',
-    'matplotlib',
-    'pandas',
-    'h5py',
-    'pypdf2',
-    'imageio',
-    'ipython',
-    'ipyvolume',
-    'ipython_genutils',
-    'jplephem',
-    'tqdm',
-    'myst-parser',
-    'graphviz',
-]
+        'numpy',
+        'scipy',
+        'astropy',
+        'pyerfa',
+        'emcee',
+        'lmfit',
+        'sgp4',
+        'matplotlib',
+        'pandas',
+        'h5py',
+        'pypdf2',
+        'imageio',
+        'ipython',
+        'ipyvolume',
+        'ipython_genutils',
+        'jplephem',
+        'tqdm',
+        'myst-parser',
+        'graphviz',
+    ]
 
 [build-system]
-requires = ["setuptools>=61", "wheel", "scikit-build-core", "pybind11"]
+requires = ["setuptools>=42", "wheel", "scikit-build", "pybind11"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-include = ["ssapy*"]
+[tool.setuptools]
+packages = ["ssapy"]
+include-package-data = true
 
 [tool.setuptools.package-data]
 ssapy = ["*.cpp", "*.h"]
@@ -50,4 +51,4 @@ ssapy = ["data/*"]
 [project.urls]
 Homepage = "https://github.com/LLNL/SSAPy"
 Issues = "https://github.com/LLNL/SSAPy/issues"
-Documentation = "https://software.llnl.gov/SSAPy/"
+Documentation = "https://software.llnl.gov/SSAPy/" 
