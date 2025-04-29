@@ -12,7 +12,6 @@ astropy
 jupyter
 asdf
 python-git 
-graphviz
 scipy
 matplotlib
 pandas
