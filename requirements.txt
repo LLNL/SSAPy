@@ -1,11 +1,4 @@
-docutils<0.21
-sphinx
-sphinx-rtd-theme
-sphinx-copybutton
-sphinx-autobuild
-sphinx-tabs
-sphinx-automodapi
-myst-parser
+
 graphviz
 numpy
 pandas

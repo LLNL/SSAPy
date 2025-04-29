@@ -153,7 +153,7 @@ jobs:
         mkdir -p source/modules source/_templates
 
         # Autogen from properly configured api.rst
-        sphinx-autogen -v source/api.rst -t source/_templates -o source/modules
+        sphinx-autogen source/api.rst -t source/_templates -o source/modules
 
         # Build the HTML docs once
         make html
