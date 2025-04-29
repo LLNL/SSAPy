@@ -64,8 +64,8 @@ jobs:
         python -m pip install -r requirements.txt
 
         # Build and install the project
-        python setup.py build
-        python setup.py install
+        python -m build
+        pip install SSAPy/dist/ssapy-1.0.0-cp38-cp38-linux_x86_64.whl
 
         # List installed Python packages
         python -m pip list
@@ -88,8 +88,8 @@ jobs:
         python3 -m pip install -r requirements.txt
     
         # Build and install the project
-        python3 setup.py build
-        python3 setup.py install
+        python -m build
+        pip install SSAPy/dist/ssapy-1.0.0-cp38-cp38-linux_x86_64.whl
     
         # List installed Python packages
         python3 -m pip list
@@ -143,8 +143,8 @@ jobs:
         git submodule update --init --recursive
         git lfs install
         git lfs pull
-        python3 setup.py build
-        python3 setup.py install
+        python -m build
+        pip install SSAPy/dist/ssapy-1.0.0-cp38-cp38-linux_x86_64.whl
         pip install -r docs/requirements.txt
         cd docs && sphinx-autogen source/api.rst -t source/_templates -o source/modules && cd ../
         cd docs && make html && make html
