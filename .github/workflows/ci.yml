@@ -88,9 +88,9 @@ jobs:
         python3 -m pip install -r requirements.txt
     
         # Build and install the project
-        python3 -m build
-        pip install dist/ssapy-1.0.0-cp38-cp38-linux_x86_64.whl
-    
+        cibuildwheel --platform macos
+        pip install wheelhouse/ssapy-1.0.0-cp38-cp38-macosx_10_9_x86_64.whl
+
         # List installed Python packages
         python3 -m pip list
     #- name: Install dependencies (Windows)
