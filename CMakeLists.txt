@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0048 NEW)
 cmake_policy(SET CMP0063 NEW)
 
@@ -38,10 +38,4 @@ target_link_libraries(_ssapy PUBLIC ssapy)
 
 install(TARGETS _ssapy
     LIBRARY DESTINATION ssapy
-)
-
-install(TARGETS _ssapy
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )

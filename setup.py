@@ -69,43 +69,14 @@ class PostInstallCommand(install):
 
 
 setup(
-    name='SSAPy',
-    version='0.7',
-    description='Space Situational Awareness for Python',
-    author='Michael Schneider, Joshua Meyers, Edward Schlafly, Julia Ebert, Travis Yeager',
-    author_email='yeager7@llnl.gov',
-    url='https://github.com/LLNL/SSAPy',
+    name='ssapy',
+    version='1.0.0',
     packages=find_packages(exclude=["ssapy.data", "ssapy.data.*"]),  # Exclude ssapy/data directory
     package_dir={'ssapy': 'ssapy'},
     package_data={'ssapy': ['ssapy/**/*']},  # Include other package data
     ext_modules=[CMakeExtension('ssapy._ssapy')],
     cmdclass=dict(build_ext=CMakeBuild, install=PostInstallCommand),  # Added PostInstallCommand
     license='MIT',
-    tests_require=[
-        'pytest',
-        'pytest-xdist'
-    ],
-    install_requires=[
-        'numpy',
-        'scipy',
-        'astropy',
-        'pyerfa',
-        'emcee',
-        'lmfit',
-        'sgp4',
-        'matplotlib',
-        'pandas',
-        'h5py',
-        'pypdf2',
-        'imageio',
-        'ipython',
-        'ipyvolume',
-        'ipython_genutils',
-        'jplephem',
-        'tqdm',
-        'myst-parser',
-        'graphviz',
-    ],
     zip_safe=False,
     include_package_data=True,
 )
