@@ -19,9 +19,9 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)   # Enable position-independent code (PI
 set(CMAKE_MACOSX_RPATH 1)
 
 # Output directories
-if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # Set default output directory for libraries
-endif()
+# if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+#     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # Set default output directory for libraries
+# endif()
 
 # Find Python
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
@@ -43,6 +43,7 @@ pybind11_add_module(_ssapy pysrc/ssapy.cpp)
 
 # Ensure the Python module is installed in the correct location
 set(PYTHON_MODULE_INSTALL_DIR "${Python3_SITELIB}/ssapy")
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
 install(TARGETS _ssapy
     LIBRARY DESTINATION ${PYTHON_MODULE_INSTALL_DIR}  # Install the compiled module in Python's site-packages
 )
