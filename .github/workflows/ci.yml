@@ -144,24 +144,24 @@ jobs:
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
-        # sudo apt-get update
-        # sudo apt-get install build-essential git git-lfs python3 python3-setuptools python3-venv graphviz cmake
-        # git submodule update --init --recursive
-        # git lfs install
-        # git lfs pull
-
-        # # Get Python version dynamically
-        # PYTHON_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-    
-        # # Build and install the project
-        # python3 -m build
-        # pip install dist/ssapy-1.0.0-${PYTHON_VERSION}-${PYTHON_VERSION}-linux_x86_64.whl
-        
         pip show ssapy
         pip install -r docs/requirements.txt
-        cd docs && sphinx-autogen source/api.rst -t source/_templates -o source/modules && cd ../
-        # cd docs && make html && make html
+
+        cd docs
+
+        # Ensure necessary directories exist
+        mkdir -p source/modules source/_templates
+
+        # Autogen from properly configured api.rst
+        sphinx-autogen source/api.rst -t source/_templates -o source/modules
+
+        # Build the HTML docs once
+        make html
+
+        # Add .nojekyll for GitHub Pages
         touch _build/html/.nojekyll
+        cd ..
+
     - name: Deploy documentation
       if: (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'release') && matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       uses: crazy-max/ghaction-github-pages@v4
