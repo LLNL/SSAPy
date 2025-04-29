@@ -141,6 +141,8 @@ jobs:
         files: coverage.xml                  # Optional if coverage.xml is in root
         flags: unittests                     # Optional, helps categorize
         name: codecov-ubuntu-py312           # Optional, helps identify the upload
+    - name: Debug Python environment
+      run: python -c "import ssapy; print('ssapy imported successfully')"
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
@@ -151,9 +153,9 @@ jobs:
 
         # Ensure necessary directories exist
         mkdir -p source/modules source/_templates
-
-        # Autogen from properly configured api.rst
-        export PYTHONPATH=$(pwd):$PYTHONPATH
+        
+        rm -rf build
+        sphinx-build -b html source build/html
         sphinx-autogen source/api.rst -t source/_templates -o source/modules
 
         # Build the HTML docs once

@@ -3,11 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
-import sys
 import ssapy
-sys.path.insert(0, os.path.abspath(os.path.join('..', '..', 'ssapy')))
-print(sys.path)
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -45,6 +41,7 @@ def linkcode_resolve(domain, info):
     return "https://github.com/LLNL/SSAPy/tree/main/%s.py" % filename
 
 autosummary_generate = True
+autosummary_imported_members = True
 numpydoc_show_class_members = False
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']
