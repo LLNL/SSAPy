@@ -94,7 +94,7 @@ jobs:
         PYTHON_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
     
         # Build and install the project
-        cibuildwheel --platform macos
+        python3 -m cibuildwheel --platform macos
         pip install wheelhouse/ssapy-1.0.0-${PYTHON_VERSION}-${PYTHON_VERSION}-macosx_10_9_x86_64.whl
 
         # List installed Python packages
