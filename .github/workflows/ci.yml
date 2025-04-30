@@ -64,8 +64,11 @@ jobs:
         python -m pip install -r requirements.txt
     
         # Build and install the project
-        python setup.py build
-        python setup.py install
+        rm -rf build dist *.egg-info
+        python3 -m build
+        pip install dist/ssapy-1.0.0-${PYTHON_VERSION}-${PYTHON_VERSION}-linux_x86_64.whl
+    
+        # List installed Python packages
         python -m pip list
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
@@ -86,9 +89,12 @@ jobs:
         python3 -m pip install -r requirements.txt
 
         # Build and install the project
-        python setup.py build
-        python setup.py install
-        python -m pip list
+        rm -rf build dist *.egg-info
+        python3 -m cibuildwheel --platform macos
+        pip install wheelhouse/ssapy-1.0.0-${PYTHON_VERSION}-${PYTHON_VERSION}-macosx_10_9_x86_64.whl
+
+        # List installed Python packages
+        python3 -m pip list
     - name: Debug installed ssapy
       run: |
         python -c "import ssapy; print('ssapy is at:', ssapy.__file__)"
