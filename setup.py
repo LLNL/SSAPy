@@ -71,11 +71,14 @@ class PostInstallCommand(install):
 setup(
     name='ssapy',
     version='1.0.0',
-    packages=find_packages(exclude=["ssapy.data", "ssapy.data.*"]),  # Exclude ssapy/data directory
+    ext_modules=[CMakeExtension("_ssapy", sourcedir=".")],
+    cmdclass={"build_ext": CMakeBuild},
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    cmdclass=dict(install=PostInstallCommand),
+    packages=find_packages(exclude=["ssapy.data", "ssapy.data.*"]),
     package_dir={'ssapy': 'ssapy'},
-    package_data={'ssapy': ['ssapy/**/*']},  # Include other package data
-    ext_modules=[CMakeExtension('ssapy._ssapy')],
-    cmdclass=dict(build_ext=CMakeBuild, install=PostInstallCommand),  # Added PostInstallCommand
+    package_data={'ssapy': ['ssapy/**/*']},
     license='MIT',
     zip_safe=False,
     include_package_data=True,
