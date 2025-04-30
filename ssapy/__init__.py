@@ -4,43 +4,45 @@ ensure_data_downloaded()
 import os
 datadir = os.path.join(os.path.dirname(__file__), "data")
 
-# from .orbit import Orbit, EarthObserver, OrbitalObserver
-# from .propagator import (
-#     KeplerianPropagator, SeriesPropagator, RK4Propagator, SGP4Propagator,
-#     SciPyPropagator, RK78Propagator, RK8Propagator
-# )
-# from .compute import rv, dircos, radec, altaz, quickAltAz, radecRate, groundTrack
+from . import _ssapy
 
-# from .accel import Accel, AccelKepler, AccelSum, AccelEarthRad, AccelSolRad, AccelDrag, AccelConstNTW
+from .orbit import Orbit, EarthObserver, OrbitalObserver
+from .propagator import (
+    KeplerianPropagator, SeriesPropagator, RK4Propagator, SGP4Propagator,
+    SciPyPropagator, RK78Propagator, RK8Propagator
+)
+from .compute import rv, dircos, radec, altaz, quickAltAz, radecRate, groundTrack
 
-# from .linker import ModelSelectorParams, BinarySelectorParams, Linker
+from .accel import Accel, AccelKepler, AccelSum, AccelEarthRad, AccelSolRad, AccelDrag, AccelConstNTW
 
-# from .orbit_solver import TwoPosOrbitSolver, GaussTwoPosOrbitSolver
-# from .orbit_solver import DanchickTwoPosOrbitSolver, SheferTwoPosOrbitSolver
-# from .orbit_solver import ThreeAngleOrbitSolver
+from .linker import ModelSelectorParams, BinarySelectorParams, Linker
 
-# from .particles import Particles
+from .orbit_solver import TwoPosOrbitSolver, GaussTwoPosOrbitSolver
+from .orbit_solver import DanchickTwoPosOrbitSolver, SheferTwoPosOrbitSolver
+from .orbit_solver import ThreeAngleOrbitSolver
 
-# from .rvsampler import GEOProjectionInitializer, DistanceProjectionInitializer
-# from .rvsampler import circular_guess
-# from .rvsampler import GaussianRVInitializer, DirectInitializer
-# from .rvsampler import RVProbability, EmceeSampler, MVNormalProposal
-# from .rvsampler import RVSigmaProposal, MHSampler, LMOptimizer
+from .particles import Particles
 
-# from .ellipsoid import Ellipsoid
+from .rvsampler import GEOProjectionInitializer, DistanceProjectionInitializer
+from .rvsampler import circular_guess
+from .rvsampler import GaussianRVInitializer, DirectInitializer
+from .rvsampler import RVProbability, EmceeSampler, MVNormalProposal
+from .rvsampler import RVSigmaProposal, MHSampler, LMOptimizer
 
-# from .body import (
-#     EarthOrientation, MoonOrientation, MoonPosition, Body, get_body
-# )
-# from .gravity import HarmonicCoefficients, AccelThirdBody, AccelHarmonic
+from .ellipsoid import Ellipsoid
 
-# # Some items we keep out of the ssa namespace, but still provide through
-# # submodules
-# from . import constants
-# from . import plotUtils
-# from . import io
-# from . import utils
-# from . import simple
+from .body import (
+    EarthOrientation, MoonOrientation, MoonPosition, Body, get_body
+)
+from .gravity import HarmonicCoefficients, AccelThirdBody, AccelHarmonic
+
+# Some items we keep out of the ssa namespace, but still provide through
+# submodules
+from . import constants
+from . import plotUtils
+from . import io
+from . import utils
+from . import simple
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from datetime import timedelta

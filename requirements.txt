@@ -19,3 +19,4 @@ imageio
 tqdm
 build
 cibuildwheel
+delocate
