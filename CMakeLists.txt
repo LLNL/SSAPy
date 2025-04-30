@@ -36,12 +36,10 @@ pybind11_add_module(_ssapy pysrc/ssapy.cpp)
 add_library(ssapy STATIC src/ssapy.cpp)
 target_link_libraries(_ssapy PUBLIC ssapy)
 
-install(TARGETS _ssapy
-    LIBRARY DESTINATION ssapy
+set_target_properties(_ssapy PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ssapy
 )
 
 install(TARGETS _ssapy
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ssapy
 )

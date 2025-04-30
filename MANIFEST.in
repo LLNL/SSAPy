@@ -13,5 +13,4 @@ include pybind11/LICENSE
 recursive-include pybind11/tools *
 recursive-include ssapy *.so
 
-
 recursive-exclude ssapy/data *
