@@ -85,12 +85,17 @@ jobs:
         python3 -m pip install --upgrade pip setuptools flake8
         python3 -m pip install -r requirements.txt
 
+        PYTHON_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
+
         export ARCHFLAGS="-arch arm64"
         export CMAKE_OSX_ARCHITECTURES=arm64
+        export CIBW_BUILD="${PYTHON_VERSION}-macosx_*"
+
 
         # Optional: print to confirm
         echo "ARCHFLAGS=$ARCHFLAGS"
         echo "CMAKE_OSX_ARCHITECTURES=$CMAKE_OSX_ARCHITECTURES"
+        echo "CIBW_BUILD=$CIBW_BUILD"
     
         # Ensure delocate is installed
         python3 -m pip install --upgrade cibuildwheel delocate        
