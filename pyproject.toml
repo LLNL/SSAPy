@@ -48,6 +48,14 @@ ssapy = ["*.cpp", "*.h"]
 [tool.setuptools.exclude-package-data]
 ssapy = ["data/*"]
 
+[tool.poetry]
+packages = [
+    { include = "ssapy" },
+]
+
+[tool.poetry.include]
+files = ["ssapy/_ssapy.cpython-38-x86_64-linux-gnu.so"
+
 [project.urls]
 Homepage = "https://github.com/LLNL/SSAPy"
 Issues = "https://github.com/LLNL/SSAPy/issues"

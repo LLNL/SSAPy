@@ -43,14 +43,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Define the Python module target (_ssapy)
 pybind11_add_module(_ssapy pysrc/ssapy.cpp)
 
-# Ensure the Python module is installed in the correct location
-set(CMAKE_POSITION_INDEPENDENT_CODE True)
-install(TARGETS _ssapy
-    LIBRARY DESTINATION ssapy # Install the compiled module in Python's site-packages
-)
-
 # Define a static library target (ssapy)
 add_library(ssapy STATIC src/ssapy.cpp)
 
 # Link the static library to the Python module
 target_link_libraries(_ssapy PUBLIC ssapy)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+install(TARGETS _ssapy DESTINATION ssapy) 
