@@ -1,7 +1,7 @@
 """
 Classes for modeling accelerations.
 """
-import ssapy._ssapy as _ssapy
+from ssapy import _ssapy
 
 import numpy as np
 
