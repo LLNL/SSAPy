@@ -1,3 +1,6 @@
+""" This module provides functions for coordinate transformations, vector operations, celestial mechanics, and mathematical utilities. """
+
+
 import sys
 import os
 import numpy as np
@@ -2150,6 +2153,33 @@ def rightascension_to_hourangle(right_ascension, local_time):
 
 
 def equatorial_to_horizontal(observer_latitude, declination, right_ascension=None, hour_angle=None, local_time=None, hms=False):
+    """
+    Convert equatorial coordinates (declination and either right ascension or hour angle) 
+    to horizontal coordinates (azimuth and altitude) for a given observer's latitude.
+
+    Parameters:
+    -----------
+    observer_latitude (float): Latitude of the observer in degrees.
+    declination (float): Declination of the celestial object in degrees.
+    right_ascension (float, optional): Right ascension of the celestial object in hours. 
+                                       If provided, `local_time` is required to calculate hour angle.
+    hour_angle (float, optional): Hour angle of the celestial object in degrees or hours. 
+                                   If provided, it will be used directly for calculations.
+    local_time (float, optional): Local time in hours, used to compute hour angle from right ascension.
+    hms (bool, optional): If True, interprets hour angle or right ascension as hours-minutes-seconds (HMS) 
+                          and converts them to decimal degrees.
+
+    Returns:
+    --------
+    tuple: A tuple containing:
+        - azimuth (float): Azimuth angle in degrees, measured clockwise from north.
+        - altitude (float): Altitude angle in degrees, measured above the horizon.
+
+    Notes:
+    ------
+    - Either `right_ascension` or `hour_angle` must be provided for the calculation.
+    - If both `right_ascension` and `hour_angle` are provided, `hour_angle` will take precedence.
+    """
     if right_ascension is not None:
         hour_angle = rightascension_to_hourangle(right_ascension, local_time)
         if hms:
@@ -2411,7 +2441,7 @@ def xyz_to_equatorial(xq, yq, zq, xe=0, ye=0, ze=0, degrees=False):
 
 
 def ecliptic_xyz_to_equatorial(xc, yc, zc, xe=0, ye=0, ze=0, degrees=False):
-        """
+    """
     Convert ecliptic Cartesian coordinates (X, Y, Z) to equatorial right ascension (RA) and declination (DEC).
 
     This function first converts ecliptic Cartesian coordinates to equatorial Cartesian coordinates 
@@ -2542,7 +2572,7 @@ def ecliptic_to_equatorial(lon, lat, degrees=False):
 
 
 def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=None, vz=None, r_earth=np.array([0, 0, 0]), v_earth=np.array([0, 0, 0]), input_unit='si'):
-   """
+    """
     Calculate the proper motion in right ascension (RA) and declination (DEC) for celestial objects.
 
     This function computes the proper motion in RA and DEC based on the position and velocity of the object
@@ -2573,6 +2603,7 @@ def proper_motion_ra_dec(r=None, v=None, x=None, y=None, z=None, vx=None, vy=Non
         - Proper motion is scaled by a factor of 206265 to convert radians to arcseconds.
         - For REBOUND simulation units, proper motion is adjusted to account for time scaling.
     """
+
     if r is None or v is None:
         if x is not None and y is not None and z is not None and vx is not None and vy is not None and vz is not None:
             r = np.array([x, y, z])
@@ -2910,6 +2941,21 @@ def gcrf_to_itrf_astropy(state_vectors, t):
 
 
 def v_from_r(r, t):
+    """
+    Calculate the velocity from position and time data.
+
+    Parameters:
+    -----------
+    r (ndarray): Array of position data with shape (N, D), 
+                 where N is the number of time steps and D is the number of dimensions.
+    t (array-like): Array of time data corresponding to the position data. 
+                    If the first element is of type `Time`, it will be converted to GPS time.
+
+    Returns:
+    --------
+    ndarray: Array of velocity data with shape (N, D), calculated as the rate of change of position 
+             over time. The last row of the velocity array is repeated to match the input shape.
+    """
     if isinstance(t[0], Time):
         t = t.gps        
     delta_r = np.diff(r, axis=0)
@@ -3240,7 +3286,6 @@ def interpolate_points_between(r, m):
 
 
 def check_lunar_collision(r, times, m=1000):
-    from .body import get_body
     """
     Checks if the trajectory of a particle intersects with the Moon.
 
@@ -3257,6 +3302,7 @@ def check_lunar_collision(r, times, m=1000):
     np.array
         Indexes where collision occurs.
     """
+    from .body import get_body
     # For a time step of 1 hour, m=1000 will be sensitive of collisions up to 482 km/s
     new_r = interpolate_points_between(r, m)
     # Time span of integration
