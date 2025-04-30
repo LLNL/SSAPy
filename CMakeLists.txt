@@ -41,5 +41,31 @@ set_target_properties(_ssapy PROPERTIES
     LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/ssapy"
 )
 
-# Optional: install step (not needed for pip wheels)
-install(TARGETS _ssapy DESTINATION ssapy)
+configure_file(
+  ${PROJECT_SOURCE_DIR}/python/setup.py.in
+  ${PROJECT_BINARY_DIR}/python/setup.py.in
+  @ONLY)
+file(GENERATE
+  OUTPUT ${PROJECT_BINARY_DIR}/python/setup.py
+  INPUT ${PROJECT_BINARY_DIR}/python/setup.py.in)
+
+set(PYTHON_PROJECT_DIR ${PROJECT_BINARY_DIR}/python/ssapy)
+file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/__init__.py CONTENT "__version__ = \"${PROJECT_VERSION}\"\n")
+file(GENERATE OUTPUT ${PYTHON_PROJECT_DIR}/ssapy/__init__.py CONTENT "")
+
+add_custom_command(
+  OUTPUT python/dist/timestamp
+  COMMAND ${CMAKE_COMMAND} -E remove_directory dist
+  ...
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:_ssapy>   ${PYTHON_PROJECT}/ssapy
+  COMMAND ${Python3_EXECUTABLE} setup.py bdist_wheel
+  COMMAND ${CMAKE_COMMAND} -E touch ${PROJECT_BINARY_DIR}/python/dist/timestamp
+  MAIN_DEPENDENCY
+    python/setup.py.in
+  WORKING_DIRECTORY python)
+
+# Main Target
+add_custom_target(python_package ALL
+  DEPENDS
+    python/dist/timestamp
+  WORKING_DIRECTORY python)
