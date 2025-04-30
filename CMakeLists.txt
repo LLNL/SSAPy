@@ -49,7 +49,7 @@ add_library(ssapy STATIC src/ssapy.cpp)
 # Link the static library to the Python module
 target_link_libraries(_ssapy PUBLIC ssapy)
 set_target_properties(_ssapy PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/src/ssapy"
+    LIBRARY_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/ssapy"
 )
 
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
