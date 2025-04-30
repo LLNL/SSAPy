@@ -1,7 +1,6 @@
 """
 Classes for modeling accelerations.
 """
-from . import _ssapy
 
 import numpy as np
 
@@ -358,6 +357,7 @@ class AccelDrag(Accel):
         (area, mass, CR)
     """
     def __init__(self, recalc_threshold=86400 * 30, **defaultkw):
+        from . import _ssapy
 
         self.recalc_threshold = recalc_threshold
         self._t = None

@@ -7,14 +7,14 @@ parameter f, but that's good enough for simple Earth models.
 """
 
 import numpy as np
-from . import _ssapy
 
-from _ssapy import Ellipsoid
 from .utils import continueClass
 
 
 @continueClass
 class Ellipsoid:
+    from . import _ssapy
+    from _ssapy import Ellipsoid    
     """
     A class representing an ellipsoid, providing methods to convert between spherical and Cartesian coordinates.
 
