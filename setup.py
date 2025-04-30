@@ -41,31 +41,31 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
-class PostInstallCommand(install):
-    """Post-installation to download the ssapy/data directory."""
-    def run(self):
-        install.run(self)
-        # Add logic to download the ssapy/data directory
-        print("Downloading ssapy/data directory from GitHub...")
-        repo_url = "https://github.com/LLNL/SSAPy.git"
-        commit_hash = "0ea3174"  # Specific commit hash
-        temp_repo_dir = "temp_repo"
-        target_dir = os.path.join(os.path.dirname(__file__), "ssapy/data")
+# class PostInstallCommand(install):
+#     """Post-installation to download the ssapy/data directory."""
+#     def run(self):
+#         install.run(self)
+#         # Add logic to download the ssapy/data directory
+#         print("Downloading ssapy/data directory from GitHub...")
+#         repo_url = "https://github.com/LLNL/SSAPy.git"
+#         commit_hash = "0ea3174"  # Specific commit hash
+#         temp_repo_dir = "temp_repo"
+#         target_dir = os.path.join(os.path.dirname(__file__), "ssapy/data")
         
-        try:
-            # Clone the repository
-            subprocess.run(["git", "clone", repo_url, temp_repo_dir], check=True)
+#         try:
+#             # Clone the repository
+#             subprocess.run(["git", "clone", repo_url, temp_repo_dir], check=True)
             
-            # Checkout the specific commit
-            subprocess.run(["git", "-C", temp_repo_dir, "checkout", commit_hash], check=True)
+#             # Checkout the specific commit
+#             subprocess.run(["git", "-C", temp_repo_dir, "checkout", commit_hash], check=True)
             
-            # Copy the ssapy/data directory
-            subprocess.run(["cp", "-r", os.path.join(temp_repo_dir, "ssapy/data"), target_dir], check=True)
+#             # Copy the ssapy/data directory
+#             subprocess.run(["cp", "-r", os.path.join(temp_repo_dir, "ssapy/data"), target_dir], check=True)
             
-            print(f"Data directory downloaded to {target_dir}")
-        finally:
-            # Cleanup the temporary repository
-            subprocess.run(["rm", "-rf", temp_repo_dir], check=True)
+#             print(f"Data directory downloaded to {target_dir}")
+#         finally:
+#             # Cleanup the temporary repository
+#             subprocess.run(["rm", "-rf", temp_repo_dir], check=True)
 
 
 setup(
@@ -75,10 +75,6 @@ setup(
     cmdclass={"build_ext": CMakeBuild},
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    cmdclass=dict(install=PostInstallCommand),
-    packages=find_packages(exclude=["ssapy.data", "ssapy.data.*"]),
-    package_dir={'ssapy': 'ssapy'},
-    package_data={'ssapy': ['ssapy/**/*']},
     license='MIT',
     zip_safe=False,
     include_package_data=True,
