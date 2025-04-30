@@ -85,12 +85,18 @@ jobs:
         python3 -m pip install --upgrade pip setuptools flake8
         python3 -m pip install -r requirements.txt
     
-        # Build and install the project
-        rm -rf build dist *.egg-info
+        # Ensure delocate is installed
+        python3 -m pip install --upgrade cibuildwheel delocate
+
+        # Set environment variables
+        export MACOSX_DEPLOYMENT_TARGET=10.9
         export CIBW_PLATFORM="macos"
-        export CIBW_ARCHS="x86_64 arm64"
+        export CIBW_ARCHS="x86_64"
+        export CIBW_REPAIR_WHEEL_COMMAND="delocate-wheel --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"
+
+        # Build wheels
         python3 -m cibuildwheel --platform macos
-    
+            
         # Install the generated wheel
         pip install wheelhouse/*.whl
         mv ssapy ssapy_src_backup
