@@ -4,7 +4,6 @@ Classes for modeling accelerations.
 
 import numpy as np
 
-from . import _ssapy
 from .constants import EARTH_MU, EARTH_RADIUS
 from .utils import norm, sunPos, _gpsToTT, ntw_to_r
 from .ellipsoid import Ellipsoid
@@ -358,6 +357,8 @@ class AccelDrag(Accel):
         (area, mass, CR)
     """
     def __init__(self, recalc_threshold=86400 * 30, **defaultkw):
+        from . import _ssapy
+
         self.recalc_threshold = recalc_threshold
         self._t = None
         super().__init__()

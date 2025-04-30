@@ -3,7 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-
+import ssapy
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -32,7 +32,6 @@ extensions = [
     'sphinx.ext.viewcode',
 ]
 
-
 def linkcode_resolve(domain, info):
     if domain != 'py':
         return None
@@ -42,6 +41,7 @@ def linkcode_resolve(domain, info):
     return "https://github.com/LLNL/SSAPy/tree/main/%s.py" % filename
 
 autosummary_generate = True
+autosummary_imported_members = True
 numpydoc_show_class_members = False
 sphinx_tabs_valid_builders = ['linkcheck']
 source_suffix = ['.rst', '.md']
@@ -49,7 +49,7 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "numpy": ("http://docs.scipy.org/doc/numpy", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
 }
 tls_verify = False
 master_doc = "index"

@@ -13,7 +13,7 @@ and/or heavy dependencies.  Below lists the packages available in the ``ssapy`` 
    .. autosummary::
       :toctree: modules
       :template: automodapi_templ.rst
-
+      
       ssapy.accel
       ssapy.body
       ssapy.compute
