@@ -7,10 +7,10 @@ def ensure_data_downloaded():
     """
     data_dir = os.path.join(os.path.dirname(__file__), 'data')
     if os.path.exists(data_dir) and os.listdir(data_dir):
-        print(f"[ssapy] Data directory already exists at {data_dir}")
+        # print(f"[ssapy] Data directory already exists at {data_dir}")
         return
 
-    print("[ssapy] Downloading data directory from GitHub...")
+    # print("[ssapy] Downloading data directory from GitHub...")
 
     repo_url = "https://github.com/LLNL/SSAPy.git"
     commit_hash = "0ea3174"
@@ -31,7 +31,7 @@ def ensure_data_downloaded():
         print(f"[ssapy] Data successfully downloaded to {data_dir}")
 
     except subprocess.CalledProcessError as e:
-        print(f"[ssapy] Error downloading data: {e}")
+        # print(f"[ssapy] Error downloading data: {e}")
         raise RuntimeError("Failed to clone and copy data from GitHub.")
 
     finally:
