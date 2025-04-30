@@ -357,7 +357,7 @@ class AccelDrag(Accel):
         (area, mass, CR)
     """
     def __init__(self, recalc_threshold=86400 * 30, **defaultkw):
-        from . import _ssapy
+        # from . import _ssapy
 
         self.recalc_threshold = recalc_threshold
         self._t = None

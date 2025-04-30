@@ -13,8 +13,8 @@ from .utils import continueClass
 
 @continueClass
 class Ellipsoid:
-    from . import _ssapy
-    from _ssapy import Ellipsoid    
+    # from . import _ssapy
+    # from _ssapy import Ellipsoid    
     """
     A class representing an ellipsoid, providing methods to convert between spherical and Cartesian coordinates.
 
