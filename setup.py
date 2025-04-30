@@ -21,12 +21,9 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        # Output .so directly into ssapy/ package directory
-        target_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "ssapy"))
-        cmake_args = [
-            f'-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={target_dir}',
-            f'-DPYTHON_EXECUTABLE={sys.executable}'
-        ]
+        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
+                      '-DPYTHON_EXECUTABLE=' + sys.executable]
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -35,16 +32,12 @@ class CMakeBuild(build_ext):
         build_args += ['--', '-j4']
 
         env = os.environ.copy()
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(
-            env.get('CXXFLAGS', ''),
-            self.distribution.get_version()
-        )
-
+        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
+                                                              self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         if 'CMAKE_VERBOSE_MAKEFILE' in env:
             cmake_args += ['-DCMAKE_VERBOSE_MAKEFILE=1']
-
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
