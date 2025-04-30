@@ -55,7 +55,7 @@ setup(
     ext_modules=[CMakeExtension("_ssapy")],
     cmdclass={"build_ext": CMakeBuild},
     packages=find_packages(),
-    package_data={'@PYTHON_PROJECT@':['$<TARGET_FILE_NAME:_ssapy>'],},
+    package_data={'ssapy': ['*.so']},  # Adjust as necessary
     license='MIT',
     zip_safe=False,
     include_package_data=True,
