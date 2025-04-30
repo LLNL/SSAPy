@@ -84,6 +84,13 @@ jobs:
         # Upgrade pip and install Python dependencies
         python3 -m pip install --upgrade pip setuptools flake8
         python3 -m pip install -r requirements.txt
+
+        export ARCHFLAGS="-arch arm64"
+        export CMAKE_OSX_ARCHITECTURES=arm64
+
+        # Optional: print to confirm
+        echo "ARCHFLAGS=$ARCHFLAGS"
+        echo "CMAKE_OSX_ARCHITECTURES=$CMAKE_OSX_ARCHITECTURES"
     
         # Ensure delocate is installed
         python3 -m pip install --upgrade cibuildwheel delocate        
