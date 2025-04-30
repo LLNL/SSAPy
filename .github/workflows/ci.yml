@@ -63,9 +63,6 @@ jobs:
         python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
     
-        # Get Python version dynamically
-        PYTHON_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-    
         # Build and install the project
         rm -rf build dist *.egg-info
         python3 -m build
@@ -91,9 +88,6 @@ jobs:
         python3 -m pip install --upgrade pip setuptools flake8
         python3 -m pip install -r requirements.txt
 
-        # Get Python version dynamically
-        PYTHON_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-    
         # Build and install the project
         rm -rf build dist *.egg-info
         python3 -m cibuildwheel --platform macos
