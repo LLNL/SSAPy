@@ -7,6 +7,7 @@ parameter f, but that's good enough for simple Earth models.
 """
 
 import numpy as np
+from . import _ssapy
 from ._ssapy import Ellipsoid    
 from .utils import continueClass
 
