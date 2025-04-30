@@ -1,3 +1,6 @@
+""" This module provides functions and classes for orbital mechanics calculations, optimization techniques, sampling methods, and orbital parameter translations. """
+
+
 import numpy as np
 from astropy.time import Time
 
