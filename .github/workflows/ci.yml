@@ -67,7 +67,8 @@ jobs:
         rm -rf build dist *.egg-info
         python3 -m build
         pip install dist/*.whl
-    
+        mv ssapy ssapy_src_backup
+
         # List installed Python packages
         python -m pip list
     - name: Install dependencies (MacOS)
@@ -92,14 +93,17 @@ jobs:
     
         # Install the generated wheel
         pip install wheelhouse/*.whl
+        mv ssapy ssapy_src_backup
 
         # List installed Python packages
         python3 -m pip list
+    - name: Debug build artifacts
+      run: |
+        find . -name "*_ssapy*.so"
     - name: Debug installed ssapy
       run: |
         python -c "import ssapy; print('ssapy is at:', ssapy.__file__)"
         ls -l $(python -c "import ssapy; import os; print(os.path.dirname(ssapy.__file__))")
-
     #- name: Install dependencies (Windows)
     #  if: matrix.os == 'windows-latest'
     #  run: |
