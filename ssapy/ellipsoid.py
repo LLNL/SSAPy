@@ -7,10 +7,15 @@ parameter f, but that's good enough for simple Earth models.
 """
 
 import numpy as np
-from . import _ssapy
-from ._ssapy import Ellipsoid    
+ 
 from .utils import continueClass
 
+def myfunc():
+    from . import _ssapy
+    from ._ssapy import Ellipsoid   
+    return _ssapy.call(...)
+
+myfunc()
 
 @continueClass
 class Ellipsoid:
