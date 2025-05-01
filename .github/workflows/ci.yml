@@ -161,17 +161,14 @@ jobs:
         name: codecov-ubuntu-py312           # Optional, helps identify the upload
     - name: Debug Python environment
       run: python -c "import ssapy; print('ssapy imported successfully')"
-    - name: Update benchmarks documentation
-      run: |
-        python ${CI_PROJECT_DIR}/ssapy/update_benchmarks.py
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
         pip show ssapy
         pip install -r docs/requirements.txt
+        python ${CI_PROJECT_DIR}/ssapy/update_benchmarks.py
 
         cd docs
-
         # Ensure necessary directories exist
         mkdir -p source/modules source/_templates
         
