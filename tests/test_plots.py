@@ -4,8 +4,6 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
-os.chdir('/SSAPy/tests')
-
 save_folder = './ssapy_test_plots'
 print(f"Putting test_plot.py output in: {save_folder}")
 

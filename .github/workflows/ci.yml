@@ -166,7 +166,7 @@ jobs:
       run: |
         pip show ssapy
         pip install -r docs/requirements.txt
-        python ${CI_PROJECT_DIR}/ssapy/update_benchmarks.py
+        python /ssapy/update_benchmarks.py
 
         cd docs
         # Ensure necessary directories exist
