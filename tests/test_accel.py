@@ -4,8 +4,7 @@ import astropy.units as u
 
 import ssapy
 from ssapy.utils import norm, iers_interp
-from . import ssapy_test_helpers
-from ssapy_test_helpers import timer, sample_LEO_orbit, sample_GEO_orbit
+from .ssapy_test_helpers import timer, sample_LEO_orbit, sample_GEO_orbit
 
 iers_interp(0.0)  # Prime the IERS interpolant cache
 earth = ssapy.get_body("earth")

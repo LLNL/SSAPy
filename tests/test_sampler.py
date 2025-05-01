@@ -8,8 +8,7 @@ from astropy.table import QTable
 import ssapy
 from ssapy.utils import cluster_emcee_walkers, norm
 from ssapy.constants import RGEO, VGEO
-from . import ssapy_test_helpers
-from ssapy_test_helpers import timer, checkAngle
+from .ssapy_test_helpers import timer, checkAngle
 
 
 @timer

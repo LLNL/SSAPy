@@ -6,8 +6,7 @@ import astropy.units as u
 import ssapy
 from ssapy import utils
 from ssapy.utils import normed
-from . import ssapy_test_helpers
-from ssapy_test_helpers import checkSphere, timer
+from .ssapy_test_helpers import checkSphere, timer
 
 
 @timer
