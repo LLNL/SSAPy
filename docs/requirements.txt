@@ -6,14 +6,5 @@ sphinx-automodapi
 sphinx_rtd_theme
 sphinxcontrib-bibtex
 sphinx-autobuild
+docutils<0.21
 nbsphinx
-numpy
-astropy
-jupyter
-asdf
-python-git 
-graphviz
-scipy
-matplotlib
-pandas
-scikit-learn
