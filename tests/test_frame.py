@@ -8,7 +8,7 @@ from ssapy_test_helpers import timer
 
 
 try:
-    import .orekit
+    import orekit
     orekit.initVM()
     from orekit.pyhelpers import setup_orekit_curdir
     setup_orekit_curdir()
