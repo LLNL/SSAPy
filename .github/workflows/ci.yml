@@ -137,6 +137,9 @@ jobs:
         pip install pytest pytest-cov pytest-xdist
     - name: Test with pytest
       run: |
+        # Run the specific test file first
+        python3 ${CI_PROJECT_DIR}/tests/test_orbit.py || true
+        
         # Run pytest with coverage, excluding the specified test
         pytest --cov-report=xml --cov=ssapy --dist=loadscope || true
     - name: Verify coverage files
