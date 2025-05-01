@@ -4,17 +4,22 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
-save_folder = os.path.expanduser('./ssapy_test_plots')
+os.chdir('/SSAPy/tests')
+
+save_folder = './ssapy_test_plots'
 print(f"Putting test_plot.py output in: {save_folder}")
 
 temp_directory = f'{save_folder}/rotate_vector_frames/'
 
 # Check if the directory exists, and create it if it doesn't
-if not os.path.exists(temp_directory):
-    os.makedirs(temp_directory)
-    print(f"Created directory: {temp_directory}")
-else:
-    print(f"Directory already exists: {temp_directory}")
+try:
+    if not os.path.exists(temp_directory):
+        os.makedirs(temp_directory)
+        print(f"Created directory: {temp_directory}")
+    else:
+        print(f"Directory already exists: {temp_directory}")
+except Exception as e:
+    print(f"Error creating directory: {e}")
 
 # Testing rotate_vector() in utils.
 v_unit = np.array([1, 0, 0])  # Replace this with your actual unit vector
