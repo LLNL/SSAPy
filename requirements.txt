@@ -20,4 +20,3 @@ tqdm
 build
 cibuildwheel
 delocate
-orekit-factory
