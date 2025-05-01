@@ -19,7 +19,7 @@ from ssapy_test_helpers import timer, checkAngle, checkSphere, sample_orbit, sam
 
 
 try:
-    import orekit
+    import .orekit
     orekit.initVM()
     from orekit.pyhelpers import setup_orekit_curdir
     setup_orekit_curdir()
