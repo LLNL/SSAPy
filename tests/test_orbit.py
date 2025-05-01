@@ -15,6 +15,7 @@ from ssapy.orbit import _hyperbolicEccentricToTrueLongitude, _hyperbolicTrueToEc
 from ssapy.orbit import _ellipticalEccentricToMeanLongitude, _ellipticalMeanToEccentricLongitude
 from ssapy.orbit import _hyperbolicEccentricToMeanLongitude, _hyperbolicMeanToEccentricLongitude
 from ssapy.utils import normed, norm, teme_to_gcrf
+from . import ssapy_test_helpers
 from ssapy_test_helpers import timer, checkAngle, checkSphere, sample_orbit, sample_LEO_orbit, sample_GEO_orbit
 
 

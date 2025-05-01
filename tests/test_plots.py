@@ -7,13 +7,19 @@ import matplotlib.pyplot as plt
 save_folder = os.path.expanduser('./ssapy_test_plots')
 print(f"Putting test_plot.py output in: {save_folder}")
 
+temp_directory = f'{save_folder}/rotate_vector_frames/'
+
+# Check if the directory exists, and create it if it doesn't
+if not os.path.exists(temp_directory):
+    os.makedirs(temp_directory)
+    print(f"Created directory: {temp_directory}")
+else:
+    print(f"Directory already exists: {temp_directory}")
+
 # Testing rotate_vector() in utils.
 v_unit = np.array([1, 0, 0])  # Replace this with your actual unit vector
 
 figs = []
-
-temp_directory = f'{save_folder}/rotate_vector_frames/'
-os.makedirs(temp_directory, exist_ok=True)
 
 i = 0
 for theta in range(0, 181, 20):

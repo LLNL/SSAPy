@@ -4,6 +4,7 @@ from astropy.time import Time
 
 import ssapy
 from ssapy.utils import normed
+from . import ssapy_test_helpers
 from ssapy_test_helpers import timer, checkAngle
 
 

@@ -7,6 +7,7 @@ from astropy.coordinates import Longitude, Latitude
 from astropy.table import QTable
 
 import ssapy
+from . import ssapy_test_helpers
 from ssapy_test_helpers import timer
 from ssapy.constants import RGEO, VGEO
 
