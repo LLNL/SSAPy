@@ -4,7 +4,7 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
-save_folder = os.path.expanduser('./ssapy_test_plots/')
+save_folder = os.path.expanduser('./ssapy_test_plots')
 print(f"Putting test_plot.py output in: {save_folder}")
 
 # Testing rotate_vector() in utils.
@@ -27,7 +27,7 @@ shutil.rmtree(temp_directory)
 
 
 # Creating orbit plots
-times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t='2025-3-1')
+times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t0='2025-3-1')
 moon = ssapy.get_body("moon").position(times).T
 
 
