@@ -163,9 +163,11 @@ jobs:
       run: |
         pip show ssapy
         pip install -r docs/requirements.txt
-        python ./ssapy/update_benchmarks.py
 
-        cd docs
+        cd ssapy
+        python update_benchmarks.py
+
+        cd ../docs
         # Ensure necessary directories exist
         mkdir -p source/modules source/_templates
         
