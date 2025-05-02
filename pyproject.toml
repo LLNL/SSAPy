@@ -60,6 +60,3 @@ files = ["ssapy/_ssapy.cpython-38-x86_64-linux-gnu.so"]
 Homepage = "https://github.com/LLNL/SSAPy"
 Issues = "https://github.com/LLNL/SSAPy/issues"
 Documentation = "https://software.llnl.gov/SSAPy/" 
-
-[tool.coverage.run]
-source = ["ssapy"]

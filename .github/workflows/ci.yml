@@ -138,10 +138,10 @@ jobs:
     - name: Test with pytest
       run: |
         # Run the specific test file first
-        python3 ${CI_PROJECT_DIR}/tests/test_orbit.py || true
+        python3 ${CI_PROJECT_DIR}/tests/test_orbit.py 
 
         # Run pytest with coverage, excluding the specified test
-        pytest --cov-report=xml --cov=ssapy --dist=loadscope || true
+        pytest --cov-report=xml --cov=ssapy || true
     - name: Verify coverage files
       run: |
         if [ -f coverage.xml ]; then
