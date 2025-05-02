@@ -15,7 +15,8 @@ from ssapy.orbit import _hyperbolicEccentricToTrueLongitude, _hyperbolicTrueToEc
 from ssapy.orbit import _ellipticalEccentricToMeanLongitude, _ellipticalMeanToEccentricLongitude
 from ssapy.orbit import _hyperbolicEccentricToMeanLongitude, _hyperbolicMeanToEccentricLongitude
 from ssapy.utils import normed, norm, teme_to_gcrf
-from ssapy_test_helpers import timer, checkAngle, checkSphere, sample_orbit, sample_LEO_orbit, sample_GEO_orbit
+from . import ssapy_test_helpers
+from .ssapy_test_helpers import timer, checkAngle, checkSphere, sample_orbit, sample_LEO_orbit, sample_GEO_orbit
 
 
 try:
@@ -1724,28 +1725,28 @@ if __name__ == '__main__':
         pr = cProfile.Profile()
         pr.enable()
 
-    # test_anomaly_conversion()
-    # test_longitude_conversion()
-    # test_orbit_ctor()
-    # test_orbit_hyper_ctor()
-    # test_orbit_rv()
-    # if has_orekit:
-    #     test_orekit()
-    # test_earth_observer()
-    # test_orbital_observer()
-    # test_rv()
-    # test_groundTrack()
-    # test_dircos()
-    # test_radec()
-    # test_radecRate()
-    # test_altaz()
-    # test_multiprocessing()
-    # test_kozai()
-    # test_sgp4_vector()
-    # test_sgp4()
-    # test_light_time_correction()
+    test_anomaly_conversion()
+    test_longitude_conversion()
+    test_orbit_ctor()
+    test_orbit_hyper_ctor()
+    test_orbit_rv()
+    if has_orekit:
+        test_orekit()
+    test_earth_observer()
+    test_orbital_observer()
+    test_rv()
+    test_groundTrack()
+    test_dircos()
+    test_radec()
+    test_radecRate()
+    test_altaz()
+    test_multiprocessing()
+    test_kozai()
+    test_sgp4_vector()
+    test_sgp4()
+    test_light_time_correction()
     test_find_passes()
-    # test_musun()
+    test_musun()
 
     if args.prof:
         import pstats
@@ -1760,3 +1761,4 @@ if __name__ == '__main__':
                 import subprocess
                 cmd = "gprof2dot -f pstats {} -n1 -e1 | dot -Tpng -o {}".format(args.prof_out, args.prof_png)
                 subprocess.run(cmd, shell=True)
+    

@@ -4,16 +4,25 @@ import shutil
 import numpy as np
 import matplotlib.pyplot as plt
 
-save_folder = os.path.expanduser('./ssapy_test_plots/')
+save_folder = './ssapy_test_plots'
 print(f"Putting test_plot.py output in: {save_folder}")
+
+temp_directory = f'{save_folder}/rotate_vector_frames/'
+
+# Check if the directory exists, and create it if it doesn't
+try:
+    if not os.path.exists(temp_directory):
+        os.makedirs(temp_directory)
+        print(f"Created directory: {temp_directory}")
+    else:
+        print(f"Directory already exists: {temp_directory}")
+except Exception as e:
+    print(f"Error creating directory: {e}")
 
 # Testing rotate_vector() in utils.
 v_unit = np.array([1, 0, 0])  # Replace this with your actual unit vector
 
 figs = []
-
-temp_directory = f'{save_folder}/rotate_vector_frames/'
-os.makedirs(temp_directory, exist_ok=True)
 
 i = 0
 for theta in range(0, 181, 20):
@@ -23,11 +32,11 @@ for theta in range(0, 181, 20):
 
 gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
 ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.listdir(f'{temp_directory}*', sorted=True), fps=20)
-shutil.rmtree(temp_directory)
+# shutil.rmtree(temp_directory)
 
 
 # Creating orbit plots
-times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t='2025-3-1')
+times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t0='2025-3-1')
 moon = ssapy.get_body("moon").position(times).T
 
 
