@@ -23,7 +23,6 @@ if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)  # Set default output directory for libraries
 endif()
 
-
 # Find Python
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 set(PYTHON_MODULE_INSTALL_DIR "${Python3_SITEARCH}/ssapy")
@@ -54,3 +53,9 @@ add_library(ssapy STATIC src/ssapy.cpp)
 
 # Link the static library to the Python module
 target_link_libraries(_ssapy PUBLIC ssapy)
+
+# Add the header file explicitly to the static library target
+target_sources(ssapy PRIVATE include/ssapy.h)
+
+# Ensure the header file is included in the Python module target
+target_include_directories(_ssapy PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)

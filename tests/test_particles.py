@@ -8,7 +8,7 @@ from astropy.table import QTable
 
 import ssapy
 import ssapy.utils as utils
-from ssapy_test_helpers import timer
+from .ssapy_test_helpers import timer
 from ssapy.constants import RGEO, VGEO
 
 
