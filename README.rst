@@ -1,7 +1,7 @@
 SSAPy - Space Situational Awareness for Python
 ==============================================
 
-|ci_badge|  |docs_badge| |codecov_badge| |joss_badge| |pypi-badge| |DOI|
+|ci_badge|  |docs_badge| |codecov_badge| |joss_badge| |pypi-badge|
 
 .. |ci_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml
