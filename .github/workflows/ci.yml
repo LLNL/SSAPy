@@ -161,7 +161,6 @@ jobs:
     - name: Build documentation
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == 3.12
       run: |
-        pip show ssapy
         pip install -r docs/requirements.txt
 
         # python3 ${CI_PROJECT_DIR}/ssapy/update_benchmarks.py
