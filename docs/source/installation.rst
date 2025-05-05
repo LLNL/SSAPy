@@ -45,7 +45,7 @@ After cloning the main git repository, you must run the following command to clo
 
 .. code-block:: console
 
-    git submodule update --init --recursive
+   git submodule update --init --recursive
 
 Then checkout the large files
 
@@ -54,12 +54,11 @@ Then checkout the large files
    git lfs install
    git lfs pull
 
-Then run the usual setup commands:
+Then run the install commands:
 
 .. code-block:: console
 
-    python3 setup.py build
-    python3 setup.py install
+   pip install llnl-ssapy
 
 Orekit dependency
 ^^^^^^^^^^^^^^^^^

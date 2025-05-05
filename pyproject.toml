@@ -1,5 +1,5 @@
 [project]
-name = "ssapy"
+name = "llnl-ssapy"
 version = "1.0.0"
 authors = [
     { name="LLNL SSAPy Software Team", email="yeagerastro@gmail.com" },
