@@ -39,27 +39,11 @@ These requirements can be easily installed on most modern macOS and Linux system
 Installation
 ------------
 
-As the package has not yet been published on `PyPI <https://pypi.org/>`_, it CANNOT be installed using pip. Instead, use the following directions to install the package.
-
-After cloning the main git repository, you must run the following command to clone the submodules:
+As the package has been published on `PyPI <https://pypi.org/project/llnl-ssapy/>`_, it can be installed using pip. 
 
 .. code-block:: console
 
-    git submodule update --init --recursive
-
-Then checkout the large files
-
-.. code-block:: console
-
-   git lfs install
-   git lfs pull
-
-Then run the usual setup commands:
-
-.. code-block:: console
-
-    python3 setup.py build
-    python3 setup.py install
+   pip install llnl-ssapy
 
 Orekit dependency
 ^^^^^^^^^^^^^^^^^

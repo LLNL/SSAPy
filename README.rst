@@ -1,7 +1,7 @@
 SSAPy - Space Situational Awareness for Python
 ==============================================
 
-|ci_badge|  |docs_badge| |codecov_badge| |joss_badge|
+|ci_badge|  |docs_badge| |codecov_badge| |joss_badge| |pypi-badge|
 
 .. |ci_badge| image:: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/LLNL/SSAPy/actions/workflows/ci.yml
@@ -14,6 +14,9 @@ SSAPy - Space Situational Awareness for Python
 
 .. |joss_badge| image:: https://joss.theoj.org/papers/a629353cbdd8d64a861bb807e12c5d06/status.svg
    :target: https://joss.theoj.org/papers/a629353cbdd8d64a861bb807e12c5d06
+
+.. |pypi-badge| image:: https://badge.fury.io/py/llnl-ssapy.svg
+    :target: https://badge.fury.io/py/llnl-ssapy
 
 `SSAPy <https://github.com/LLNL/SSAPy>`_ is a fast, flexible, high-fidelity orbital modeling and analysis tool for orbits spanning from low-Earth orbit into the cislunar regime, and includes the following:
 
