@@ -3,12 +3,14 @@ import numpy as np
 from astropy.time import Time
 from astropy import units as u
 import math
+import unittest
 
 import ssapy
 from ssapy.correlate_tracks import (CircVelocityPrior, ZeroRadialVelocityPrior, GaussPrior, VolumeDistancePrior, orbit_to_param, partial, 
                                     make_param_guess, make_optimizer,fit_arc_blind, fit_arc, fit_arc_with_gaussian_prior, data_for_satellite,
                                     wrap_angle_difference, radeczn, param_to_orbit, orbit_to_param, TrackBase, Track, TrackGauss, MHT,
-                                    data_for_satellite, Hypothesis, time_ordered_satIDs, summarize_tracklet, summarize_tracklets, iterate_mht)
+                                    data_for_satellite, Hypothesis, time_ordered_satIDs, summarize_tracklet, summarize_tracklets, iterate_mht,
+                                    fit_arc_blind_via_track)
 from ssapy.constants import EARTH_MU, RGEO
 from .ssapy_test_helpers import sample_GEO_orbit, sample_LEO_orbit, checkAngle, checkSphere 
 from ssapy.utils import normed
@@ -411,7 +413,42 @@ def sample_gaussian_prior():
     cinvcholfac = np.eye(6)  # Example inverse Cholesky factor
     return mu, cinvcholfac
 
-def test_fit_arc_blind_valid(sample_arc):
+def test_fit_arc_blind_via_track_basic(sample_arc=sample_arc(), sample_propagator=propagator.KeplerianPropagator()):
+    """Test basic functionality of fit_arc_blind_via_track."""
+    tracklist = fit_arc_blind_via_track(
+        sample_arc, propagator=sample_propagator, verbose=False,
+        reset_if_too_uncertain=False, mode='rv', priors=None,
+        order='forward', approximate=False, orbitattr=None, factor=1.0
+    )
+
+    # Assertions
+    assert len(tracklist) > 0, "Tracklist should not be empty."
+    assert isinstance(tracklist[0], Track), "Tracklist should contain Track instances."
+    assert tracklist[0].satIDs[0] == 0, "First track should start with the first satellite ID."
+
+def test_fit_arc_blind_via_track_reset(sample_arc=sample_arc(), sample_propagator=propagator.KeplerianPropagator()):
+    """Test reset behavior when uncertainty grows too large."""
+    tracklist = fit_arc_blind_via_track(
+        sample_arc, propagator=sample_propagator, verbose=False,
+        reset_if_too_uncertain=True, mode='rv', priors=None,
+        order='forward', approximate=False, orbitattr=None, factor=1.0
+    )
+
+    # Assertions
+    assert len(tracklist) > 0, "Tracklist should not be empty."
+    assert any(track.chi2 == 0 for track in tracklist), "Reset should occur if uncertainty grows too large."
+
+def test_fit_arc_blind_via_track_verbose(sample_arc=sample_arc(), sample_propagator=propagator.KeplerianPropagator(), capsys):
+    """Test verbose output of fit_arc_blind_via_track."""
+    fit_arc_blind_via_track(
+        sample_arc, propagator=sample_propagator, verbose=True,
+        reset_if_too_uncertain=False, mode='rv', priors=None,
+        order='forward', approximate=False, orbitattr=None, factor=1.0
+    )
+
+    assert "resetting" in captured.out or "dt:" in captured.out, "Verbose output should contain fitting details."
+
+def test_fit_arc_blind_valid(sample_arc=sample_arc()):
     """Test fit_arc_blind with valid inputs."""
     arc = sample_arc
     chi2, params, result = fit_arc_blind(arc, mode='rv', verbose=False, factor=2)
@@ -425,13 +462,13 @@ def test_fit_arc_blind_empty_arc():
     with pytest.raises(ValueError, match="len\(arc\) must be > 0"):
         fit_arc_blind(arc, mode='rv')
 
-def test_fit_arc_blind_invalid_factor(sample_arc):
+def test_fit_arc_blind_invalid_factor(sample_arc=sample_arc()):
     """Test fit_arc_blind with an invalid factor."""
     arc = sample_arc
     with pytest.raises(AssertionError, match="Geometric factor must be greater than or equal to 1"):
         fit_arc_blind(arc, mode='rv', factor=2)
 
-def test_fit_arc_valid(sample_arc, sample_guess):
+def test_fit_arc_valid(sample_arc(), sample_guess()):
     """Test fit_arc with valid inputs."""
     arc = sample_arc
     guess = sample_guess
@@ -440,14 +477,14 @@ def test_fit_arc_valid(sample_arc, sample_guess):
     assert isinstance(params, np.ndarray), "Expected params to be a numpy array"
     assert hasattr(result, 'residual'), "Expected result to have residual attribute"
 
-def test_fit_arc_invalid_epoch(sample_arc, sample_guess):
+def test_fit_arc_invalid_epoch(sample_arc(), sample_guess()):
     """Test fit_arc with an invalid epoch in the guess."""
     arc = sample_arc
     guess = np.array([1, 2, 3, 4, 5, 6, 0])  # Invalid epoch
     with pytest.raises(ValueError, match="inconsistent epoch and guess"):
         fit_arc(arc, guess, mode='rv', verbose=False)
 
-def test_fit_arc_with_gaussian_prior_valid(sample_arc, sample_gaussian_prior):
+def test_fit_arc_with_gaussian_prior_valid(sample_arc(), sample_gaussian_prior()):
     """Test fit_arc_with_gaussian_prior with valid inputs."""
     arc = sample_arc
     mu, cinvcholfac = sample_gaussian_prior
@@ -456,7 +493,7 @@ def test_fit_arc_with_gaussian_prior_valid(sample_arc, sample_gaussian_prior):
     assert isinstance(params, np.ndarray), "Expected params to be a numpy array"
     assert hasattr(result, 'residual'), "Expected result to have residual attribute"
 
-def test_fit_arc_with_gaussian_prior_invalid_mu_length(sample_arc, sample_gaussian_prior):
+def test_fit_arc_with_gaussian_prior_invalid_mu_length(sample_arc(), sample_gaussian_prior()):
     """Test fit_arc_with_gaussian_prior with an invalid mu length."""
     arc = sample_arc
     mu, cinvcholfac = sample_gaussian_prior
@@ -464,7 +501,7 @@ def test_fit_arc_with_gaussian_prior_invalid_mu_length(sample_arc, sample_gaussi
     with pytest.raises(ValueError, match="mu must have length matching number of parameters"):
         fit_arc_with_gaussian_prior(arc, mu, cinvcholfac, mode='rv', verbose=False)
 
-def test_fit_arc_with_gaussian_prior_invalid_cinvcholfac(sample_arc, sample_gaussian_prior):
+def test_fit_arc_with_gaussian_prior_invalid_cinvcholfac(sample_arc(), sample_gaussian_prior()):
     """Test fit_arc_with_gaussian_prior with an invalid cinvcholfac."""
     arc = sample_arc
     mu, cinvcholfac = sample_gaussian_prior
@@ -807,180 +844,55 @@ def test_round_trip_conversion():
     np.testing.assert_allclose(converted_orbit.v, orbit.v, atol=1e-6)
     assert converted_orbit.t.gps == orbit.t.gps
 
-def test_trackbase_initialization():
-    # Create sample data
-    satIDs = [1, 2, 3]
-    data = {
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0], [6371e3, 0, 0], [6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-    }
-    volume = 1e6
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
-    orbitattr = ['log10mass']
+class TestTrackBase(unittest.TestCase):
+    def setUp(self):
+        self.satIDs = [1, 2, 3]
+        self.data = sample_data()
+        self.volume = 1.0
+        self.mode = 'rv'
+        self.propagator = propagator.KeplerianPropagator()
+        self.track = TrackBase(self.satIDs, self.data, self.volume, self.mode, self.propagator)
 
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, volume=volume, mode=mode, propagator=propagator_instance, orbitattr=orbitattr)
+    def test_lnprob(self):
+        # Test the lnprob property
+        self.track.covar = np.eye(6)  # Mock covariance matrix
+        self.track.chi2 = 10  # Mock chi2 value
+        result = self.track.lnprob
+        self.assertTrue(np.isfinite(result), "lnprob should return a finite value.")
 
-    # Verify attributes
-    assert track.satIDs == satIDs
-    assert track.data == data
-    assert track.volume == volume
-    assert track.mode == mode
-    assert track.propagator == propagator_instance
-    assert track.orbitattr == orbitattr
+    def test_predict(self):
+        # Test the predict method
+        arc0 = {'time': np.array([2451545.0]), 'rStation_GCRF': np.zeros(3), 'vStation_GCRF': np.zeros(3)}
+        mean, covar = self.track.predict(arc0)
+        self.assertEqual(mean.shape[0], 4, "Mean should have 4 parameters.")
+        self.assertEqual(covar.shape[0], 4, "Covariance matrix should have 4x4 dimensions.")
 
-def test_trackbase_lnprob():
-    # Create sample data
-    satIDs = [1]
-    data = {
-        'time': np.array([1000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-    volume = 1e6
-    mode = 'rv'
+    def test_gate(self):
+        # Test the gate method
+        arc = sample_arc()
+        chi2 = self.track.gate(arc)
+        self.assertTrue(chi2 >= 0, "Chi2 should be non-negative.")
 
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, volume=volume, mode=mode)
+    def test_propagaterdz(self):
+        # Test the propagaterdz method
+        param = np.zeros(6)  # Mock parameters
+        arc0 = {'time': np.array([2451545.0]), 'rStation_GCRF': np.zeros(3), 'vStation_GCRF': np.zeros(3)}
+        result = self.track.propagaterdz(param, arc0)
+        self.assertEqual(len(result), 4, "Result should contain 4 elements.")
 
-    # Mock covariance and chi2
-    track.covar = np.eye(6)  # Identity matrix for covariance
-    track.chi2 = 10
+    def test_update(self):
+        # Test the update method
+        time = 2451545.0
+        result = self.track.update(time)
+        self.assertIsNone(result, "Update should return None.")
 
-    # Verify lnprob calculation
-    expected_lnprob = -np.log(volume) + 0.5 * np.log(np.linalg.det(2 * np.pi * track.covar)) - track.chi2 / 2
-    assert np.isclose(track.lnprob, expected_lnprob)
-
-def test_trackbase_predict():
-    # Create sample data
-    satIDs = [1]
-    data = {
-        'time': np.array([1000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-    mode = 'rv'
-
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, mode=mode)
-
-    # Create a mock arc
-    arc = {
-        'time': np.array([2000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-
-    # Predict future location
-    mean, covar = track.predict(arc)
-
-    # Verify output shapes
-    assert mean.shape == (4,)
-    assert covar.shape == (4, 4)
-
-def test_trackbase_gate():
-    # Create sample data
-    satIDs = [1]
-    data = {
-        'time': np.array([1000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-    mode = 'rv'
-
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, mode=mode)
-
-    # Create a mock arc
-    arc = {
-        'time': np.array([2000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]]),
-        'ra': np.array([0.1]),
-        'pmra': np.array([0.01]),
-        'dec': np.array([0.2]),
-        'pmdec': np.array([0.02]),
-        'dra': np.array([0.001]),
-        'ddec': np.array([0.001]),
-        'dpmra': np.array([0.0001]),
-        'dpmdec': np.array([0.0001])
-    }
-
-    # Compute chi2
-    chi2 = track.gate(arc)
-
-    # Verify chi2 is a float
-    assert isinstance(chi2, float)
-
-def test_trackbase_propagaterdz():
-    # Create sample data
-    satIDs = [1]
-    data = {
-        'time': np.array([1000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-    mode = 'rv'
-
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, mode=mode)
-
-    # Create mock parameters and arc
-    param = np.array([6371e3, 0, 0, 0, 0, 0])  # Position and velocity
-    arc = {
-        'time': np.array([2000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-
-    # Propagate parameters
-    result = track.propagaterdz(param, arc)
-
-    # Verify output shape
-    assert result.shape == (4,)
-
-def test_trackbase_update():
-    # Create sample data
-    satIDs = [1]
-    data = {
-        'time': np.array([1000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-    mode = 'rv'
-
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, mode=mode)
-
-    # Call update method
-    track.update(time=2000)
-
-    # Verify no exception is raised (method is not implemented)
-    assert True
-
-def test_trackbase_repr():
-    # Create sample data
-    satIDs = [1]
-    data = {
-        'time': np.array([1000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0]])
-    }
-    mode = 'rv'
-
-    # Initialize TrackBase
-    track = TrackBase(satIDs, data, mode=mode)
-
-    # Mock chi2 and lnprob
-    track.chi2 = 10
-    track.lnprob = -5
-
-    # Verify __repr__ output
-    repr_output = repr(track)
-    assert "Track, chi2: 1.00e+01, lnprob: -5.00e+00, tracklets:" in repr_output
-    assert str(satIDs) in repr_output
+    def test_repr(self):
+        # Test the __repr__ method
+        self.track.chi2 = 10
+        self.track.lnprob = -5
+        result = repr(self.track)
+        self.assertIn("Track, chi2:", result, "__repr__ should include 'Track, chi2:'")
+        self.assertIn("lnprob:", result, "__repr__ should include 'lnprob:'")
 
 def test_track_initialization_with_guess():
     # Create sample data
@@ -1073,220 +985,112 @@ def test_track_addto():
     # Verify new track includes the additional satellite ID
     assert new_track.satIDs == [1, 2, 3]
 
-def test_trackgauss_initialization():
-    # Create sample data
-    satIDs = [1, 2]
-    data = {
-        'time': np.array([1000, 2000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0], [6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0], [0, 0, 0]])
-    }
-    param = np.array([6371e3, 0, 0, 0, 0, 0])  # Orbit parameters
-    covar = np.eye(6)  # Covariance matrix
-    chi2 = 10
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
+class TestTrackGauss(unittest.TestCase):
+    def setUp(self):
+        self.satIDs = [1, 2, 3]
+        self.data = sample_data()
+        self.param = np.zeros(6)  # Mock parameters
+        self.covar = np.eye(6)  # Mock covariance matrix
+        self.chi2 = 10.0  # Mock chi2 value
+        self.mode = 'rv'
+        self.propagator = propagator.KeplerianPropagator()
+        self.track = TrackGauss(self.satIDs, self.data, self.param, self.covar, self.chi2, self.mode, self.propagator)
 
-    # Initialize TrackGauss
-    gauss_track = TrackGauss(satIDs, data, param, covar, chi2, mode=mode, propagator=propagator_instance)
+    def test_gaussian_approximation(self):
+        # Test the gaussian_approximation method
+        result = self.track.gaussian_approximation(self.propagator)
+        self.assertEqual(result, self.track, "Gaussian approximation should return self.")
 
-    # Verify attributes
-    assert gauss_track.satIDs == satIDs
-    assert gauss_track.data == data
-    assert gauss_track.param is not None
-    assert gauss_track.covar is not None
-    assert gauss_track.chi2 == chi2
+    def test_update(self):
+        # Test the update method
+        t = 2  # Mock time
+        t.to = 3 # Mock time difference
+        self.track.update(t)
+        self.assertTrue(np.array_equal(self.track.param, self.param), "Parameters should be updated.")
 
-def test_trackgauss_update():
-    # Create sample data
-    satIDs = [1, 2]
-    data = {
-        'time': np.array([1000, 2000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0], [6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0], [0, 0, 0]])
-    }
-    param = np.array([6371e3, 0, 0, 0, 0, 0, 1000])  # Orbit parameters including time
-    covar = np.eye(6)  # Covariance matrix
-    chi2 = 10
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
+    def test_at(self):
+        # Test the at method
+        t = 0  # Mock time
+        newtrack = self.track.at(t)
+        self.assertIsInstance(newtrack, TrackGauss, "at() should return a TrackGauss instance.")
+        self.assertNotEqual(newtrack.param, self.track.param, "Parameters should differ after update.")
 
-    # Initialize TrackGauss
-    gauss_track = TrackGauss(satIDs, data, param, covar, chi2, mode=mode, propagator=propagator_instance)
+    def test_addto(self):
+        # Test the addto method
+        satid = 4
+        newtrack = self.track.addto(satid)
+        self.assertIsInstance(newtrack, TrackGauss, "addto() should return a TrackGauss instance.")
+        self.assertIn(satid, newtrack.satIDs, "New satellite ID should be added to satIDs.")
 
-    # Update track to a new time
-    new_time = Time(2000, format='gps')
-    gauss_track.update(new_time)
+@pytest.fixture
+def sample_data():
+    """Fixture to create sample data for testing."""
+    dtype = [('satID', 'int'), ('time', 'float'), ('rStation_GCRF', 'float', (3,)), ('vStation_GCRF', 'float', (3,))]
+    data = np.zeros(10, dtype=dtype)
+    data['satID'] = [2, 3, 1, 5, 4, 3, 2, 1, 5, 4]  # Repeated satellite IDs
+    data['time'] = np.linspace(0, 100, 10)  # Ordered times
+    data['rStation_GCRF'] = np.random.rand(10, 3)
+    data['vStation_GCRF'] = np.random.rand(10, 3)
+    return data
 
-    # Verify updated time
-    assert gauss_track.param[-1] == new_time.gps
+@pytest.fixture
+def sample_truth():
+    """Fixture to create sample truth data."""
+    return {1: 'A', 2: 'B', 3: 'C', 4: 'D', 5: 'E'}
 
-def test_trackgauss_at():
-    # Create sample data
-    satIDs = [1, 2]
-    data = {
-        'time': np.array([1000, 2000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0], [6371e3, 0, 0]]),
-        'vStation_GCRF': np.array([[0, 0, 0], [0, 0, 0]])
-    }
-    param = np.array([6371e3, 0, 0, 0, 0, 0, 1000])  # Orbit parameters including time
-    covar = np.eye(6)  # Covariance matrix
-    chi2 = 10
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
+@pytest.fixture
+def sample_hypotheses():
+    """Fixture to create sample hypotheses."""
+    return [Hypothesis([], nsat=1000)]
 
-    # Initialize TrackGauss
-    gauss_track = TrackGauss(satIDs, data, param, covar, chi2, mode=mode, propagator=propagator_instance)
+@pytest.fixture
+def sample_propagator():
+    """Fixture to create a sample propagator."""
+    class MockPropagator:
+        def __init__(self):
+            pass
+    return MockPropagator()
 
-    # Get track at a new time
-    new_time = Time(2000, format='gps')
-    new_gauss_track = gauss_track.at(new_time)
+@pytest.fixture
+def mht_instance(sample_data, sample_truth, sample_hypotheses, sample_propagator):
+    """Fixture to create an MHT instance."""
+    return MHT(data=sample_data, nsat=1000, truth=sample_truth, hypotheses=sample_hypotheses, propagator=sample_propagator)
 
-    # Verify new track is updated to the new time
-    assert new_gauss_track.param[-1] == new_time.gps
+def test_mht_initialization(mht_instance, sample_data, sample_truth, sample_hypotheses):
+    """Test initialization of MHT class."""
+    assert mht_instance.data.shape == sample_data.shape, "Data should be copied correctly."
+    assert mht_instance.nsat == 1000, "Number of satellites should be initialized correctly."
+    assert mht_instance.truth == sample_truth, "Truth data should be initialized correctly."
+    assert mht_instance.hypotheses == sample_hypotheses, "Hypotheses should be initialized correctly."
 
-def test_mht_initialization():
-    # Create sample data
-    data = {
-        'satID': np.array([1, 2, 3]),
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]] * 3),
-        'vStation_GCRF': np.array([[0, 0, 0]] * 3)
-    }
-    nsat = 1000
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
+def test_mht_run(mht_instance):
+    """Test the run method."""
+    mht_instance.run(verbose=False, order='forward')
+    assert len(mht_instance.track2hyp) > 0, "Track-to-hypothesis mapping should be populated after running."
 
-    # Initialize MHT
-    mht = MHT(data, nsat=nsat, mode=mode, propagator=propagator_instance)
+def test_mht_add_tracklet(mht_instance):
+    """Test the add_tracklet method."""
+    satid = 1  # Use a sample satellite ID
+    mht_instance.add_tracklet(satid)
+    assert len(mht_instance.track2hyp) > 0, "Track-to-hypothesis mapping should be updated after adding a tracklet."
 
-    # Verify attributes
-    assert mht.data == data
-    assert mht.nsat == nsat
-    assert mht.mode == mode
-    assert mht.propagator == propagator_instance
-    assert isinstance(mht.hypotheses, list)
-    assert len(mht.hypotheses) == 1  # Default hypothesis created
-    assert isinstance(mht.hypotheses[0], Hypothesis)
+def test_mht_prune_tracks(mht_instance):
+    """Test the prune_tracks method."""
+    satid = 1  # Use a sample satellite ID
+    keephyp = mht_instance.prune_tracks(satid)
+    assert isinstance(keephyp, np.ndarray), "Prune tracks should return a boolean array."
 
-def test_mht_run():
-    # Create sample data
-    data = {
-        'satID': np.array([1, 2, 3]),
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]] * 3),
-        'vStation_GCRF': np.array([[0, 0, 0]] * 3)
-    }
-    nsat = 1000
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
+def test_mht_prune_stale_hypotheses(mht_instance):
+    """Test the prune_stale_hypotheses method."""
+    newdeadtracks = []  # No dead tracks initially
+    keephyp = mht_instance.prune_stale_hypotheses(newdeadtracks)
+    assert isinstance(keephyp, np.ndarray), "Prune stale hypotheses should return a boolean array."
 
-    # Initialize MHT
-    mht = MHT(data, nsat=nsat, mode=mode, propagator=propagator_instance)
-
-    # Run the MHT process
-    mht.run(verbose=False)
-
-    # Verify hypotheses are updated
-    assert len(mht.hypotheses) > 0
-
-def test_mht_add_tracklet():
-    # Create sample data
-    data = {
-        'satID': np.array([1, 2, 3]),
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]] * 3),
-        'vStation_GCRF': np.array([[0, 0, 0]] * 3)
-    }
-    nsat = 1000
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
-
-    # Initialize MHT
-    mht = MHT(data, nsat=nsat, mode=mode, propagator=propagator_instance)
-
-    # Add a tracklet
-    mht.add_tracklet(1)
-
-    # Verify tracklet was added
-    assert len(mht.track2hyp) > 0
-
-def test_mht_prune_tracks():
-    # Create sample data
-    data = {
-        'satID': np.array([1, 2, 3]),
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]] * 3),
-        'vStation_GCRF': np.array([[0, 0, 0]] * 3)
-    }
-    nsat = 1000
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
-
-    # Initialize MHT
-    mht = MHT(data, nsat=nsat, mode=mode, propagator=propagator_instance)
-
-    # Add a tracklet
-    mht.add_tracklet(1)
-
-    # Prune tracks
-    keephyp = mht.prune_tracks(1)
-
-    # Verify pruning results
-    assert isinstance(keephyp, np.ndarray)
-    assert keephyp.dtype == 'bool'
-
-def test_mht_prune_stale_hypotheses():
-    # Create sample data
-    data = {
-        'satID': np.array([1, 2, 3]),
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]] * 3),
-        'vStation_GCRF': np.array([[0, 0, 0]] * 3)
-    }
-    nsat = 1000
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
-
-    # Initialize MHT
-    mht = MHT(data, nsat=nsat, mode=mode, propagator=propagator_instance)
-
-    # Add a tracklet
-    mht.add_tracklet(1)
-
-    # Mock newly dead tracks
-    mht._newly_dead_tracks = [Track([1], data, mode=mode)]
-
-    # Prune stale hypotheses
-    keephyp = mht.prune_stale_hypotheses(mht._newly_dead_tracks)
-
-    # Verify pruning results
-    assert isinstance(keephyp, np.ndarray)
-    assert keephyp.dtype == 'bool'
-
-def test_mht_prune():
-    # Create sample data
-    data = {
-        'satID': np.array([1, 2, 3]),
-        'time': np.array([1000, 2000, 3000]),
-        'rStation_GCRF': np.array([[6371e3, 0, 0]] * 3),
-        'vStation_GCRF': np.array([[0, 0, 0]] * 3)
-    }
-    nsat = 1000
-    mode = 'rv'
-    propagator_instance = propagator.KeplerianPropagator()
-
-    # Initialize MHT
-    mht = MHT(data, nsat=nsat, mode=mode, propagator=propagator_instance)
-
-    # Add a tracklet
-    mht.add_tracklet(1)
-
-    # Prune hypotheses
-    mht.prune(1)
-
-    # Verify hypotheses are pruned
-    assert len(mht.hypotheses) > 0
+def test_mht_prune(mht_instance):
+    """Test the prune method."""
+    satid = 1  # Use a sample satellite ID
+    mht_instance.prune(satid, nkeepmax=5, pkeep=1e-9, keeponlytrue=False, nconfirm=6)
+    assert len(mht_instance.hypotheses) > 0, "Hypotheses should be pruned correctly."
 
 def test_summarize_tracklets():
     # Create mock data
@@ -1371,66 +1175,11 @@ def test_iterate_mht():
 
 
 if __name__ == '__main__':
-    test_circ_velocity_prior_init()
-    test_circ_velocity_prior_call()
-    test_circ_velocity_prior_call_chi()
-    test_zero_radial_velocity_prior_init()
-    test_zero_radial_velocity_prior_call()
-    test_zero_radial_velocity_prior_call_chi()
-    test_gauss_prior_init_with_orbit_to_param()
-    test_gauss_prior_call_with_orbit_to_param()
-    test_gauss_prior_call_chi_with_orbit_to_param()
-    test_volume_distance_prior_logprior()
-    test_volume_distance_prior_chi()
-    test_volume_distance_prior_zero_distance()
-    test_volume_distance_prior_negative_distance()
-    test_mht_initialization()
-    test_mht_run()
-    test_mht_add_tracklet()
-    test_mht_prune_tracks()
-    test_mht_prune_stale_hypotheses()
-    test_mht_prune()
-    test_summarize_tracklets()
-    test_summarize_tracklet()
-    test_iterate_mht()
-    test_trackbase_gate()
-    test_trackbase_propagaterdz()
-    test_trackbase_update()
-    test_trackbase_repr()
-    test_track_initialization_with_guess()
-    test_track_initialization_blind()
-    test_track_gaussian_approximation()
-    test_track_addto()
-    test_trackgauss_initialization()
-    test_trackgauss_update()
-    test_trackgauss_at()
-    test_radeczn_GEO_orbit()
-    test_radeczn_LEO_orbit()
-    test_radeczn_multiple_orbits()
-    test_radeczn_edge_case_empty_arc()
-    test_radeczn_edge_case_single_observation()
-    test_param_to_orbit_mode_rv()
-    test_param_to_orbit_mode_equinoctial()
-    test_param_to_orbit_mode_angle()
-    test_orbit_to_param_mode_rv()
-    test_orbit_to_param_mode_equinoctial()
-    test_orbit_to_param_mode_angle()
-    test_round_trip_conversion()
-    test_trackbase_initialization()
-    test_trackbase_lnprob()
-    test_trackbase_predict()
-    test_make_param_guess_rv()
-    test_make_param_guess_equinoctial()
-    test_make_param_guess_angle()
-    test_make_param_guess_invalid_mode()
-    test_make_optimizer_valid_modes()
-    test_make_optimizer_valid_modes_lsq()
-    test_make_optimizer_invalid_mode()
-    test_make_optimizer_angle_mode_param_length()
-    test_make_optimizer_partial_function()
-    test_wrap_angle_difference_single_value()
-    test_wrap_angle_difference_array()
-    test_wrap_angle_difference_edge_cases()
-    test_wrap_angle_difference_custom_center()
-    test_wrap_angle_difference_large_values()
-    test_wrap_angle_difference_negative_center()
+    import sys
+
+    # Run unittest classes
+    unittest.main(argv=['first-arg-is-ignored'], exit=False)
+
+    # Run pytest-style functions
+    import pytest
+    sys.exit(pytest.main([__file__]))

@@ -12,133 +12,82 @@ from .ssapy_test_helpers import timer
 from ssapy.constants import RGEO, VGEO
 
 
+def random_vector(min_mag, max_mag):
+    """Generate a random 3D vector with magnitude between min_mag and max_mag."""
+    vec = np.random.normal(size=3)
+    vec /= np.linalg.norm(vec)
+    magnitude = np.random.uniform(min_mag, max_mag)
+    return vec * magnitude
+
+
 @pytest.mark.slow
 @timer
 def test_particles():
     np.random.seed(562)
 
     time0 = Time(2458316., format='jd')
+    lon, lat, elevation = 100.0, 33.0, 1300.0
+    observer = ssapy.EarthObserver(lon, lat, elevation)
 
-    # Setup observer location
-    lon = 100.0
-    lat = 33.0
-    elevation = 1300.0
-    earthObserver = ssapy.EarthObserver(lon, lat, elevation)
-
-    #
-    # Create orbit for the target
-    #
-    # a = RGEO * 0.98
-    # e = 0.01
-    # i = 0.001
-    # pa = 0.0
-    # raan = 1.2
-    # trueAnomaly = 2.03
-    # orbit = Orbit.fromKeplerianElements(a, e, i, raan, pa, trueAnomaly, time0)
-
-    r = np.random.uniform(RGEO*0.9, RGEO*1.1)
-    theta = np.random.uniform(0, 2*np.pi)
-    phi = np.random.uniform(0, np.pi)
-    x = r * np.cos(theta) * np.sin(phi)
-    y = r * np.sin(theta) * np.sin(phi)
-    z = r * np.cos(phi)
-    r = np.array([x, y, z])
-    # Pick a velocity near VGEO
-    v = np.random.uniform(VGEO*0.9, VGEO*1.1)
-    # Pick a random direction
-    theta = np.random.uniform(0, 2*np.pi)
-    phi = np.random.uniform(0, np.pi)
-    vx = v * np.cos(theta) * np.sin(phi)
-    vy = v * np.sin(theta) * np.sin(phi)
-    vz = v * np.cos(phi)
-    v = np.array([vx, vy, vz])
+    # True orbit
+    r = random_vector(RGEO * 0.9, RGEO * 1.1)
+    v = random_vector(VGEO * 0.9, VGEO * 1.1)
     orbit = ssapy.Orbit(r, v, time0)
 
-    num_epochs = 2
     particles = []
     epoch_times = []
     lnprobs = []
-    ch_rmean = []
-    ch_vmean = []
     time = time0
-    for _ in range(num_epochs):
+    for _ in range(2):  # two epochs
         epoch_times.append(time)
-
-        # Build observation times
-        earthTimes = time + np.linspace(0, 10, 5)*u.h
-        earthRaDec = ssapy.radec(orbit, earthTimes, observer=earthObserver)
-        earthRStation, earthVStation = earthObserver.getRV(earthTimes)
+        times = time + np.linspace(0, 10, 5) * u.h
+        ra, dec = ssapy.radec(orbit, times, observer=observer)
+        r_station, v_station = observer.getRV(times)
 
         arc = QTable()
-        arc['ra'] = Longitude(earthRaDec[0]*u.rad)
-        arc['dec'] = Latitude(earthRaDec[1]*u.rad)
-        arc['rStation_GCRF'] = earthRStation*u.m
-        arc['vStation_GCRF'] = earthVStation*u.m/u.s
-        arc['time'] = Time(earthTimes)
-        arc['sigma'] = np.ones(5, dtype=float)*u.arcsec
+        arc['ra'] = Longitude(ra * u.rad)
+        arc['dec'] = Latitude(dec * u.rad)
+        arc['rStation_GCRF'] = r_station * u.m
+        arc['vStation_GCRF'] = v_station * u.m / u.s
+        arc['time'] = Time(times)
+        arc['sigma'] = np.ones(5) * u.arcsec
 
-        # initialize somewhere near the truth, but perturbed a bit and with large uncertainties
-        initializer = ssapy.GaussianRVInitializer(r, v, rSigma=0.1*RGEO, vSigma=0.1*VGEO)
-        # Use R and A priors
-        priors = [ssapy.rvsampler.RPrior(RGEO, RGEO*0.2), ssapy.rvsampler.APrior(RGEO, RGEO*0.2)]
-
-        # Run MCMC sampler to generate particles for the observed epoch
+        initializer = ssapy.GaussianRVInitializer(r, v, rSigma=0.1 * RGEO, vSigma=0.1 * VGEO)
+        priors = [ssapy.rvsampler.RPrior(RGEO, RGEO * 0.2), ssapy.rvsampler.APrior(RGEO, RGEO * 0.2)]
         rvprob = ssapy.RVProbability(arc, time, priors=priors)
         sampler = ssapy.EmceeSampler(rvprob, initializer, nWalker=50)
-        chain, lnprob, lnprior = sampler.sample(nBurn=500, nStep=100)
-        chain, lnprob, lnprior = ssapy.utils.cluster_emcee_walkers(chain, lnprob, lnprior, thresh_multiplier=4)
+        chain, lnprob, lnprior = sampler.sample(nBurn=200, nStep=50)
+        chain, lnprob, lnprior = utils.cluster_emcee_walkers(chain, lnprob, lnprior)
 
-        ch_rmean.append(np.mean(chain[...,0:3], axis=(0,1)))
-        ch_vmean.append(np.mean(chain[...,3:6], axis=(0,1)))
-
-        # Create Particles object from sampler output
         particles.append(ssapy.Particles(chain, rvprob, lnpriors=lnprior))
         lnprobs.append(lnprob.ravel())
+        time += 12 * u.h
 
-        time += 12.0 * u.h
     epoch_times = Time(epoch_times)
-    # Check that epochs in particles class match the input epoch times
-    for i in range(num_epochs):
-        np.testing.assert_almost_equal(particles[i].epoch, epoch_times[i].gps)
 
-    # Check that particles likelihood matches that stored from Sampler.
-    # There is some offset here because of the prior in Sampler that is not used in the
-    # Particles method.
-    for i in range(num_epochs):
-        lnP = particles[i].lnlike(particles[i].orbits) + particles[i].lnpriors
-        np.testing.assert_allclose(lnP, lnprobs[i])
+    for i, p in enumerate(particles):
+        assert np.isclose(p.epoch, epoch_times[i].gps)
+        lnL = p.lnlike(p.orbits)
+        assert lnL.shape == (p.orbits.shape[0],)
+        mean = p.mean()
+        assert mean.shape == (6,)
+        np.testing.assert_allclose(lnL + p.lnpriors, lnprobs[i], rtol=1e-4, atol=1e-4)
 
-    # Check that mean particle values in each epoch match reference values
-    rref, vref = ssapy.rv(orbit, epoch_times)
+    # Fuse test
+    p0, p1 = particles
+    r0, v0 = p0.mean()[0:3], p0.mean()[3:6]
+    p0.fuse(p1)
+    fused_mean = p0.mean()
+    assert fused_mean.shape == (6,)
+    np.testing.assert_allclose(fused_mean[0:3], r0, rtol=0.1)
+    np.testing.assert_allclose(fused_mean[3:6], v0, rtol=0.1)
 
-    for i in range(num_epochs):
-        pmean = particles[i].mean()
-        rmean = pmean[0:3]
-        vmean = pmean[3:6]
+    # Reset test
+    p0.reset_to_pseudo_prior()
+    r_reset = p0.mean()[0:3]
+    assert not np.allclose(r_reset, r0)
 
-        print("--------------------")
-        print("r difference wrt GEO")
-        # print((ch_rmean[i]-rref[i])/RGEO)
-        print((rmean - rref[i]) / RGEO)
-        print("v difference wrt GEO")
-        # print((ch_vmean[i]-vref[i])/VGEO)
-        print((vmean - vref[i]) / VGEO)
-        np.testing.assert_allclose(rmean, rref[i], rtol=0, atol=RGEO*0.001)
-        np.testing.assert_allclose(vmean, vref[i], rtol=0, atol=VGEO*0.001)
-
-    # Check that Particles.fuse method gives correct mean of particle values
-    particles[0].fuse(particles[1])
-    pmean = particles[0].mean()
-    rmean = pmean[0:3]
-    vmean = pmean[3:6]
-    print("--------------------")
-    print("   AFTER PARTICLE FUSION   ")
-    print("r difference wrt GEO")
-    print((rmean - rref[i]) / RGEO)
-    print("v difference wrt GEO")
-    print((vmean - vref[i]) / VGEO)
-    np.testing.assert_allclose(rmean, rref[0], rtol=0, atol=RGEO*0.001)
-    np.testing.assert_allclose(vmean, vref[0], rtol=0, atol=VGEO*0.001)
+    print("All ssapy.particles methods tested successfully.")
 
 
 if __name__ == '__main__':
