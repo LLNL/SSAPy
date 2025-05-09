@@ -21,7 +21,7 @@ def patch_dependencies():
          patch("simple.points_on_circle", return_value=[np.array([1, 2, 3])] * 4):
         yield
 
-import simple
+from ssapy import simple
 
 def test_keplerian_prop():
     result = simple.keplerian_prop(20)

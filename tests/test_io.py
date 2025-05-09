@@ -1,61 +1,53 @@
-import os
-
-# Create a skeleton test module for ssapy.io with pytest
-test_io_code = '''
-import os
-import tempfile
-import numpy as np
 import pytest
-from ssapy import io
+import os
+import numpy as np
+from io import StringIO
+from astropy.time import Time
+from ssapy import io 
 
-def test_exists_and_mkdir_rmdir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        new_dir = os.path.join(tmpdir, "testdir")
-        assert not io.exists(new_dir)
-        io.mkdir(new_dir)
-        assert io.exists(new_dir)
-        io.rmdir(new_dir)
-        assert not io.exists(new_dir)
+def test_file_exists_extension_agnostic(tmp_path):
+    f = tmp_path / "testfile.txt"
+    f.write_text("data")
+    assert io.file_exists_extension_agnostic(str(f).replace(".txt", "")) is True
 
-def test_file_exists_extension_agnostic():
-    with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmpfile:
-        fname_no_ext = os.path.splitext(tmpfile.name)[0]
-    try:
-        assert io.file_exists_extension_agnostic(fname_no_ext)
-    finally:
-        os.remove(tmpfile.name)
+def test_exists(tmp_path):
+    f = tmp_path / "example.txt"
+    f.write_text("content")
+    assert io.exists(str(f)) is True
+    assert io.exists(str(tmp_path)) is True
+    assert io.exists("/nonexistent/path") is False
 
-def test_save_and_load_pickle():
-    data = {"a": 1, "b": [1, 2, 3]}
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        io.save_pickle(tmpfile.name, data)
-        loaded = io.load_pickle(tmpfile.name)
-        assert data == loaded
-        os.remove(tmpfile.name)
+def test_read_tle_catalog(tmp_path):
+    file = tmp_path / "tle.txt"
+    file.write_text("1 25544U 98067A   21073.51465278  .00000282\n2 25544  51.6430 249.4256 0001791 160.3235 199.7986 15.48988277272524\n")
+    result = io.read_tle_catalog(str(file))
+    assert len(result) == 1
+    assert result[0][0].startswith("1 ")
+    assert result[0][1].startswith("2 ")
 
-def test_save_and_load_np():
-    arr = np.array([1, 2, 3])
-    with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
-        io.save_np(tmpfile.name, arr)
-        loaded = io.load_np(tmpfile.name)
-        np.testing.assert_array_equal(arr, loaded)
-        os.remove(tmpfile.name)
+def test_read_tle(tmp_path):
+    file = tmp_path / "tle.txt"
+    file.write_text("ISS (ZARYA)\n1 25544U 98067A   21073.51465278  .00000282\n2 25544  51.6430 249.4256 0001791 160.3235 199.7986 15.48988277272524\n")
+    line1, line2 = io.read_tle("ISS (ZARYA)", str(file))
+    assert line1.startswith("1 ")
+    assert line2.startswith("2 ")
 
-def test_exists_in_csv(tmp_path):
-    csv_file = tmp_path / "test.csv"
-    with open(csv_file, 'w') as f:
-        f.write("id,value\\n1,10\\n2,20\\n3,30\\n")
-    assert io.exists_in_csv(str(csv_file), "id", 2)
+def test_make_tle_and_parse_tle():
+    a = 6780000.0  # semi-major axis in meters
+    e = 0.001
+    i = np.radians(51.6)
+    pa = np.radians(45.0)
+    raan = np.radians(120.0)
+    true_anomaly = np.radians(60.0)
+    t = Time.now()
 
-def test_str_to_array():
-    s = "[1.0, 2.0, 3.0]"
-    result = io.str_to_array(s)
-    expected = np.array([1.0, 2.0, 3.0])
-    np.testing.assert_array_equal(result, expected)
-'''
+    line1, line2 = io.make_tle(a, e, i, pa, raan, true_anomaly, t)
+    parsed = io.parse_tle((line1, line2))
+    assert isinstance(parsed, tuple)
+    assert len(parsed) == 7
+    assert np.isclose(parsed[0], a, rtol=0.01)
 
-with open("/mnt/data/test_io.py", "w") as f:
-    f.write(test_io_code)
-
-"/mnt/data/test_io.py"
+def test_parse_overpunched():
+    assert io.parse_overpunched("J1234") == "-11234"
+    assert io.parse_overpunched("51234") == "51234"
 

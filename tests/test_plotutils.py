@@ -4,7 +4,7 @@ from astropy.time import Time
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import cleanup
 
-from plotUtils import (
+from ssapy.plotUtils import (
     globe_plot, koe_plot, koe_hist_2d, scatter_2d, scatter_3d,
     check_numpy_array, check_type, scatter_dot_colors_scaled
 )
