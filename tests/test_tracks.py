@@ -1172,14 +1172,3 @@ def test_iterate_mht():
         for track in hyp.tracks:
             assert len(track.satIDs) > 0
             assert len(track.satIDs) <= len(data['satID']) - 2  # Accounts for trimming
-
-
-if __name__ == '__main__':
-    import sys
-
-    # Run unittest classes
-    unittest.main(argv=['first-arg-is-ignored'], exit=False)
-
-    # Run pytest-style functions
-    import pytest
-    sys.exit(pytest.main([__file__]))
