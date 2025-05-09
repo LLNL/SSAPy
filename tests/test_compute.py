@@ -28,8 +28,8 @@ def mock_ellipsoid_cartToSphere(x, y, z):
 # Replace actual functions with mocks for testing
 @pytest.fixture(autouse=True)
 def mock_dependencies(monkeypatch):
-    monkeypatch.setattr("your_module.rv", mock_rv)
-    monkeypatch.setattr("your_module.Ellipsoid.cartToSphere", mock_ellipsoid_cartToSphere)
+    monkeypatch.setattr("ssapy.rv", mock_rv)
+    monkeypatch.setattr("ssapy.Ellipsoid.cartToSphere", mock_ellipsoid_cartToSphere)
 
 def test_groundTrack_geodetic():
     # Use sample_GEO_orbit and create time
@@ -125,7 +125,7 @@ def mock_radec(
 # Replace actual `radec` function with mock for testing
 @pytest.fixture(autouse=True)
 def mock_dependencies(monkeypatch):
-    monkeypatch.setattr("your_module.radec", mock_radec)
+    monkeypatch.setattr("ssapy.radec", mock_radec)
 
 def test_radecRate_with_EarthObserver():
     # Use sample_GEO_orbit and create time
@@ -227,7 +227,7 @@ def mock_lb_to_unit(ra, dec):
 # Replace actual `lb_to_unit` function with mock for testing
 @pytest.fixture(autouse=True)
 def mock_dependencies(monkeypatch):
-    monkeypatch.setattr("your_module.lb_to_unit", mock_lb_to_unit)
+    monkeypatch.setattr("ssapy.compute.lb_to_unit", mock_lb_to_unit)
 
 def test_radecRateObsToRV_with_obsVel():
     # Define inputs
