@@ -5,6 +5,7 @@ import astropy.units as u
 import ssapy
 from ssapy.utils import norm, iers_interp
 from .ssapy_test_helpers import timer, sample_LEO_orbit, sample_GEO_orbit
+from ssapy.accel import AccelProd, Accel
 
 iers_interp(0.0)  # Prime the IERS interpolant cache
 earth = ssapy.get_body("earth")
@@ -1039,6 +1040,86 @@ def test_bielliptic_transfer():
     np.testing.assert_allclose(orbf.e, 0, atol=1e-4)
     np.testing.assert_allclose(orbf.i, 0, atol=1e-6)
 
+class MockAccel(Accel):
+    """Mock implementation of Accel for testing purposes."""
+    def __init__(self, time_breakpoints=None):
+        super().__init__()
+        self.time_breakpoints = time_breakpoints if time_breakpoints else []
+
+    def __call__(self, r, v, t, **kwargs):
+        # Return a simple acceleration as a function of position and velocity
+        return np.array([1.0, 2.0, 3.0])  # Mock acceleration values
+
+    def __eq__(self, rhs):
+        # For equality testing
+        return isinstance(rhs, MockAccel) and self.time_breakpoints == rhs.time_breakpoints
+
+def test_accelprod_initialization():
+    # Create a mock Accel object
+    mock_accel = MockAccel(time_breakpoints=[0, 10, 20])
+    factor = 2.5
+
+    # Initialize AccelProd
+    accel_prod = AccelProd(mock_accel, factor)
+
+    # Verify attributes
+    assert accel_prod.accel == mock_accel
+    assert accel_prod.factor == factor
+    assert accel_prod.time_breakpoints == mock_accel.time_breakpoints
+
+def test_accelprod_call():
+    # Create a mock Accel object
+    mock_accel = MockAccel()
+    factor = 2.5
+
+    # Initialize AccelProd
+    accel_prod = AccelProd(mock_accel, factor)
+
+    # Define inputs
+    r = np.array([1.0, 0.0, 0.0])  # Position vector
+    v = np.array([0.0, 1.0, 0.0])  # Velocity vector
+    t = 5.0  # Time
+
+    # Call AccelProd
+    result = accel_prod(r, v, t)
+
+    # Verify output
+    expected_result = np.array([2.5, 5.0, 7.5])  # MockAccel output multiplied by factor
+    assert np.allclose(result, expected_result)
+
+def test_accelprod_hash():
+    # Create two identical AccelProd objects
+    mock_accel = MockAccel()
+    factor = 2.5
+    accel_prod1 = AccelProd(mock_accel, factor)
+    accel_prod2 = AccelProd(mock_accel, factor)
+
+    # Verify hash values are equal
+    assert hash(accel_prod1) == hash(accel_prod2)
+
+def test_accelprod_equality():
+    # Create two identical AccelProd objects
+    mock_accel = MockAccel()
+    factor = 2.5
+    accel_prod1 = AccelProd(mock_accel, factor)
+    accel_prod2 = AccelProd(mock_accel, factor)
+
+    # Verify equality
+    assert accel_prod1 == accel_prod2
+
+    # Create a different AccelProd object
+    accel_prod3 = AccelProd(mock_accel, factor=3.0)
+
+    # Verify inequality
+    assert accel_prod1 != accel_prod3
+
+    # Create a different Accel object
+    mock_accel2 = MockAccel(time_breakpoints=[0, 10])
+    accel_prod4 = AccelProd(mock_accel2, factor)
+
+    # Verify inequality
+    assert accel_prod1 != accel_prod4
+
 
 if __name__ == '__main__':
     test_MG_3_1()
@@ -1057,3 +1138,6 @@ if __name__ == '__main__':
     test_Hohmann_transfer()
     test_inclination_change()
     test_bielliptic_transfer()
+    test_accelprod_equality()
+    test_accelprod_hash()
+    test_accelprod_initialization()
