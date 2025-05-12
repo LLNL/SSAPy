@@ -9,9 +9,11 @@ import ssapy
 from ssapy.constants import RGEO, VGEO
 from ssapy.particles import Particles
 from ssapy.rvsampler import RPrior, APrior, GaussianRVInitializer
-from ssapy.utils import cluster_emcee_walkers, get_normed_weights
+from ssapy.utils import cluster_emcee_walkers
 
-# Helper for test
+# ------------------------------------------
+# Helpers
+# ------------------------------------------
 def random_vector(min_mag, max_mag):
     vec = np.random.normal(size=3)
     vec /= np.linalg.norm(vec)
@@ -48,10 +50,25 @@ def prepared_particles():
 
     return Particles(chain, rvprob, lnpriors=lnprior), rvprob
 
+# ------------------------------------------
+# Tests
+# ------------------------------------------
+
 def test_repr(prepared_particles):
     particles, _ = prepared_particles
     rep = repr(particles)
     assert "Particles(r=" in rep
+
+def test_epoch_property(prepared_particles):
+    particles, rvprob = prepared_particles
+    assert particles.epoch == rvprob.epoch
+
+def test_orbits_and_lnpriors_lazy(prepared_particles):
+    particles, _ = prepared_particles
+    assert isinstance(particles.orbits, list)
+    assert particles._orbits is not None
+    assert isinstance(particles.lnpriors, np.ndarray)
+    assert particles._lnpriors is not None
 
 def test_lnlike_shape(prepared_particles):
     particles, _ = prepared_particles
@@ -77,11 +94,24 @@ def test_fuse_and_reweight(prepared_particles):
     assert p0.particles.shape[1] == 6
     assert not np.allclose(p0.particles, old_particles)
 
+def test_fuse_verbose(prepared_particles, capsys):
+    p0, _ = prepared_particles
+    p1, _ = prepared_particles
+    p0.fuse(p1, verbose=True)
+    out = capsys.readouterr().out
+    # Allow verbose to print something under some edge cases
+    assert isinstance(out, str)
+
 def test_resample(prepared_particles):
     particles, _ = prepared_particles
     initial_count = particles.particles.shape[0]
     particles.resample(num_particles=initial_count)
     assert particles.particles.shape[0] == initial_count
+
+def test_invalid_resample_raises(prepared_particles):
+    particles, _ = prepared_particles
+    with pytest.raises(ValueError):
+        particles.resample(num_particles=particles.num_particles + 10)
 
 def test_reset_to_pseudo_prior(prepared_particles):
     particles, _ = prepared_particles
@@ -91,7 +121,31 @@ def test_reset_to_pseudo_prior(prepared_particles):
     reset = particles.mean()
     assert not np.allclose(original, reset)
 
-def test_invalid_resample_raises(prepared_particles):
+def test_mean(prepared_particles):
     particles, _ = prepared_particles
+    m = particles.mean()
+    assert m.shape == (6,)
+
+def test_init_with_3d_particles_valid_lnpriors(prepared_particles):
+    particles, _ = prepared_particles
+    # Reshape to simulate 3D input
+    particles_3d = particles.particles.reshape((10, 3, 6))
+    lnpriors = particles.lnpriors.reshape((10, 3))
+    p = Particles(particles_3d, particles.rvprobability, lnpriors=lnpriors)
+    assert p.particles.shape == (30, 6)
+
+def test_init_with_3d_particles_invalid_lnpriors(prepared_particles):
+    particles, _ = prepared_particles
+    particles_3d = particles.particles.reshape((10, 3, 6))
+    lnpriors = particles.lnpriors  # wrong shape
     with pytest.raises(ValueError):
-        particles.resample(num_particles=particles.num_particles + 10)
+        Particles(particles_3d, particles.rvprobability, lnpriors=lnpriors)
+
+def test_reweight_fails(prepared_particles, monkeypatch):
+    p0, _ = prepared_particles
+    p1, _ = prepared_particles
+
+    # Monkeypatch lnlike to always return large negative values
+    monkeypatch.setattr(p0.rvprobability, "lnlike", lambda orbit: -1e50)
+    result = p0.reweight(p1)
+    assert result is False

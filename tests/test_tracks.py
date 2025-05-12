@@ -12,7 +12,7 @@ from ssapy.correlate_tracks import (
     orbit_to_param, make_param_guess, make_optimizer, fit_arc_blind, fit_arc,
     fit_arc_with_gaussian_prior, data_for_satellite, wrap_angle_difference,
     radeczn, param_to_orbit, Track, TrackGauss, MHT, summarize_tracklet,
-    summarize_tracklets, iterate_mht, fit_arc_blind_via_track, Hypothesis
+    summarize_tracklets, iterate_mht, fit_arc_blind_via_track, Hypothesis, time_ordered_satIDs
 )
 from ssapy.orbit import Orbit
 from ssapy import propagator, rvsampler
@@ -190,7 +190,7 @@ def test_volume_distance_prior_behavior():
     assert isinstance(logprob, float)
 
 def test_make_param_guess_modes():
-    arc = create_mock_arc()
+    arc = sample_arc
     rvguess = [7000, 0, 0, 0, 7.5, 0]
     for mode in ['rv', 'equinoctial', 'angle']:
         result = make_param_guess(rvguess, arc, mode, orbitattr=['mass'])
@@ -203,7 +203,7 @@ def test_fit_arc_result_structure(sample_arc, sample_guess):
     assert hasattr(result, 'residual')
 
 def test_track_usage():
-    arc = create_mock_arc()
+    arc = sample_arc
     guess = [7000, 0, 0, 0, 7.5, 0, 123456789]
     track = Track([1, 2], arc, guess=guess, mode='rv', propagator=propagator.KeplerianPropagator())
     assert isinstance(track, Track)
@@ -211,7 +211,7 @@ def test_track_usage():
     assert isinstance(track.param, np.ndarray)
 
 def test_track_gauss_functionality():
-    track = Track([1, 2], create_mock_arc(), mode='rv', propagator=propagator.KeplerianPropagator())
+    track = Track([1, 2], sample_arc, mode='rv', propagator=propagator.KeplerianPropagator())
     gauss_track = track.gaussian_approximation()
     assert isinstance(gauss_track, TrackGauss)
 
@@ -234,3 +234,70 @@ def test_summarize_tracklet_output():
     pos, unc, pm, pm_unc = summarize_tracklet(arc)
     for val in list(pos) + list(unc) + list(pm) + list(pm_unc):
         assert hasattr(val, 'unit')
+
+def test_make_param_guess_shapes(sample_arc):
+    rvguess = [7000e3, 0, 0, 0, 7.5e3, 0]
+    param = make_param_guess(rvguess, sample_arc, mode='rv')
+    assert len(param) >= 7
+
+
+def test_time_ordered_satIDs():
+    data = np.array([(1, Time(1000, format='gps')), (2, Time(900, format='gps'))],
+                    dtype=[('satID', int), ('time', Time)])
+    result = time_ordered_satIDs(data)
+    assert result == [2, 1]
+
+
+def test_summarize_tracklets_output_fields(sample_data):
+    summarized = summarize_tracklets(sample_data)
+    required_fields = ['dra', 'ddec', 'pmra', 'pmdec', 'dpmra', 'dpmdec', 't_baseline']
+    for field in required_fields:
+        assert field in summarized.dtype.names
+
+
+def test_trackbase_instantiation(sample_data):
+    tb = TrackBase([1, 2], sample_data)
+    assert tb.satIDs == [1, 2]
+    assert isinstance(tb.times, np.ndarray)
+    assert tb.volume > 0
+
+
+def test_track_gaussian_approximation(sample_data):
+    t = Track([1, 2, 3, 4], sample_data)
+    gauss_track = t.gaussian_approximation()
+    assert isinstance(gauss_track, (TrackGauss, Track))
+
+
+def test_mht_run_and_hypothesis(sample_data):
+    mht = MHT(sample_data, nsat=100)
+    mht.run()
+    assert len(mht.hypotheses) > 0
+    for h in mht.hypotheses:
+        assert hasattr(h, 'lnprob')
+
+
+def test_iterate_mht(sample_data):
+    mht = MHT(sample_data, nsat=100)
+    mht.run()
+    new_mht = iterate_mht(sample_data, mht)
+    assert isinstance(new_mht, MHT)
+    assert len(new_mht.hypotheses) > 0
+
+
+def test_track_repr(sample_data):
+    track = Track([1, 2, 3], sample_data)
+    rep = repr(track)
+    assert 'Track' in rep and 'chi2' in rep
+
+
+def test_gauss_repr(sample_data):
+    track = Track([1, 2, 3, 4], sample_data)
+    gauss = track.gaussian_approximation()
+    rep = repr(gauss)
+    assert 'Track' in rep
+
+
+def test_track_addto(sample_data):
+    t1 = Track([1, 2, 3], sample_data)
+    t2 = t1.addto(4)
+    assert 4 in t2.satIDs and len(t2.satIDs) == 4
