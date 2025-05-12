@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import MagicMock, patch
 from astropy.time import Time
 import numpy as np

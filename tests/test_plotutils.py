@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 import os
 import io
@@ -25,10 +24,10 @@ from ssapy.plotUtils import (
 
 def test_load_earth_file():
     fake_file_path = "fake_path/earth.png"
-    with patch("find_file", return_value=fake_file_path) as mock_find_file:
+    with patch("ssapy.plotUtils.find_file", return_value=fake_file_path) as mock_find_file:
         mock_image = MagicMock(spec=PILImage.Image)
         mock_image.size = (5400, 2700)  # Original size of the image
-        with patch("PILImage.open", return_value=mock_image) as mock_open:
+        with patch("ssapy.plotUtils.PILImage.open", return_value=mock_image) as mock_open:
             # Mock the resize method to return a resized image
             resized_image = MagicMock(spec=PILImage.Image)
             resized_image.size = (1080, 540)  # Resized dimensions
@@ -46,12 +45,12 @@ def test_load_earth_file():
 
 def test_draw_earth():
     fake_texture = MagicMock()
-    with patch("load_earth_file", return_value=fake_texture) as mock_load_earth_file:
+    with patch("ssapy.plotUtils.load_earth_file", return_value=fake_texture) as mock_load_earth_file:
         # Mock the ipv.plot_mesh function
         fake_plot_mesh = MagicMock()
-        with patch("ipv.plot_mesh", return_value=fake_plot_mesh) as mock_plot_mesh:
+        with patch("ssapy.plotUtils.ipv.plot_mesh", return_value=fake_plot_mesh) as mock_plot_mesh:
             fake_gst = np.array([0.1, 0.2, 0.3])  # Fake GST values
-            with patch("gst94", return_value=fake_gst) as mock_gst94:
+            with patch("ssapy.plotUtils.gst94", return_value=fake_gst) as mock_gst94:
                 # Define test inputs
                 test_time = np.array([100000, 200000, 300000])  # GPS seconds
                 test_ngrid = 50
@@ -88,11 +87,11 @@ def test_draw_earth():
 
 def test_load_moon_file():
     fake_file_path = "fake_path/moon.png"
-    with patch("find_file", return_value=fake_file_path) as mock_find_file:
+    with patch("ssapy.plotUtils.find_file", return_value=fake_file_path) as mock_find_file:
         # Mock the PILImage.open function to return a mock image
         mock_image = MagicMock(spec=PILImage.Image)
         mock_image.size = (5400, 2700)  # Original size of the image
-        with patch("PILImage.open", return_value=mock_image) as mock_open:
+        with patch("ssapy.plotUtils.PILImage.open", return_value=mock_image) as mock_open:
             # Mock the resize method to return a resized image
             resized_image = MagicMock(spec=PILImage.Image)
             resized_image.size = (1080, 540)  # Resized dimensions
@@ -111,13 +110,13 @@ def test_load_moon_file():
 def test_draw_moon():
     # Mock the load_moon_file function to return a fake texture
     fake_texture = MagicMock()
-    with patch("load_moon_file", return_value=fake_texture) as mock_load_moon_file:
+    with patch("ssapy.plotUtils.load_moon_file", return_value=fake_texture) as mock_load_moon_file:
         # Mock the ipv.plot_mesh function
         fake_plot_mesh = MagicMock()
-        with patch("ipv.plot_mesh", return_value=fake_plot_mesh) as mock_plot_mesh:
+        with patch("ssapy.plotUtils.ipv.plot_mesh", return_value=fake_plot_mesh) as mock_plot_mesh:
             # Mock the erfa.gst94 function
             fake_gst = np.array([0.1, 0.2, 0.3])  # Fake GST values
-            with patch("gst94", return_value=fake_gst) as mock_gst94:
+            with patch("ssapy.plotUtils.gst94", return_value=fake_gst) as mock_gst94:
                 # Define test inputs
                 test_time = np.array([100000, 200000, 300000])  # GPS seconds
                 test_ngrid = 50
@@ -157,12 +156,12 @@ def test_ground_track_plot():
     fake_lon = np.array([0.1, 0.2, 0.3])  # Fake longitude in radians
     fake_lat = np.array([0.4, 0.5, 0.6])  # Fake latitude in radians
     fake_height = np.array([1000, 2000, 3000])  # Fake height in meters
-    with patch("groundTrack", return_value=(fake_lon, fake_lat, fake_height)) as mock_groundTrack:
+    with patch("ssapy.plotUtils.groundTrack", return_value=(fake_lon, fake_lat, fake_height)) as mock_groundTrack:
         # Mock the load_earth_file function to return a fake image
         fake_image = MagicMock()
-        with patch("load_earth_file", return_value=fake_image) as mock_load_earth_file:
+        with patch("ssapy.plotUtils.load_earth_file", return_value=fake_image) as mock_load_earth_file:
             # Mock the save_plot function
-            with patch("save_plot") as mock_save_plot:
+            with patch("ssapy.plotUtils.save_plot") as mock_save_plot:
                 # Define test inputs
                 test_r = np.array([[7000, 8000, 9000]])  # Orbit positions (example values)
                 test_t = np.array([100000, 200000, 300000])  # GPS seconds (example values)
@@ -189,19 +188,19 @@ def test_ground_track_plot():
 def test_groundTrackVideo():
     # Mock ipv.figure to return a fake figure object
     fake_ipvfig = MagicMock()
-    with patch("ipv.figure", return_value=fake_ipvfig) as mock_ipv_figure:
+    with patch("ssapy.plotUtils.ipv.figure", return_value=fake_ipvfig) as mock_ipv_figure:
         # Mock ipv.scatter, ipv.plot, ipv.animation_control, and ipv.show
         fake_scatter = MagicMock()
         fake_plot = MagicMock()
         fake_animation_control = MagicMock()
         fake_show = MagicMock()
-        with patch("ipv.scatter", return_value=fake_scatter) as mock_ipv_scatter, \
-             patch("ipv.plot", return_value=fake_plot) as mock_ipv_plot, \
-             patch("ipv.animation_control", return_value=fake_animation_control) as mock_ipv_animation_control, \
-             patch("ipv.show", return_value=fake_show) as mock_ipv_show:
+        with patch("ssapy.plotUtils.ipv.scatter", return_value=fake_scatter) as mock_ipv_scatter, \
+             patch("ssapy.plotUtils.ipv.plot", return_value=fake_plot) as mock_ipv_plot, \
+             patch("ssapy.plotUtils.ipv.animation_control", return_value=fake_animation_control) as mock_ipv_animation_control, \
+             patch("ssapy.plotUtils.ipv.show", return_value=fake_show) as mock_ipv_show:
             # Mock draw_earth function
             fake_draw_earth = MagicMock()
-            with patch("draw_earth", return_value=fake_draw_earth) as mock_draw_earth:
+            with patch("ssapy.plotUtils.draw_earth", return_value=fake_draw_earth) as mock_draw_earth:
                 # Define test inputs
                 test_r = np.array([[7000, 8000, 9000], [7100, 8100, 9100], [7200, 8200, 9200]])  # Example positions
                 test_time = np.array([100000, 200000, 300000])  # GPS seconds
@@ -351,8 +350,8 @@ def dummy_data():
     t = np.linspace(0, 1, 50)
     return r, t
 
-@patch("find_file")
-@patch("PILImage.open")
+@patch("ssapy.plotUtils.find_file")
+@patch("ssapy.plotUtils.PILImage.open")
 def test_globe_plot_basic(mock_open, mock_find_file, dummy_data):
     # Mock image loading
     mock_img = MagicMock()
@@ -369,8 +368,8 @@ def test_globe_plot_basic(mock_open, mock_find_file, dummy_data):
     assert hasattr(ax, 'scatter')
     assert hasattr(ax, 'plot_surface')
 
-@patch("find_file")
-@patch("PILImage.open")
+@patch("ssapy.plotUtils.find_file")
+@patch("ssapy.plotUtils.PILImage.open")
 def test_globe_plot_with_limits(mock_open, mock_find_file, dummy_data):
     mock_img = MagicMock()
     mock_img.resize.return_value = mock_img
@@ -384,8 +383,8 @@ def test_globe_plot_with_limits(mock_open, mock_find_file, dummy_data):
 
     assert ax.get_xlim() == (-2.0, 2.0)
 
-@patch("find_file")
-@patch("PILImage.open")
+@patch("ssapy.plotUtils.find_file")
+@patch("ssapy.plotUtils.PILImage.open")
 def test_globe_plot_save(tmp_path, mock_open, mock_find_file, dummy_data):
     mock_img = MagicMock()
     mock_img.resize.return_value = mock_img
@@ -398,12 +397,12 @@ def test_globe_plot_save(tmp_path, mock_open, mock_find_file, dummy_data):
     r, t = dummy_data
 
     # Patch save_plot if needed, otherwise ensure the file is created by implementation
-    with patch("your_module.save_plot") as mock_save:
+    with patch("ssapy.plotUtils.your_module.save_plot") as mock_save:
         globe_plot(r, t, save_path=str(save_path))
         mock_save.assert_called_once()
 
-@patch("find_file")
-@patch("PILImage.open")
+@patch("ssapy.plotUtils.find_file")
+@patch("ssapy.plotUtils.PILImage.open")
 def test_globe_plot_extreme_angles(mock_open, mock_find_file, dummy_data):
     mock_img = MagicMock()
     mock_img.resize.return_value = mock_img
@@ -424,8 +423,8 @@ def dummy_orbit_data():
     t = Time("2025-01-01", scale="utc") + np.linspace(0, 365.25, 100)
     return r, v, t
 
-@patch("calculate_orbital_elements")
-@patch("set_color_theme")
+@patch("ssapy.plotUtils.calculate_orbital_elements")
+@patch("ssapy.plotUtils.set_color_theme")
 def test_koe_plot_basic(mock_set_color_theme, mock_calc_elements, dummy_orbit_data):
     r, v, t = dummy_orbit_data
 
@@ -441,8 +440,8 @@ def test_koe_plot_basic(mock_set_color_theme, mock_calc_elements, dummy_orbit_da
     assert isinstance(fig, Figure)
     assert hasattr(ax, 'plot')
 
-@patch("calculate_orbital_elements")
-@patch("set_color_theme")
+@patch("ssapy.plotUtils.calculate_orbital_elements")
+@patch("ssapy.plotUtils.set_color_theme")
 def test_koe_plot_for_moon(mock_set_color_theme, mock_calc_elements, dummy_orbit_data):
     r, v, t = dummy_orbit_data
 
@@ -455,9 +454,9 @@ def test_koe_plot_for_moon(mock_set_color_theme, mock_calc_elements, dummy_orbit
     fig, ax = koe_plot(r, v, t=t, body='Moon')
     assert isinstance(fig, Figure)
 
-@patch("calculate_orbital_elements")
-@patch("set_color_theme")
-@patch("save_plot")
+@patch("ssapy.plotUtils.calculate_orbital_elements")
+@patch("ssapy.plotUtils.set_color_theme")
+@patch("ssapy.plotUtils.save_plot")
 def test_koe_plot_saves_file(mock_save_plot, mock_set_color_theme, mock_calc_elements, dummy_orbit_data):
     r, v, t = dummy_orbit_data
 
@@ -481,24 +480,24 @@ def mock_stable_data():
             self.ta = np.radians(np.random.uniform(0, 360, 1000))
     return StableData()
 
-@patch("set_color_theme")
+@patch("ssapy.plotUtils.set_color_theme")
 def test_koe_hist_2d_basic(mock_set_theme, mock_stable_data):
     fig = koe_hist_2d(mock_stable_data)
     assert isinstance(fig, Figure)
 
-@patch("set_color_theme")
+@patch("ssapy.plotUtils.set_color_theme")
 def test_koe_hist_2d_logscale(mock_set_theme, mock_stable_data):
     fig = koe_hist_2d(mock_stable_data, logscale=True)
     assert isinstance(fig, Figure)
 
-@patch("set_color_theme")
-@patch("save_plot")
+@patch("ssapy.plotUtils.set_color_theme")
+@patch("ssapy.plotUtils.save_plot")
 def test_koe_hist_2d_saves_file(mock_save_plot, mock_set_theme, mock_stable_data):
     save_path = "test_histogram.pdf"
     fig = koe_hist_2d(mock_stable_data, save_path=save_path)
     mock_save_plot.assert_called_once_with(fig, save_path)
 
-@patch("set_color_theme")
+@patch("ssapy.plotUtils.set_color_theme")
 def test_koe_hist_2d_custom_title(mock_set_theme, mock_stable_data):
     custom_title = "My Custom Title"
     fig = koe_hist_2d(mock_stable_data, title=custom_title)
@@ -557,7 +556,7 @@ def test_scatter_3d_with_combined_xyz_array():
     fig, ax = scatter_3d(xyz, cs=cs, title="From Combined Input")
     assert isinstance(fig, Figure)
 
-@patch("save_plot")
+@patch("ssapy.plotUtils.save_plot")
 def test_scatter_3d_save_plot(mock_save):
     x = np.random.rand(100)
     y = np.random.rand(100)
@@ -575,8 +574,8 @@ def fake_moon_position():
     # shape should be (3, n)
     return np.random.rand(3, 100) * 1e8
 
-@patch("save_plot")
-@patch("get_body")
+@patch("ssapy.plotUtils.save_plot")
+@patch("ssapy.plotUtils.get_body")
 def test_orbit_divergence_plot_with_moon_calc(mock_get_body, mock_save_plot, sample_orbit_data):
     # Mock Moon body with position() method
     mock_moon = MagicMock()
@@ -589,7 +588,7 @@ def test_orbit_divergence_plot_with_moon_calc(mock_get_body, mock_save_plot, sam
     # Confirm moon position was used
     mock_moon.position.assert_called_once_with(t)
 
-@patch("save_plot")
+@patch("ssapy.plotUtils.save_plot")
 def test_orbit_divergence_plot_with_provided_r_moon(mock_save_plot, sample_orbit_data, fake_moon_position):
     orbit_divergence_plot(sample_orbit_data, r_moon=fake_moon_position, title="With Provided Moon")
     # Should not raise
@@ -600,7 +599,7 @@ def test_orbit_divergence_plot_with_bad_r_moon_shape(sample_orbit_data):
     with pytest.raises(IndexError, match="input moon data shape"):
         orbit_divergence_plot(sample_orbit_data, r_moon=bad_r_moon)
 
-@patch("save_plot")
+@patch("ssapy.plotUtils.save_plot")
 def test_orbit_divergence_plot_saves_plot(mock_save_plot, sample_orbit_data, fake_moon_position):
     orbit_divergence_plot(sample_orbit_data, r_moon=fake_moon_position, save_path="orbit_plot.png")
     mock_save_plot.assert_called_once()
@@ -639,7 +638,7 @@ def test_set_color_theme_with_3d_axes():
     assert ax.zaxis.label.get_color() == 'white'
     assert ax.get_facecolor()[:3] == (0, 0, 0)
 
-@patch("ssapy.rotation_matrix_from_vectors")
+@patch("ssapy.plotUtils.rotation_matrix_from_vectors")
 def test_draw_dashed_circle_executes(mock_rotation):
     # Identity rotation (no change) for simplicity
     mock_rotation.return_value = np.eye(3)
@@ -712,10 +711,10 @@ def sample_figure():
     ax.plot([0, 1], [0, 1])
     return fig
 
-@patch("PILImage.open")
-@patch("PdfPages")
-@patch("os.remove")
-@patch("os.path.exists",return_value=False)
+@patch("ssapy.plotUtils.PILImage.open")
+@patch("ssapy.plotUtils.PdfPages")
+@patch("ssapy.plotUtils.os.remove")
+@patch("ssapy.plotUtils.os.path.exists",return_value=False)
 def test_save_plot_to_pdf_creates_new(
     mock_exists, mock_rename, mock_pdfpages, mock_pil_open, tmp_path, sample_figure
 ):
@@ -729,11 +728,11 @@ def test_save_plot_to_pdf_creates_new(
     mock_rename.assert_called_once()
     assert not os.path.exists(str(pdf_path) + "_temp.pdf")  # temp should be renamed
 
-@patch("PILImage.open")
-@patch("PdfPages")
-@patch("os.remove")
-@patch("os.path.exists", return_value=True)
-@patch("PdfMerger")
+@patch("ssapy.plotUtils.PILImage.open")
+@patch("ssapy.plotUtils.PdfPages")
+@patch("ssapy.plotUtils.os.remove")
+@patch("ssapy.plotUtils.os.path.exists", return_value=True)
+@patch("ssapy.plotUtils.PdfMerger")
 def test_save_plot_to_pdf_appends_to_existing(
     mock_merger_class, mock_exists, mock_remove, mock_pdfpages, mock_pil_open, tmp_path, sample_figure
 ):
@@ -762,7 +761,7 @@ def sample_figure():
     ax.plot([0, 1], [0, 1])
     return fig
 
-@patch("save_plot_to_pdf")
+@patch("ssapy.plotUtils.save_plot_to_pdf")
 def test_save_plot_calls_pdf_save(mock_save_pdf, sample_figure):
     save_path = "plot.pdf"
     save_plot(sample_figure, save_path)
@@ -774,7 +773,7 @@ def test_save_plot_defaults_to_png(tmp_path, sample_figure):
     actual_file = tmp_path / "my_figure.png"
     assert actual_file.exists()
 
-@patch("plt.Figure.savefig", side_effect=RuntimeError("Saving failed"))
+@patch("ssapy.plotUtils.plt.Figure.savefig", side_effect=RuntimeError("Saving failed"))
 def test_save_plot_exception_handling(mock_savefig, sample_figure, capsys):
     save_path = "bad_path.png"
     save_plot(sample_figure, save_path)

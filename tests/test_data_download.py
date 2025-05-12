@@ -1,5 +1,4 @@
 import os
-import pytest
 import subprocess
 from unittest import mock
 

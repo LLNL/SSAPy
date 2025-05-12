@@ -1,4 +1,3 @@
-import pytest
 import numpy as np
 from astropy.time import Time
 import astropy.units as u

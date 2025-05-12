@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 from astropy.time import Time
 import astropy.units as u
 from astropy.coordinates import Longitude, Latitude
