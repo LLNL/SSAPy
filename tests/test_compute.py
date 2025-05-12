@@ -1,5 +1,6 @@
 import numpy as np
 from astropy.time import Time
+import pytest
 
 import ssapy
 from ssapy.utils import get_angle

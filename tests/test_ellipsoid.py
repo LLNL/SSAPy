@@ -1,4 +1,6 @@
 import numpy as np
+import pytest
+
 from ssapy.ellipsoid import Ellipsoid
 
 @pytest.fixture

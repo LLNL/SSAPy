@@ -3,6 +3,7 @@ from astropy.time import Time
 import astropy.units as u
 from astropy.coordinates import Longitude, Latitude
 from astropy.table import QTable
+import pytest
 
 import ssapy
 from ssapy.constants import RGEO, VGEO

@@ -3,6 +3,7 @@ from astropy.time import Time
 from astropy import units as u
 import math
 from functools import partial
+import pytest
 
 import ssapy
 from ssapy.constants import EARTH_MU, RGEO

@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 from astropy.time import Time
 import numpy as np
+import pytest
 
 # Patch imports from simple.py module
 @pytest.fixture(autouse=True)

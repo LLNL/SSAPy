@@ -1,6 +1,7 @@
 import os
 import subprocess
 from unittest import mock
+import pytest
 
 # Updated import path
 from ssapy.data_utils import ensure_data_downloaded

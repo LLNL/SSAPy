@@ -10,6 +10,7 @@ from matplotlib.testing.decorators import cleanup
 from PIL import Image as PILImage
 import ipyvolume as ipv
 from erfa import gst94
+import pytest
 
 from ssapy.compute import groundTrack, calculate_orbital_elements, get_body 
 from ssapy.utils import find_file
