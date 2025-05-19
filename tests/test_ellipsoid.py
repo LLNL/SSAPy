@@ -6,7 +6,7 @@ from ssapy.ellipsoid import Ellipsoid
 @pytest.fixture
 def sample_ellipsoid():
     """Fixture for a standard ellipsoid with WGS84 flattening."""
-    return Ellipsoid(a=6378137.0, f=1 / 298.257223563)
+    return Ellipsoid(Req=6378137.0, f=1 / 298.257223563)
 
 def test_sphere_to_cart_and_back_scalar(sample_ellipsoid):
     lon = np.deg2rad(30)

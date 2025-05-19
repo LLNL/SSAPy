@@ -1,6 +1,9 @@
 import numpy as np
 from astropy.time import Time
 import pytest
+import sys
+import importlib
+
 
 import ssapy
 from ssapy.utils import get_angle
@@ -878,3 +881,42 @@ def test_lagrange_points_lunar_frame():
 
     # Validate L4 and L5 positions (approximate checks)
     assert np.isclose(np.linalg.norm(lagrange_points["L4"]), np.linalg.norm(lagrange_points["L5"]))
+
+MODULE_NAME = "ssapy.compute"
+
+@pytest.fixture(autouse=True)
+def cleanup_module_cache():
+    """Ensure a clean import state before each test."""
+    if MODULE_NAME in sys.modules:
+        del sys.modules[MODULE_NAME]
+    yield
+    if MODULE_NAME in sys.modules:
+        del sys.modules[MODULE_NAME]
+
+def test_import_erfa_present():
+    # Create a fake `erfa` module
+    fake_erfa = types.ModuleType("erfa")
+    sys.modules["erfa"] = fake_erfa
+
+    # Remove fallback if it was accidentally cached
+    sys.modules.pop("astropy._erfa", None)
+
+    # Import and test
+    import ssapy.compute
+    importlib.reload(ssapy.compute)
+
+    assert ssapy.compute.erfa is fake_erfa
+
+def test_import_fallback_astropy_erfa():
+    # Remove `erfa` to simulate ImportError
+    sys.modules.pop("erfa", None)
+
+    # Create a fake `astropy._erfa` module
+    fake_astropy_erfa = types.ModuleType("astropy._erfa")
+    sys.modules["astropy._erfa"] = fake_astropy_erfa
+
+    # Import and test
+    import ssapy.compute
+    importlib.reload(ssapy.compute)
+
+    assert ssapy.compute.erfa is fake_astropy_erfa

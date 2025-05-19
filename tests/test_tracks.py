@@ -11,7 +11,7 @@ from ssapy.correlate_tracks import (
     CircVelocityPrior, ZeroRadialVelocityPrior, GaussPrior, VolumeDistancePrior,
     orbit_to_param, make_param_guess, make_optimizer, fit_arc_blind, fit_arc,
     fit_arc_with_gaussian_prior, data_for_satellite, wrap_angle_difference,
-    radeczn, param_to_orbit, Track, TrackGauss, MHT, summarize_tracklet,
+    radeczn, param_to_orbit, Track, TrackGauss,TrackBase, MHT, summarize_tracklet,
     summarize_tracklets, iterate_mht, fit_arc_blind_via_track, Hypothesis, time_ordered_satIDs
 )
 from ssapy.orbit import Orbit
@@ -65,7 +65,6 @@ def sample_truth():
 def sample_hypotheses():
     return [Hypothesis([], nsat=1000)]
 
-@pytest.fixture
 def mht_instance(sample_data, sample_truth, sample_hypotheses, sample_propagator):
     return MHT(data=sample_data, nsat=1000, truth=sample_truth,
                hypotheses=sample_hypotheses, propagator=sample_propagator)

@@ -7,8 +7,6 @@ from astropy.table import QTable
 import ssapy
 from ssapy.constants import RGEO, VGEO
 
-
-# Helper: simplified particle generation
 def _create_iods_small(num_epochs=2, num_obs_per_track=3, nBurn=10, nStep=10):
     from ssapy.rvsampler import RPrior, APrior
     np.random.seed(42)
@@ -21,7 +19,7 @@ def _create_iods_small(num_epochs=2, num_obs_per_track=3, nBurn=10, nStep=10):
     observer = ssapy.EarthObserver(lon, lat, elevation)
     orbit = ssapy.Orbit.fromKeplerianElements(RGEO * 0.98, 0.01, 0.001, 0.0, 1.2, 1.03, time0)
     times = time0 + np.linspace(0, 4, num_obs_per_track) * u.h
-    ra, dec = ssapy.radec(orbit, times, observer=observer)
+    coord = ssapy.radec(orbit, times, observer=observer)
     rstation, vstation = observer.getRV(times)
 
     iods = []

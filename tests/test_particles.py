@@ -30,7 +30,7 @@ def prepared_particles():
     v = random_vector(VGEO * 0.9, VGEO * 1.1)
     orbit = ssapy.Orbit(r, v, time)
     times = time + np.linspace(0, 10, 5) * u.h
-    ra, dec = ssapy.radec(orbit, times, observer=observer)
+    coord = ssapy.radec(orbit, times, observer=observer)
     r_station, v_station = observer.getRV(times)
 
     arc = QTable()

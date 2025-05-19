@@ -75,7 +75,7 @@ def initialize_DRO(t, delta_r=7.52064e7, delta_v=344):
 
 # Distant Retrograde Orbit (DRO)
 dro_orbit = initialize_DRO(t=times[0])
-r, v, t = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
+r, v = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
 ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/DRO_orbit", frame='Lunar', show=False)
 r_lunar, v_lunar = ssapy.utils.gcrf_to_lunar_fixed(r, t=times, v=True)
 print("Successfully converted GCRF to lunar frame.")

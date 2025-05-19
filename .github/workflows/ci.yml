@@ -138,7 +138,7 @@ jobs:
     - name: Test with pytest
       run: |
         # Run pytest with coverage, excluding the specified test
-        pytest --cov-report=xml --cov=ssapy || true
+        pytest --cov-report=xml --cov=ssapy
     - name: Verify coverage files
       run: |
         if [ -f coverage.xml ]; then
