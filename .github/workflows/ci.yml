@@ -135,34 +135,10 @@ jobs:
     - name: Install pytest plugins
       run: |
         pip install pytest pytest-cov pytest-xdist
-    - name: Determine changed test files
-      id: changed
+    - name: Test with pytest
       run: |
-        # Get list of changed .py files in tests or related to src
-        FILES=$(git diff --name-only HEAD^ HEAD | grep -E '(^tests/.*\.py$|^ssapy/.*\.py$)' || true)
-        echo "Changed files:"
-        echo "$FILES"
-        echo "files=$FILES" >> $GITHUB_OUTPUT
-
-    - name: Run only changed tests
-      if: steps.changed.outputs.files != ''
-      run: |
-        # Convert newline-separated files into space-separated for pytest
-        TEST_FILES=$(echo "${{ steps.changed.outputs.files }}" | tr '\n' ' ')
-        echo "Running tests on changed files: $TEST_FILES"
-        pytest -v -n auto --cov=ssapy --cov-report=xml $TEST_FILES
-
-    - name: Skip tests (nothing changed)
-      if: steps.changed.outputs.files == ''
-      run: echo "No relevant tests or code changed. Skipping pytest."
-    - name: Verify coverage files
-      run: |
-        if [ -f coverage.xml ]; then
-          echo "Coverage report generated successfully."
-        else
-          echo "Coverage report not found. Check pytest configuration."
-          exit 1
-        fi
+        # Run pytest with coverage, using all available CPUs and verbose output
+        pytest -v -n auto --cov-report=xml --cov=ssapy
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4
