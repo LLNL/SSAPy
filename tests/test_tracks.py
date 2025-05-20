@@ -73,6 +73,7 @@ def mht_instance(sample_data, sample_truth, sample_hypotheses, sample_propagator
     ('rv', rvsampler.LMOptimizer),
     ('equinoctial', rvsampler.EquinoctialLMOptimizer),
 ])
+@pytest.mark.timeout(30)
 def test_make_optimizer_modes(mode, expected_cls):
     param = list(range(9))
     optimizer = make_optimizer(mode=mode, param=param, lsq=False)
@@ -83,6 +84,7 @@ def test_make_optimizer_modes(mode, expected_cls):
     ('angle', rvsampler.ParamOrbitAngle),
     ('equinoctial', rvsampler.ParamOrbitEquinoctial),
 ])
+@pytest.mark.timeout(30)
 def test_make_optimizer_lsq(mode, translatorcls):
     param = list(range(9))
     opt = make_optimizer(mode=mode, param=param, lsq=True)
@@ -110,18 +112,19 @@ def test_orbit_to_param_and_back(mode):
     (3, 360, 0.25, (3 + 0.25 * 360) % 360 - 0.25 * 360),
     (1000, 360, 0.5, (1000 + 0.5 * 360) % 360 - 0.5 * 360),
 ])
+@pytest.mark.timeout(30)
 def test_wrap_angle_difference_values(input_angle, wrap_range, center, expected):
     result = wrap_angle_difference(input_angle, wrap_range, center=center)
     assert pytest.approx(result, rel=1e-6) == expected
 
-
+@pytest.mark.timeout(30)
 def test_fit_arc_blind_returns_expected_values(sample_arc):
     chi2, params, result = fit_arc_blind(sample_arc, mode='rv')
     assert isinstance(chi2, float)
     assert isinstance(params, np.ndarray)
     assert hasattr(result, 'residual')
 
-
+@pytest.mark.timeout(30)
 def test_fit_arc_with_gaussian_prior_success(sample_arc, sample_gaussian_prior):
     mu, cinv = sample_gaussian_prior
     chi2, params, result = fit_arc_with_gaussian_prior(sample_arc, mu, cinv, mode='rv')
@@ -129,12 +132,12 @@ def test_fit_arc_with_gaussian_prior_success(sample_arc, sample_gaussian_prior):
     assert isinstance(params, np.ndarray)
     assert hasattr(result, 'residual')
 
-
+@pytest.mark.timeout(30)
 def test_data_for_satellite_behavior(sample_data):
     result = data_for_satellite(sample_data, [1, 3])
     assert set(result['satID']) <= {1, 3}
 
-
+@pytest.mark.timeout(30)
 def test_mht_lifecycle(mht_instance):
     mht_instance.run()
     assert mht_instance.track2hyp
@@ -143,7 +146,7 @@ def test_mht_lifecycle(mht_instance):
     pruned = mht_instance.prune_tracks(1)
     assert isinstance(pruned, np.ndarray)
 
-
+@pytest.mark.timeout(30)
 def test_summarize_tracklets_structure():
     times = [Time(1000, format='gps'), Time(2000, format='gps')]
     data = np.array([
@@ -154,7 +157,7 @@ def test_summarize_tracklets_structure():
     for key in ['dra', 'ddec', 'pmra', 'pmdec', 'dpmra', 'dpmdec', 't_baseline']:
         assert key in summarized.dtype.names
 
-
+@pytest.mark.timeout(30)
 def test_radeczn_output_shapes():
     orbit = sample_GEO_orbit(t=1000)
     arc = {'time': np.array([1000, 2000]),
@@ -164,16 +167,19 @@ def test_radeczn_output_shapes():
     for arr in [rr, dd, zz, pmrr, pmdd, dzzdt, nwrap]:
         assert arr.shape == (2,)
 
+@pytest.mark.timeout(30)
 def test_circ_velocity_prior_properties():
     prior = CircVelocityPrior(sigma=0.2)
     assert isinstance(prior, CircVelocityPrior)
     assert math.isclose(prior.sigma, 0.2)
 
+@pytest.mark.timeout(30)
 def test_zero_radial_velocity_prior_properties():
     prior = ZeroRadialVelocityPrior(sigma=0.3)
     assert isinstance(prior, ZeroRadialVelocityPrior)
     assert math.isclose(prior.sigma, 0.3)
 
+@pytest.mark.timeout(30)
 def test_gauss_prior_properties():
     mu = np.zeros(6)
     cinv = np.eye(6)
@@ -182,12 +188,14 @@ def test_gauss_prior_properties():
     assert np.array_equal(prior.mu, mu)
     assert np.array_equal(prior.cinvcholfac, cinv)
 
+@pytest.mark.timeout(30)
 def test_volume_distance_prior_behavior():
     prior = VolumeDistancePrior(scale=RGEO)
     orbit = sample_LEO_orbit(t=0)
     logprob = prior(orbit, 7000e3)
     assert isinstance(logprob, float)
 
+@pytest.mark.timeout(30)
 def test_make_param_guess_modes():
     arc = sample_arc
     rvguess = [7000, 0, 0, 0, 7.5, 0]
@@ -195,12 +203,14 @@ def test_make_param_guess_modes():
         result = make_param_guess(rvguess, arc, mode, orbitattr=['mass'])
         assert isinstance(result, list) or isinstance(result, np.ndarray)
 
+@pytest.mark.timeout(30)
 def test_fit_arc_result_structure(sample_arc, sample_guess):
     chi2, params, result = fit_arc(sample_arc, sample_guess, mode='rv')
     assert isinstance(chi2, float)
     assert isinstance(params, np.ndarray)
     assert hasattr(result, 'residual')
 
+@pytest.mark.timeout(30)
 def test_track_usage():
     arc = sample_arc
     guess = [7000, 0, 0, 0, 7.5, 0, 123456789]
@@ -209,22 +219,26 @@ def test_track_usage():
     assert track.param is not None
     assert isinstance(track.param, np.ndarray)
 
+@pytest.mark.timeout(30)
 def test_track_gauss_functionality():
     track = Track([1, 2], sample_arc, mode='rv', propagator=propagator.KeplerianPropagator())
     gauss_track = track.gaussian_approximation()
     assert isinstance(gauss_track, TrackGauss)
 
+@pytest.mark.timeout(30)
 def test_iterate_mht_returns_valid():
     data = sample_data()
     mht = MHT(data, nsat=1000, hypotheses=[Hypothesis([], nsat=1000)], propagator=propagator.KeplerianPropagator())
     result = iterate_mht(data, mht, nminlength=2, trimends=1)
     assert isinstance(result, MHT)
 
+@pytest.mark.timeout(30)
 def test_fit_arc_blind_via_track_execution():
     result = fit_arc_blind_via_track(sample_data(), propagator=propagator.KeplerianPropagator())
     assert isinstance(result, list)
     assert all(isinstance(r, Track) for r in result)
 
+@pytest.mark.timeout(30)
 def test_summarize_tracklet_output():
     arc = np.array([
         {'time': Time(1000, format='gps'), 'ra': 10*u.deg, 'dec': 20*u.deg, 'sigma': 0.1*u.deg},
@@ -234,39 +248,40 @@ def test_summarize_tracklet_output():
     for val in list(pos) + list(unc) + list(pm) + list(pm_unc):
         assert hasattr(val, 'unit')
 
+@pytest.mark.timeout(30)
 def test_make_param_guess_shapes(sample_arc):
     rvguess = [7000e3, 0, 0, 0, 7.5e3, 0]
     param = make_param_guess(rvguess, sample_arc, mode='rv')
     assert len(param) >= 7
 
-
+@pytest.mark.timeout(30)
 def test_time_ordered_satIDs():
     data = np.array([(1, Time(1000, format='gps')), (2, Time(900, format='gps'))],
                     dtype=[('satID', int), ('time', Time)])
     result = time_ordered_satIDs(data)
     assert result == [2, 1]
 
-
+@pytest.mark.timeout(30)
 def test_summarize_tracklets_output_fields(sample_data):
     summarized = summarize_tracklets(sample_data)
     required_fields = ['dra', 'ddec', 'pmra', 'pmdec', 'dpmra', 'dpmdec', 't_baseline']
     for field in required_fields:
         assert field in summarized.dtype.names
 
-
+@pytest.mark.timeout(30)
 def test_trackbase_instantiation(sample_data):
     tb = TrackBase([1, 2], sample_data)
     assert tb.satIDs == [1, 2]
     assert isinstance(tb.times, np.ndarray)
     assert tb.volume > 0
 
-
+@pytest.mark.timeout(30)
 def test_track_gaussian_approximation(sample_data):
     t = Track([1, 2, 3, 4], sample_data)
     gauss_track = t.gaussian_approximation()
     assert isinstance(gauss_track, (TrackGauss, Track))
 
-
+@pytest.mark.timeout(30)
 def test_mht_run_and_hypothesis(sample_data):
     mht = MHT(sample_data, nsat=100)
     mht.run()
@@ -274,7 +289,7 @@ def test_mht_run_and_hypothesis(sample_data):
     for h in mht.hypotheses:
         assert hasattr(h, 'lnprob')
 
-
+@pytest.mark.timeout(30)
 def test_iterate_mht(sample_data):
     mht = MHT(sample_data, nsat=100)
     mht.run()
@@ -282,20 +297,20 @@ def test_iterate_mht(sample_data):
     assert isinstance(new_mht, MHT)
     assert len(new_mht.hypotheses) > 0
 
-
+@pytest.mark.timeout(30)
 def test_track_repr(sample_data):
     track = Track([1, 2, 3], sample_data)
     rep = repr(track)
     assert 'Track' in rep and 'chi2' in rep
 
-
+@pytest.mark.timeout(30)
 def test_gauss_repr(sample_data):
     track = Track([1, 2, 3, 4], sample_data)
     gauss = track.gaussian_approximation()
     rep = repr(gauss)
     assert 'Track' in rep
 
-
+@pytest.mark.timeout(30)
 def test_track_addto(sample_data):
     t1 = Track([1, 2, 3], sample_data)
     t2 = t1.addto(4)
