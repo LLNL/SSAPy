@@ -58,6 +58,8 @@ files = ["ssapy/_ssapy.cpython-38-x86_64-linux-gnu.so"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+timeout = 30
+timeout_method = "thread"
 
 [project.urls]
 Homepage = "https://github.com/LLNL/SSAPy"
