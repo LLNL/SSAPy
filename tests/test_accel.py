@@ -1202,8 +1202,8 @@ class DummyAccelSum:
 @pytest.mark.timeout(30)
 @pytest.fixture(autouse=True)
 def patch_accel_classes(monkeypatch):
-    monkeypatch.setattr("yourmodule.AccelProd", DummyAccelProd)
-    monkeypatch.setattr("yourmodule.AccelSum", DummyAccelSum)
+    monkeypatch.setattr("ssapy.accel.AccelProd", DummyAccelProd)
+    monkeypatch.setattr("ssapy.accel.AccelSum", DummyAccelSum)
 
 @pytest.mark.timeout(30)
 def test_accel_mul():
@@ -1319,14 +1319,14 @@ def test_eq_subclass_inequality_rad():
     assert a != b
 
 @pytest.mark.timeout(30)
-def test_call_normr_below_one(monkeypatch):
+def test_call_normr_below_one():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     r = np.array([1e-6, 0, 0])  # Very close to zero
     accel = a(r, None, 0)
     assert np.all(np.isfinite(accel))
 
 @pytest.mark.timeout(30)
-def test_call_normr_below_earth_radius(monkeypatch):
+def test_call_normr_below_earth_radius():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     r = np.array([1000.0, 0, 0])  # Below Earth's radius (~6.3e6 m)
     accel = a(r, None, 0)

@@ -3,6 +3,7 @@ import os
 import shutil
 import numpy as np
 import matplotlib.pyplot as plt
+import glob
 
 save_folder = './ssapy_test_plots'
 print(f"Putting test_plot.py output in: {save_folder}")
@@ -27,13 +28,28 @@ figs = []
 i = 0
 for theta in range(0, 181, 20):
     for phi in range(0, 361, 20):
-        new_unit_vector = ssapy.utils.rotate_vector(v_unit, theta, phi, plot_path=temp_directory, save_idx=i)
+        try:
+            new_unit_vector = ssapy.utils.rotate_vector(v_unit, theta, phi, plot_path=temp_directory, save_idx=i)
+            print(f"Generated file: {temp_directory}/frame_{i}.png")  # Adjust filename format if needed
+        except Exception as e:
+            print(f"Error generating frame {i}: {e}")
         i += 1
 
-gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
-ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.listdir(f'{temp_directory}*', sorted=True), fps=20)
-# shutil.rmtree(temp_directory)
+files = glob.glob(f"{temp_directory}*")
+print(f"Generated files: {files}")
+for file in files:
+    try:
+        with open(file, 'rb') as f:
+            print(f"File {file} is valid.")
+    except Exception as e:
+        print(f"File {file} is invalid: {e}")
 
+gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
+try:
+    ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.listdir(f'{temp_directory}*', sorted=True), fps=20)
+except Exception as e:
+    print(f"Error creating GIF: {e}")
+# shutil.rmtree(temp_directory)
 
 # Creating orbit plots
 times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t0='2025-3-1')
