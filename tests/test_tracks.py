@@ -20,10 +20,19 @@ from .ssapy_test_helpers import sample_GEO_orbit, sample_LEO_orbit, checkAngle, 
 
 @pytest.fixture
 def sample_data():
-    dtype = [('satID', 'int'), ('time', 'float'), ('rStation_GCRF', 'float', (3,)), ('vStation_GCRF', 'float', (3,))]
+    dtype = [
+        ('satID', 'int'),
+        ('time', 'O'),  # Object type to hold astropy Time instances
+        ('rStation_GCRF', 'float', (3,)),
+        ('vStation_GCRF', 'float', (3,))
+    ]
     data = np.zeros(10, dtype=dtype)
     data['satID'] = [2, 3, 1, 5, 4, 3, 2, 1, 5, 4]
-    data['time'] = np.linspace(0, 100, 10)
+    
+    # Generate Time objects based on a reference GPS time
+    times = np.linspace(0, 100, 10)
+    data['time'] = [Time(t, format='gps') for t in times]
+    
     data['rStation_GCRF'] = np.random.rand(10, 3)
     data['vStation_GCRF'] = np.random.rand(10, 3)
     return data
