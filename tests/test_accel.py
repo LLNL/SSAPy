@@ -6,7 +6,7 @@ import importlib
 import types
 from types import SimpleNamespace
 import pytest
-
+import erfa
 
 import ssapy
 from ssapy.utils import norm, iers_interp
@@ -1344,7 +1344,7 @@ def test_call_valid_high_orbit():
 def patch_drag_dependencies(monkeypatch):
     # Stub out external dependencies
     monkeypatch.setattr("ssapy.utils._gpsToTT", lambda t: 60000.0)
-    monkeypatch.setattr("erfa", SimpleNamespace(pnm80=lambda jd, mjd_tt: np.eye(3)))
+    monkeypatch.setattr(erfa, SimpleNamespace(pnm80=lambda jd, mjd_tt: np.eye(3)))
     monkeypatch.setattr("ssapy.utils.sunPos", lambda t: np.array([1e11, 0, 0]))
     monkeypatch.setattr("ssapy.utils.norm", lambda x: np.linalg.norm(x))
 

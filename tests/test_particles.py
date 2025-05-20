@@ -34,8 +34,8 @@ def prepared_particles():
     r_station, v_station = observer.getRV(times)
 
     arc = QTable()
-    arc['ra'] = Longitude(coord * u.rad)
-    arc['dec'] = Latitude(coord * u.rad)
+    arc['ra'] = Longitude(coord[0] * u.rad)
+    arc['dec'] = Latitude(coord[1] * u.rad)
     arc['rStation_GCRF'] = r_station * u.m
     arc['vStation_GCRF'] = v_station * u.m / u.s
     arc['time'] = Time(times)
