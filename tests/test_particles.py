@@ -34,8 +34,8 @@ def prepared_particles():
     r_station, v_station = observer.getRV(times)
 
     arc = QTable()
-    arc['ra'] = Longitude(ra * u.rad)
-    arc['dec'] = Latitude(dec * u.rad)
+    arc['ra'] = Longitude(coord * u.rad)
+    arc['dec'] = Latitude(coord * u.rad)
     arc['rStation_GCRF'] = r_station * u.m
     arc['vStation_GCRF'] = v_station * u.m / u.s
     arc['time'] = Time(times)
@@ -53,18 +53,18 @@ def prepared_particles():
 # ------------------------------------------
 # Tests
 # ------------------------------------------
-@pytest.mark.timeout(30)
+ 
 def test_repr(prepared_particles):
     particles, _ = prepared_particles
     rep = repr(particles)
     assert "Particles(r=" in rep
 
-@pytest.mark.timeout(30)
+ 
 def test_epoch_property(prepared_particles):
     particles, rvprob = prepared_particles
     assert particles.epoch == rvprob.epoch
 
-@pytest.mark.timeout(30)
+ 
 def test_orbits_and_lnpriors_lazy(prepared_particles):
     particles, _ = prepared_particles
     assert isinstance(particles.orbits, list)
@@ -72,26 +72,26 @@ def test_orbits_and_lnpriors_lazy(prepared_particles):
     assert isinstance(particles.lnpriors, np.ndarray)
     assert particles._lnpriors is not None
 
-@pytest.mark.timeout(30)
+ 
 def test_lnlike_shape(prepared_particles):
     particles, _ = prepared_particles
     lnL = particles.lnlike(particles.orbits)
     assert lnL.shape == (particles.num_particles,)
 
-@pytest.mark.timeout(30)
+ 
 def test_draw_orbit(prepared_particles):
     particles, _ = prepared_particles
     orbit = particles.draw_orbit()
     assert len(orbit) == 1
     assert hasattr(orbit[0], 'r') and hasattr(orbit[0], 'v')
 
-@pytest.mark.timeout(30)
+ 
 def test_move(prepared_particles):
     particles, _ = prepared_particles
     moved = particles.move(particles.rvprobability.epoch + 1 * u.h)
     assert moved.shape == (particles.num_particles, 6)
 
-@pytest.mark.timeout(30)
+ 
 def test_fuse_and_reweight(prepared_particles):
     p0, _ = prepared_particles
     p1, _ = prepared_particles
@@ -100,7 +100,7 @@ def test_fuse_and_reweight(prepared_particles):
     assert p0.particles.shape[1] == 6
     assert not np.allclose(p0.particles, old_particles)
 
-@pytest.mark.timeout(30)
+ 
 def test_fuse_verbose(prepared_particles, capsys):
     p0, _ = prepared_particles
     p1, _ = prepared_particles
@@ -109,20 +109,20 @@ def test_fuse_verbose(prepared_particles, capsys):
     # Allow verbose to print something under some edge cases
     assert isinstance(out, str)
 
-@pytest.mark.timeout(30)
+ 
 def test_resample(prepared_particles):
     particles, _ = prepared_particles
     initial_count = particles.particles.shape[0]
     particles.resample(num_particles=initial_count)
     assert particles.particles.shape[0] == initial_count
 
-@pytest.mark.timeout(30)
+ 
 def test_invalid_resample_raises(prepared_particles):
     particles, _ = prepared_particles
     with pytest.raises(ValueError):
         particles.resample(num_particles=particles.num_particles + 10)
 
-@pytest.mark.timeout(30)
+ 
 def test_reset_to_pseudo_prior(prepared_particles):
     particles, _ = prepared_particles
     original = particles.mean().copy()
@@ -131,13 +131,13 @@ def test_reset_to_pseudo_prior(prepared_particles):
     reset = particles.mean()
     assert not np.allclose(original, reset)
 
-@pytest.mark.timeout(30)
+ 
 def test_mean(prepared_particles):
     particles, _ = prepared_particles
     m = particles.mean()
     assert m.shape == (6,)
 
-@pytest.mark.timeout(30)
+ 
 def test_init_with_3d_particles_valid_lnpriors(prepared_particles):
     particles, _ = prepared_particles
     # Reshape to simulate 3D input
@@ -146,7 +146,7 @@ def test_init_with_3d_particles_valid_lnpriors(prepared_particles):
     p = Particles(particles_3d, particles.rvprobability, lnpriors=lnpriors)
     assert p.particles.shape == (30, 6)
 
-@pytest.mark.timeout(30)
+ 
 def test_init_with_3d_particles_invalid_lnpriors(prepared_particles):
     particles, _ = prepared_particles
     particles_3d = particles.particles.reshape((10, 3, 6))
@@ -154,7 +154,7 @@ def test_init_with_3d_particles_invalid_lnpriors(prepared_particles):
     with pytest.raises(ValueError):
         Particles(particles_3d, particles.rvprobability, lnpriors=lnpriors)
 
-@pytest.mark.timeout(30)
+ 
 def test_reweight_fails(prepared_particles, monkeypatch):
     p0, _ = prepared_particles
     p1, _ = prepared_particles

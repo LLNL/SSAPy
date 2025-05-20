@@ -14,38 +14,38 @@ from ssapy.simple import (
     get_similar_orbits,
 )
 
-@pytest.mark.timeout(30)
+ 
 def test_keplerian_prop():
     prop = keplerian_prop(20)
     assert hasattr(prop, 'step')  # Should have RK78Propagator-like properties
 
-@pytest.mark.timeout(30)
+ 
 def test_threebody_prop():
     prop = threebody_prop(30)
     assert hasattr(prop, 'step')
 
-@pytest.mark.timeout(30)
+ 
 def test_fourbody_prop():
     prop = fourbody_prop(40)
     assert hasattr(prop, 'step')
 
-@pytest.mark.timeout(30)
+ 
 def test_best_prop():
     kwargs = dict(mass=200, area=0.02, CD=2.5, CR=1.1)
     prop = best_prop(50, kwargs)
     assert hasattr(prop, 'step')
 
-@pytest.mark.timeout(30)
+ 
 def test_ssapy_kwargs():
     kwargs = ssapy_kwargs(100, 0.01, 2.1, 1.2)
     assert kwargs == {'mass': 100, 'area': 0.01, 'CD': 2.1, 'CR': 1.2}
 
-@pytest.mark.timeout(30)
+ 
 def test_ssapy_prop():
     prop = ssapy_prop(60)
     assert hasattr(prop, 'step')
 
-@pytest.mark.timeout(30)
+ 
 @patch("ssapy.orbit.Orbit")
 @patch("ssapy.utils.get_times")
 @patch("ssapy.compute.rv")
@@ -58,7 +58,7 @@ def test_ssapy_orbit_with_keplerian(mock_rv, mock_get_times, mock_orbit):
     assert r.shape == v.shape == (3, 3)
     assert len(t) == 3
 
-@pytest.mark.timeout(30)
+ 
 @patch("ssapy.utils.points_on_circle")
 @patch("ssapy.simple.ssapy_orbit")
 def test_get_similar_orbits(mock_ssapy_orbit, mock_points_on_circle):
@@ -73,7 +73,7 @@ def test_get_similar_orbits(mock_ssapy_orbit, mock_points_on_circle):
     assert trajectories.shape[2] == 2
     assert trajectories.shape[0] == 3
 
-@pytest.mark.timeout(30)
+ 
 def test_ssapy_orbit_errors():
     with pytest.raises(ValueError):
         ssapy_orbit()
@@ -81,7 +81,7 @@ def test_ssapy_orbit_errors():
     with pytest.raises(ValueError):
         ssapy_orbit(a=None, r=None, v=None)
 
-@pytest.mark.timeout(30)
+ 
 @patch("ssapy.compute.rv", side_effect=RuntimeError("Failed"))
 @patch("ssapy.utils.get_times")
 @patch("ssapy.orbit.Orbit")

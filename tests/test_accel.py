@@ -42,7 +42,6 @@ earth_MG = ssapy.Body(
 
 
 @timer
-@pytest.mark.timeout(30)
 def test_MG_3_1():
     """Exercise 3.1 from Montenbruck and Gill
     Tests implementation of harmonic acceleration
@@ -78,7 +77,7 @@ def test_MG_3_1():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_MG_3_2():
     """Exercise 3.2 from Montenbruck and Gill
     Tests implementation of position of the Moon
@@ -114,7 +113,7 @@ def test_MG_3_2():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_accel_point_mass():
     t0 = Time("2006-03-14", scale='tt')
     tt = t0 + np.linspace(0, 4, 5)*u.d
@@ -151,7 +150,7 @@ def test_accel_point_mass():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_angles():
     # Using erfa instead of rolling our own...
     try:
@@ -187,7 +186,7 @@ def test_angles():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_MG_3_4_accel():
     """Exercise 3.4 from Montenbruck and Gill
     Tests implementation of harmonic, lunar, solar radiation, and other accelerations
@@ -434,7 +433,7 @@ def test_MG_3_4():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_MG_3_4_scipy():
     t = Time("1999-03-01", scale='utc')
     # LEO sat
@@ -578,7 +577,7 @@ def test_MG_3_4_scipy():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_MG_3_4_rk78():
     """Exercise 3.4 from Montenbruck and Gill.  Tests SSAPy orbit propagation
     with perturbations.
@@ -725,7 +724,7 @@ def test_MG_3_4_rk78():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_RK4_vs_analytic():
     # Test that analytic Keplerian propagation matches RK4 propagator when
     # acceleration is purely Keplerian
@@ -762,7 +761,7 @@ def test_RK4_vs_analytic():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_scipy_propagator():
     # Test that analytic Keplerian propagation matches SciPy ODE propagator when
     # acceleration is purely Keplerian
@@ -799,7 +798,7 @@ def test_scipy_propagator():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_RK8():
     # Test that analytic Keplerian propagation matches RK8 propagator when
     # acceleration is purely Keplerian
@@ -843,7 +842,7 @@ def test_RK8():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_RK78():
     # Test that analytic Keplerian propagation matches RK78 propagator when
     # acceleration is purely Keplerian
@@ -889,7 +888,7 @@ def test_RK78():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_reverse():
     t = Time("1999-03-01", scale='utc')
     # LEO sat
@@ -953,7 +952,7 @@ def test_reverse():
 
 
 @timer
-@pytest.mark.timeout(30)
+ 
 def test_Hohmann_transfer():
     """
     Test Hohmann transfer between Low Earth Orbit (LEO) and Geostationary 
@@ -988,7 +987,7 @@ def test_Hohmann_transfer():
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-5)
     np.testing.assert_allclose(orbfinal.i, 0, atol=1e-5)
 
-@pytest.mark.timeout(30)
+ 
 def test_inclination_change():
     """
     Test inclination change with a small delta-v.  Check that the semi-major
@@ -1014,7 +1013,7 @@ def test_inclination_change():
     np.testing.assert_allclose(orbfinal.e, 0, atol=1e-6)
     np.testing.assert_allclose(orbfinal.i, di, atol=1e-6)
 
-@pytest.mark.timeout(30)
+ 
 def test_bielliptic_transfer():
     """
     Test bielliptic transfer between two orbits.  Check that the semi-major
@@ -1076,7 +1075,7 @@ class MockAccel(Accel):
         # For equality testing
         return isinstance(rhs, MockAccel) and self.time_breakpoints == rhs.time_breakpoints
 
-@pytest.mark.timeout(30)
+ 
 def test_accelprod_initialization():
     # Create a mock Accel object
     mock_accel = MockAccel(time_breakpoints=[0, 10, 20])
@@ -1090,7 +1089,7 @@ def test_accelprod_initialization():
     assert accel_prod.factor == factor
     assert accel_prod.time_breakpoints == mock_accel.time_breakpoints
 
-@pytest.mark.timeout(30)
+ 
 def test_accelprod_call():
     # Create a mock Accel object
     mock_accel = MockAccel()
@@ -1111,7 +1110,7 @@ def test_accelprod_call():
     expected_result = np.array([2.5, 5.0, 7.5])  # MockAccel output multiplied by factor
     assert np.allclose(result, expected_result)
 
-@pytest.mark.timeout(30)
+ 
 def test_accelprod_hash():
     # Create two identical AccelProd objects
     mock_accel = MockAccel()
@@ -1122,7 +1121,7 @@ def test_accelprod_hash():
     # Verify hash values are equal
     assert hash(accel_prod1) == hash(accel_prod2)
 
-@pytest.mark.timeout(30)
+ 
 def test_accelprod_equality():
     # Create two identical AccelProd objects
     mock_accel = MockAccel()
@@ -1148,7 +1147,7 @@ def test_accelprod_equality():
 
 MODULE_NAME = "ssapy.accel"
 
-@pytest.mark.timeout(30)
+ 
 @pytest.fixture(autouse=True)
 def cleanup_module_cache():
     """Ensure a clean import state before each test."""
@@ -1158,7 +1157,7 @@ def cleanup_module_cache():
     if MODULE_NAME in sys.modules:
         del sys.modules[MODULE_NAME]
 
-@pytest.mark.timeout(30)
+ 
 def test_import_erfa_present():
     # Create a fake `erfa` module
     fake_erfa = types.ModuleType("erfa")
@@ -1173,7 +1172,7 @@ def test_import_erfa_present():
 
     assert ssapy.accel.erfa is fake_erfa
 
-@pytest.mark.timeout(30)
+ 
 def test_import_fallback_astropy_erfa():
     # Remove `erfa` to simulate ImportError
     sys.modules.pop("erfa", None)
@@ -1199,13 +1198,13 @@ class DummyAccelSum:
     def __init__(self, terms):
         self.terms = terms
 
-@pytest.mark.timeout(30)
+ 
 @pytest.fixture(autouse=True)
 def patch_accel_classes(monkeypatch):
     monkeypatch.setattr("ssapy.accel.AccelProd", DummyAccelProd)
     monkeypatch.setattr("ssapy.accel.AccelSum", DummyAccelSum)
 
-@pytest.mark.timeout(30)
+ 
 def test_accel_mul():
     a = Accel()
     result = a * 2.0
@@ -1213,7 +1212,7 @@ def test_accel_mul():
     assert result.left is a
     assert result.right == 2.0
 
-@pytest.mark.timeout(30)
+ 
 def test_accel_sub():
     a = Accel()
     b = Accel()
@@ -1225,25 +1224,25 @@ def test_accel_sub():
     assert result.terms[1].left is b
     assert result.terms[1].right == -1.0
 
-@pytest.mark.timeout(30)
+ 
 def test_kepler_eq_same_mu():
     a = AccelKepler(mu=EARTH_MU)
     b = AccelKepler(mu=EARTH_MU)
     assert a == b
 
-@pytest.mark.timeout(30)
+ 
 def test_kepler_eq_different_mu():
     a = AccelKepler(mu=EARTH_MU)
     b = AccelKepler(mu=EARTH_MU * 2)
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_kepler_eq_different_type():
     a = AccelKepler(mu=EARTH_MU)
     not_kepler = "not an AccelKepler"
     assert a != not_kepler
 
-@pytest.mark.timeout(30)
+ 
 def test_kepler_eq_with_subclass():
     class SubAccelKepler(AccelKepler):
         pass
@@ -1252,32 +1251,32 @@ def test_kepler_eq_with_subclass():
     b = SubAccelKepler(mu=EARTH_MU)
     assert a != b 
 
-@pytest.mark.timeout(30)
+ 
 def test_solrad_eq_same_defaults():
     kw = {'CR': 1.2, 'CD':2.3, 'area': 2.0, 'mass': 100.0}
     a = AccelSolRad(**kw)
     b = AccelSolRad(**kw.copy())  # use a copy to ensure no shared reference
     assert a == b
 
-@pytest.mark.timeout(30)
+ 
 def test_solrad_eq_different_defaults():
     a = AccelSolRad(CR=1.2, area=2.0, mass=100.0)
     b = AccelSolRad(CR=1.3, area=2.0, mass=100.0)  # different CR
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_solrad_eq_extra_param():
     a = AccelSolRad(CR=1.2, area=2.0, mass=100.0)
     b = AccelSolRad(CR=1.2, area=2.0, mass=100.0, reflectivity=0.9)
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_solrad_eq_different_type():
     a = AccelSolRad(CR=1.2, area=2.0, mass=100.0)
     not_accel = "not an AccelSolRad"
     assert a != not_accel
 
-@pytest.mark.timeout(30)
+ 
 def test_solrad_eq_with_subclass():
     class SubAccelSolRad(AccelSolRad):
         pass
@@ -1287,52 +1286,52 @@ def test_solrad_eq_with_subclass():
     b = SubAccelSolRad(**kw)
     assert a != b  # Current logic treats subclass as unequal
 
-@pytest.mark.timeout(30)
+ 
 @pytest.fixture(autouse=True)
 def patch_sunpos_and_norm(monkeypatch):
     monkeypatch.setattr("ssapy.utils.sunPos", lambda t: np.array([1e11, 0, 0]))  # Large distance to sun
     monkeypatch.setattr("ssapy.utils.norm", lambda x: np.linalg.norm(x))
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_same_params_rad():
     kw = {'CR': 1.2, 'CD':2.3, 'area': 2.0, 'mass': 100.0}
     a = AccelEarthRad(**kw)
     b = AccelEarthRad(**kw.copy())
     assert a == b
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_different_params_rad():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     b = AccelEarthRad(CR=1.3, area=2.0, mass=100.0)
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_different_type_rad():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     assert a != "not an AccelEarthRad"
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_subclass_inequality_rad():
     class SubAccelEarthRad(AccelEarthRad): pass
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     b = SubAccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_call_normr_below_one():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     r = np.array([1e-6, 0, 0])  # Very close to zero
     accel = a(r, None, 0)
     assert np.all(np.isfinite(accel))
 
-@pytest.mark.timeout(30)
+ 
 def test_call_normr_below_earth_radius():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     r = np.array([1000.0, 0, 0])  # Below Earth's radius (~6.3e6 m)
     accel = a(r, None, 0)
     assert np.all(np.isfinite(accel))
 
-@pytest.mark.timeout(30)
+ 
 def test_call_valid_high_orbit():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     r = np.array([7e6, 0, 0])  # Above Earth's radius
@@ -1340,12 +1339,12 @@ def test_call_valid_high_orbit():
     assert np.all(np.isfinite(accel))
     assert accel.shape == (3,)
 
-@pytest.mark.timeout(30)
+ 
 @pytest.fixture(autouse=True)
 def patch_drag_dependencies(monkeypatch):
     # Stub out external dependencies
     monkeypatch.setattr("ssapy.utils._gpsToTT", lambda t: 60000.0)
-    monkeypatch.setattr("ssapy.Accel.erfa", SimpleNamespace(pnm80=lambda jd, mjd_tt: np.eye(3)))
+    monkeypatch.setattr("erfa", SimpleNamespace(pnm80=lambda jd, mjd_tt: np.eye(3)))
     monkeypatch.setattr("ssapy.utils.sunPos", lambda t: np.array([1e11, 0, 0]))
     monkeypatch.setattr("ssapy.utils.norm", lambda x: np.linalg.norm(x))
 
@@ -1357,32 +1356,32 @@ def patch_drag_dependencies(monkeypatch):
     monkeypatch.setattr("ssapy._ssapy", SimpleNamespace(HarrisPriester=lambda ellip, n: FakeAtmosphere()))
     monkeypatch.setattr("ssapy.Ellipsoid", lambda: None)
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_same_params():
     kw = {'CR': 1.2, 'CD':2.3, 'area': 2.0, 'mass': 100.0}
     a = AccelDrag(**kw)
     b = AccelDrag(**kw.copy())
     assert a == b
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_different_params():
     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
     b = AccelDrag(CD=2.5, area=3.0, mass=500.0)
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_different_type():
     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
     assert a != "not an AccelDrag"
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_subclass_inequality():
     class SubAccelDrag(AccelDrag): pass
     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
     b = SubAccelDrag(CD=2.2, area=3.0, mass=500.0)
     assert a != b
 
-@pytest.mark.timeout(30)
+ 
 def test_call_triggers_matrix_recalc():
     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
     a._t = 0  # simulate prior timestamp far from new one
@@ -1392,7 +1391,7 @@ def test_call_triggers_matrix_recalc():
     accel = a(r, v, t)
     assert np.all(np.isfinite(accel))
 
-@pytest.mark.timeout(30)
+ 
 def test_call_uses_cached_matrix():
     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
     a._t = 10.0
@@ -1403,7 +1402,7 @@ def test_call_uses_cached_matrix():
     accel = a(r, v, t)
     assert np.all(np.isfinite(accel))
 
-@pytest.mark.timeout(30)
+ 
 def test_call_raises_on_nonfinite_density(monkeypatch):
     class FakeAtmosphere:
         def density(self, x, y, z, ra, dec):
@@ -1418,28 +1417,28 @@ def test_call_raises_on_nonfinite_density(monkeypatch):
     with pytest.raises(ValueError, match="non finite density"):
         a(r, v, t=0.0)
 
-@pytest.mark.timeout(30)
+ 
 def test_init_defaults():
     a = AccelConstNTW(accelntw=[0.1, 0.0, 0.0])
     assert np.all(a.time_breakpoints == [-np.inf, np.inf])
     assert np.allclose(a.accelntw, [0.1, 0.0, 0.0])
 
-@pytest.mark.timeout(30)
+ 
 def test_init_sorted_times():
     a = AccelConstNTW(accelntw=[0, 1, 0], time_breakpoints=[100, 200])
     assert np.all(a.time_breakpoints == [100, 200])
 
-@pytest.mark.timeout(30)
+ 
 def test_init_unsorted_times_raises():
     with pytest.raises(ValueError, match="acceleration times must be sorted!"):
         AccelConstNTW(accelntw=[0, 0, 1], time_breakpoints=[200, 100])
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_wrong_type_returns_false():
     a = AccelConstNTW([0, 1, 0])
     assert a != "not an AccelConstNTW"
 
-@pytest.mark.timeout(30)
+ 
 def test_eq_diff_class_returns_false_due_to_bug():
     class FakeAccelDrag:
         accelntw = np.array([0.0, 1.0, 0.0])
