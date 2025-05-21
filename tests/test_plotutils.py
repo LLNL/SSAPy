@@ -14,6 +14,7 @@ from ssapy.plotUtils import (
     check_numpy_array, check_type, draw_dashed_circle,
     format_date_axis, save_plot_to_pdf, set_color_theme
 )
+from ssapy.utils import find_file
 
 @pytest.fixture(scope="module")
 def earth_image_path():
@@ -31,29 +32,25 @@ def dummy_r():
 def dummy_t():
     return Time("2000-01-01") + np.linspace(0, 1, 100) * 86400
 
-# def test_load_earth_file_patch(monkeypatch, earth_image_path):
-#     monkeypatch.setattr("ssapy.plotUtils.find_file", lambda name, ext=".png": earth_image_path)
-#     result = load_earth_file()
-#     assert isinstance(result, PILImage.Image)
-#     assert result.size == (1080, 540)
+def test_load_earth_file_patch(earth_image_path):
+    result = load_earth_file()
+    assert isinstance(result, PILImage.Image)
+    assert result.size == (1080, 540)
 
-# def test_draw_earth_patch(monkeypatch, earth_image_path):
-#     monkeypatch.setattr("ssapy.plotUtils.find_file", lambda name, ext=".png": earth_image_path)
-#     test_time = np.array([100000, 200000, 300000])
-#     result = draw_earth(test_time, ngrid=10, R=6371000, rfactor=1.0)
-#     assert result is not None
+def test_draw_earth_patch(earth_image_path):
+    test_time = np.array([100000, 200000, 300000])
+    result = draw_earth(test_time, ngrid=10, R=6371000, rfactor=1.0)
+    assert result is not None
 
-# def test_load_moon_file_patch(monkeypatch, moon_image_path):
-#     monkeypatch.setattr("ssapy.plotUtils.find_file", lambda name, ext=".png": moon_image_path)
-#     result = load_moon_file()
-#     assert isinstance(result, PILImage.Image)
-#     assert result.size == (1080, 540)
+def test_load_moon_file_patch(moon_image_path):
+    result = load_moon_file()
+    assert isinstance(result, PILImage.Image)
+    assert result.size == (1080, 540)
 
-# def test_draw_moon_patch(monkeypatch, moon_image_path):
-#     monkeypatch.setattr("ssapy.plotUtils.find_file", lambda name, ext=".png": moon_image_path)
-#     test_time = np.array([100000, 200000, 300000])
-#     result = draw_moon(test_time, ngrid=10, R=1737400, rfactor=1.0)
-#     assert result is not None
+def test_draw_moon_patch(moon_image_path):
+    test_time = np.array([100000, 200000, 300000])
+    result = draw_moon(test_time, ngrid=10, R=1737400, rfactor=1.0)
+    assert result is not None
 
 def test_check_numpy_array_behavior():
     assert check_numpy_array(np.array([1, 2, 3])) == "numpy array"
@@ -152,26 +149,17 @@ def dummy_ground_data(tmp_path):
     img.save(path)
     return r, t, str(path)
 
-def test_ground_track_plot_no_mock(monkeypatch, dummy_ground_data, tmp_path):
+def test_ground_track_plot_no_mock( dummy_ground_data, tmp_path):
     r, t, img_path = dummy_ground_data
-
-    def dummy_find_file(name, ext=".png"):
-        return img_path
-
-    monkeypatch.setattr("ssapy.plotUtils.find_file", dummy_find_file)
 
     save_path = tmp_path / "ground_track.png"
     ground_track_plot(r, t, save_path=str(save_path))
 
     assert save_path.exists()
 
-def test_groundTrackVideo_runs(monkeypatch, dummy_ground_data):
+def test_groundTrackVideo_runs(dummy_ground_data):
     r, t, img_path = dummy_ground_data
 
-    def dummy_find_file(name, ext=".png"):
-        return img_path
-
-    monkeypatch.setattr("ssapy.plotUtils.find_file", dummy_find_file)
 
     # Should not raise an error
     groundTrackVideo(r, t)
