@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pytest
 from astropy.time import Time
 from PIL import Image as PILImage
+import erfa
 
 from ssapy.plotUtils import (
     load_earth_file, draw_earth, load_moon_file, draw_moon,
@@ -163,17 +164,6 @@ def test_ground_track_plot_no_mock(monkeypatch, dummy_ground_data, tmp_path):
     ground_track_plot(r, t, save_path=str(save_path))
 
     assert save_path.exists()
-
-def test_groundTrackVideo_runs(monkeypatch, dummy_ground_data):
-    r, t, img_path = dummy_ground_data
-
-    def dummy_find_file(name, ext=".png"):
-        return img_path
-
-    monkeypatch.setattr("ssapy.plotUtils.find_file", dummy_find_file)
-
-    # Should not raise an error
-    groundTrackVideo(r, t)
 
 def test_groundTrackVideo_runs(monkeypatch, dummy_ground_data):
     r, t, img_path = dummy_ground_data

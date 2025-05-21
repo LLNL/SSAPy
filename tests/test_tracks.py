@@ -89,11 +89,11 @@ def test_make_optimizer_modes(mode, expected_cls):
     optimizer = make_optimizer(mode=mode, param=param, lsq=False)
     assert optimizer == expected_cls if not isinstance(optimizer, partial) else optimizer.func == expected_cls
 
-@pytest.mark.parametrize("mode, translatorcls", [
-    ('rv', rvsampler.ParamOrbitRV),
-    ('angle', rvsampler.ParamOrbitAngle),
-    ('equinoctial', rvsampler.ParamOrbitEquinoctial),
-])
+# @pytest.mark.parametrize("mode", [
+#     ('rv', rvsampler.ParamOrbitRV),
+#     ('angle', rvsampler.ParamOrbitAngle),
+#     ('equinoctial', rvsampler.ParamOrbitEquinoctial),
+# ])
  
 # def test_make_optimizer_lsq(mode, translatorcls):
 #     param = list(range(9))
@@ -102,10 +102,10 @@ def test_make_optimizer_modes(mode, expected_cls):
 #     assert opt.func == rvsampler.LeastSquaresOptimizer
 #     assert opt.keywords['translatorcls'] == translatorcls
 
-# @pytest.mark.parametrize("mode", ['invalid', None])
-# def test_make_optimizer_invalid_mode(mode):
-#     with pytest.raises(ValueError):
-#         make_optimizer(mode=mode, param=[1]*9, lsq=False)
+@pytest.mark.parametrize("mode", ['invalid', None])
+def test_make_optimizer_invalid_mode(mode):
+    with pytest.raises(ValueError):
+        make_optimizer(mode=mode, param=[1]*9, lsq=False)
 
 
 @pytest.mark.parametrize("mode", ['rv', 'equinoctial'])
