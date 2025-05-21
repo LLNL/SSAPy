@@ -33,6 +33,9 @@ Get a starting position and velocity (statevector) for an orbit. This is a Lunar
     v0 = v_moon[0] + 100
     print(r0, v0)
 
+.. code-block:: python
+    -368980873.0925871 13379751.478315115
+    
 Initialize an orbit object.
 
 .. code-block:: python
