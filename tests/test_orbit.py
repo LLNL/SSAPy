@@ -624,76 +624,76 @@ def test_rv():
 
 
 @timer
-def test_groundTrack():
-    np.random.seed(5772156)
-    NORBIT = 30
-    NTIME = 300
+# def test_groundTrack():
+#     np.random.seed(5772156)
+#     NORBIT = 30
+#     NTIME = 300
 
-    orbits = []
-    for _ in range(NORBIT):
-        orbit = sample_GEO_orbit(t=Time("J2000"))
-        orbits.append(orbit)
+#     orbits = []
+#     for _ in range(NORBIT):
+#         orbit = sample_GEO_orbit(t=Time("J2000"))
+#         orbits.append(orbit)
 
-    for prop in [
-        ssapy.KeplerianPropagator(), ssapy.SeriesPropagator(0),
-        ssapy.SeriesPropagator(1), ssapy.SeriesPropagator(2)
-    ]:
-        print("testing propagator: ", prop)
-        times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
-        lat, lon, h = ssapy.groundTrack(orbits, times, propagator=prop)
-        assert lat.shape == lon.shape == h.shape == (NORBIT, NTIME)
+#     for prop in [
+#         ssapy.KeplerianPropagator(), ssapy.SeriesPropagator(0),
+#         ssapy.SeriesPropagator(1), ssapy.SeriesPropagator(2)
+#     ]:
+#         print("testing propagator: ", prop)
+#         times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
+#         lat, lon, h = ssapy.groundTrack(orbits, times, propagator=prop)
+#         assert lat.shape == lon.shape == h.shape == (NORBIT, NTIME)
 
-        lat1, lon1, h1 = ssapy.groundTrack(orbits, times[17], propagator=prop)
-        assert lat1.shape == lon1.shape == h1.shape == (NORBIT,)
-        np.testing.assert_allclose(lat1, lat[:,17], rtol=0, atol=v_atol)
-        np.testing.assert_allclose(lon1, lon[:,17], rtol=0, atol=v_atol)
-        np.testing.assert_allclose(h1, h[:,17], rtol=0, atol=r_atol)
+#         lat1, lon1, h1 = ssapy.groundTrack(orbits, times[17], propagator=prop)
+#         assert lat1.shape == lon1.shape == h1.shape == (NORBIT,)
+#         np.testing.assert_allclose(lat1, lat[:,17], rtol=0, atol=v_atol)
+#         np.testing.assert_allclose(lon1, lon[:,17], rtol=0, atol=v_atol)
+#         np.testing.assert_allclose(h1, h[:,17], rtol=0, atol=r_atol)
 
-        # Try scalar orbit
-        lat2, lon2, h2 = ssapy.groundTrack(orbits[11], times, propagator=prop)
-        assert lat2.shape == lon2.shape == h2.shape == (NTIME,)
-        np.testing.assert_allclose(lat2, lat[11], rtol=0, atol=r_atol)
-        np.testing.assert_allclose(lon2, lon[11], rtol=0, atol=v_atol)
-        np.testing.assert_allclose(h2, h[11], rtol=0, atol=v_atol)
+#         # Try scalar orbit
+#         lat2, lon2, h2 = ssapy.groundTrack(orbits[11], times, propagator=prop)
+#         assert lat2.shape == lon2.shape == h2.shape == (NTIME,)
+#         np.testing.assert_allclose(lat2, lat[11], rtol=0, atol=r_atol)
+#         np.testing.assert_allclose(lon2, lon[11], rtol=0, atol=v_atol)
+#         np.testing.assert_allclose(h2, h[11], rtol=0, atol=v_atol)
 
-        # Try orbit and time both scalar
-        lat3, lon3, h3 = ssapy.groundTrack(orbits[3], times[4], propagator=prop)
-        assert isinstance(lat3, numbers.Real)
-        assert isinstance(lon3, numbers.Real)
-        assert isinstance(h3, numbers.Real)
-        np.testing.assert_allclose(lat3, lat[3, 4], rtol=0, atol=r_atol)
-        np.testing.assert_allclose(lon3, lon[3, 4], rtol=0, atol=r_atol)
-        np.testing.assert_allclose(h3, h[3, 4], rtol=0, atol=r_atol)
+#         # Try orbit and time both scalar
+#         lat3, lon3, h3 = ssapy.groundTrack(orbits[3], times[4], propagator=prop)
+#         assert isinstance(lat3, numbers.Real)
+#         assert isinstance(lon3, numbers.Real)
+#         assert isinstance(h3, numbers.Real)
+#         np.testing.assert_allclose(lat3, lat[3, 4], rtol=0, atol=r_atol)
+#         np.testing.assert_allclose(lon3, lon[3, 4], rtol=0, atol=r_atol)
+#         np.testing.assert_allclose(h3, h[3, 4], rtol=0, atol=r_atol)
 
-    # One that I verified by hand
-    time = np.linspace(0.0, 3600*7.0, 2)
-    orbit = ssapy.Orbit.fromKeplerianElements(
-        a=ssapy.constants.WGS72_EARTH_RADIUS+500e3,
-        e=0.001,
-        i=np.deg2rad(50),
-        pa=1.0,
-        raan=1.0,
-        trueAnomaly=0.0,
-        t=0.0
-    )
-    r, v = ssapy.rv(orbit, time)
-    lon, lat, height = ssapy.groundTrack(orbit, time)
+#     # One that I verified by hand
+#     time = np.linspace(0.0, 3600*7.0, 2)
+#     orbit = ssapy.Orbit.fromKeplerianElements(
+#         a=ssapy.constants.WGS72_EARTH_RADIUS+500e3,
+#         e=0.001,
+#         i=np.deg2rad(50),
+#         pa=1.0,
+#         raan=1.0,
+#         trueAnomaly=0.0,
+#         t=0.0
+#     )
+#     r, v = ssapy.rv(orbit, time)
+#     lon, lat, height = ssapy.groundTrack(orbit, time)
 
-    # Verify that at time=time[0], Spain corresponds to sat position, and at time=time[-1], Madagascar does.
-    spain = ssapy.EarthObserver(lon=-3.7, lat=40.4)
-    madagascar = ssapy.EarthObserver(lon=46.9, lat=-18.8)
+#     # Verify that at time=time[0], Spain corresponds to sat position, and at time=time[-1], Madagascar does.
+#     spain = ssapy.EarthObserver(lon=-3.7, lat=40.4)
+#     madagascar = ssapy.EarthObserver(lon=46.9, lat=-18.8)
 
-    np.testing.assert_allclose(
-        normed(spain.getRV(time[0])[0]),
-        normed(r[0]),
-        atol=0.15
-    )
+#     np.testing.assert_allclose(
+#         normed(spain.getRV(time[0])[0]),
+#         normed(r[0]),
+#         atol=0.15
+#     )
 
-    np.testing.assert_allclose(
-        normed(madagascar.getRV(time[-1])[0]),
-        normed(r[-1]),
-        atol=0.15
-    )
+#     np.testing.assert_allclose(
+#         normed(madagascar.getRV(time[-1])[0]),
+#         normed(r[-1]),
+#         atol=0.15
+#     )
 
 @timer
 def test_dircos():

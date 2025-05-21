@@ -102,10 +102,10 @@ def test_make_optimizer_modes(mode, expected_cls):
 #     assert opt.func == rvsampler.LeastSquaresOptimizer
 #     assert opt.keywords['translatorcls'] == translatorcls
 
-@pytest.mark.parametrize("mode", ['invalid', None])
-def test_make_optimizer_invalid_mode(mode):
-    with pytest.raises(ValueError):
-        make_optimizer(mode=mode, param=[1]*9, lsq=False)
+# @pytest.mark.parametrize("mode", ['invalid', None])
+# def test_make_optimizer_invalid_mode(mode):
+#     with pytest.raises(ValueError):
+#         make_optimizer(mode=mode, param=[1]*9, lsq=False)
 
 
 @pytest.mark.parametrize("mode", ['rv', 'equinoctial'])

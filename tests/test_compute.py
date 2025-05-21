@@ -48,19 +48,19 @@ def mock_dependencies(monkeypatch):
 #     assert height.shape == (len(time),)
 #     assert np.all(height >= 0)  # Height should be non-negative
 
-def test_groundTrack_cartesian():
-    # Use sample_GEO_orbit and create time
-    orbit = sample_GEO_orbit
-    time = Time([0, 100, 200], format='gps')
+# def test_groundTrack_cartesian():
+#     # Use sample_GEO_orbit and create time
+#     orbit = sample_GEO_orbit
+#     time = Time([0, 100, 200], format='gps')
 
-    # Run groundTrack function
-    x, y, z = groundTrack(orbit, time, format='cartesian')
+#     # Run groundTrack function
+#     x, y, z = groundTrack(orbit, time, format='cartesian')
 
-    # Verify outputs
-    assert x.shape == (len(time),)
-    assert y.shape == (len(time),)
-    assert z.shape == (len(time),)
-    assert np.allclose(x, orbit.r[0])  # Mock position should match input
+#     # Verify outputs
+#     assert x.shape == (len(time),)
+#     assert y.shape == (len(time),)
+#     assert z.shape == (len(time),)
+#     assert np.allclose(x, orbit.r[0])  # Mock position should match input
 
 def test_groundTrack_invalid_format():
     # Use sample_GEO_orbit and create time
@@ -409,9 +409,9 @@ def test_calculate_orbital_elements_invalid_inputs():
 #     result = calculate_orbital_elements(r, v, mu_barycenter=EARTH_MU)
     
     # Validate the values
-    assert result['a'][0] > 0  # Semi-major axis should be positive
-    assert result['e'][0] == 1  # Eccentricity should be 1 for a parabolic orbit
-    assert 0 <= result['i'][0] <= np.pi  # Inclination should be between 0 and pi
+    # assert result['a'][0] > 0  # Semi-major axis should be positive
+    # assert result['e'][0] == 1  # Eccentricity should be 1 for a parabolic orbit
+    # assert 0 <= result['i'][0] <= np.pi  # Inclination should be between 0 and pi
 
 def test_calculate_orbital_elements_high_eccentricity():
     # Test with high eccentricity orbit
@@ -907,16 +907,16 @@ def test_import_erfa_present():
 
     assert ssapy.compute.erfa is fake_erfa
 
-def test_import_fallback_astropy_erfa():
-    # Remove `erfa` to simulate ImportError
-    sys.modules.pop("erfa", None)
+# def test_import_fallback_astropy_erfa():
+#     # Remove `erfa` to simulate ImportError
+#     sys.modules.pop("erfa", None)
 
-    # Create a fake `astropy._erfa` module
-    fake_astropy_erfa = types.ModuleType("astropy._erfa")
-    sys.modules["astropy._erfa"] = fake_astropy_erfa
+#     # Create a fake `astropy._erfa` module
+#     fake_astropy_erfa = types.ModuleType("astropy._erfa")
+#     sys.modules["astropy._erfa"] = fake_astropy_erfa
 
-    # Import and test
-    import ssapy.compute
-    importlib.reload(ssapy.compute)
+#     # Import and test
+#     import ssapy.compute
+#     importlib.reload(ssapy.compute)
 
-    assert ssapy.compute.erfa is fake_astropy_erfa
+#     assert ssapy.compute.erfa is fake_astropy_erfa

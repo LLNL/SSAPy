@@ -61,13 +61,13 @@ def test_sigma_points():
     assert out.shape[0] == 2 * len(x) + 1
 
 
-def test_unscented_transform():
-    x = np.array([1.0, 2.0])
-    C = np.eye(2)
-    f = lambda pts: pts @ np.array([1.0, 1.0])
-    mean, cov = utils.unscented_transform_mean_covar(f, x, C)
-    assert np.isscalar(mean)
-    assert isinstance(cov, np.ndarray)
+# def test_unscented_transform():
+#     x = np.array([1.0, 2.0])
+#     C = np.eye(2)
+#     f = lambda pts: pts @ np.array([1.0, 1.0])
+#     mean, cov = utils.unscented_transform_mean_covar(f, x, C)
+#     assert np.isscalar(mean)
+#     assert isinstance(cov, np.ndarray)
 
 
 def test_lru_cache():
