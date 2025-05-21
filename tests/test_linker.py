@@ -25,8 +25,8 @@ def _create_iods_small(num_epochs=2, num_obs_per_track=3, nBurn=10, nStep=10):
     iods = []
     for _ in range(num_epochs):
         arc = QTable()
-        arc['ra'] = Longitude((ra[0] + np.random.randn(len(ra[0])) * sigma_rad) * u.rad)
-        arc['dec'] = Latitude((dec[1] + np.random.randn(len(dec[1])) * sigma_rad) * u.rad)
+        arc['ra'] = Longitude((coord[0] + np.random.randn(len(coord[0])) * sigma_rad) * u.rad)
+        arc['dec'] = Latitude((coord[1] + np.random.randn(len(coord[1])) * sigma_rad) * u.rad)
         arc['rStation_GCRF'] = rstation * u.m
         arc['vStation_GCRF'] = vstation * u.m / u.s
         arc['time'] = Time(times)
