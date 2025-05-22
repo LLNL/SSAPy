@@ -86,12 +86,6 @@ def test_draw_orbit(prepared_particles):
     assert hasattr(orbit[0], 'r') and hasattr(orbit[0], 'v')
 
  
-# def test_move(prepared_particles):
-#     particles, _ = prepared_particles
-#     moved = particles.move(particles.rvprobability.epoch + 1 * u.h)
-#     assert moved.shape == (particles.num_particles, 6)
-
- 
 def test_fuse_and_reweight(prepared_particles):
     p0, _ = prepared_particles
     p1, _ = prepared_particles
@@ -116,44 +110,12 @@ def test_resample(prepared_particles):
     particles.resample(num_particles=initial_count)
     assert particles.particles.shape[0] == initial_count
 
- 
-# def test_invalid_resample_raises(prepared_particles):
-#     particles, _ = prepared_particles
-#     with pytest.raises(ValueError):
-#         particles.resample(num_particles=particles.num_particles + 10)
-
- 
-# def test_reset_to_pseudo_prior(prepared_particles):
-#     particles, _ = prepared_particles
-#     original = particles.mean().copy()
-#     particles.particles += np.random.normal(0, 1e3, particles.particles.shape)
-#     particles.reset_to_pseudo_prior()
-#     reset = particles.mean()
-#     assert not np.allclose(original, reset)
 
  
 def test_mean(prepared_particles):
     particles, _ = prepared_particles
     m = particles.mean()
     assert m.shape == (6,)
-
- 
-# def test_init_with_3d_particles_valid_lnpriors(prepared_particles):
-#     particles, _ = prepared_particles
-#     # Reshape to simulate 3D input
-#     particles_3d = particles.particles.reshape((10, 3, 6))
-#     lnpriors = particles.lnpriors.reshape((10, 3))
-#     p = Particles(particles_3d, particles.rvprobability, lnpriors=lnpriors)
-#     assert p.particles.shape == (30, 6)
-
- 
-# def test_init_with_3d_particles_invalid_lnpriors(prepared_particles):
-#     particles, _ = prepared_particles
-#     particles_3d = particles.particles.reshape((10, 3, 6))
-#     lnpriors = particles.lnpriors  # wrong shape
-#     with pytest.raises(ValueError):
-#         Particles(particles_3d, particles.rvprobability, lnpriors=lnpriors)
-
  
 def test_reweight_fails(prepared_particles, monkeypatch):
     p0, _ = prepared_particles

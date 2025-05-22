@@ -28,20 +28,11 @@ def test_load_earth_file_patch():
     assert isinstance(result, PILImage.Image)
     assert result.size == (1080, 540)
 
-# def test_draw_earth_patch():
-#     test_time = np.array([100000, 200000, 300000])
-#     result = draw_earth(test_time, ngrid=10, R=6371000, rfactor=1.0)
-#     assert result is not None
-
 def test_load_moon_file_patch():
     result = load_moon_file()
     assert isinstance(result, PILImage.Image)
     assert result.size == (1080, 540)
 
-# def test_draw_moon_patch():
-#     test_time = np.array([100000, 200000, 300000])
-#     result = draw_moon(test_time, ngrid=10, R=1737400, rfactor=1.0)
-#     assert result is not None
 
 def test_check_numpy_array_behavior():
     assert check_numpy_array(np.array([1, 2, 3])) == "numpy array"
@@ -70,22 +61,6 @@ def test_orbit_plot_basic(dummy_r, dummy_t):
     assert isinstance(fig, plt.Figure)
     assert isinstance(axes, list)
     assert all(hasattr(ax, 'plot') for ax in axes)
-
-# def test_scatter_2d_output():
-#     x = np.random.rand(100)
-#     y = np.random.rand(100)
-#     cs = np.random.rand(100)
-#     fig, ax = scatter_2d(x, y, cs)
-#     assert isinstance(fig, plt.Figure)
-#     assert hasattr(ax, "scatter")
-
-# def test_scatter_3d_output():
-#     x = np.random.rand(100)
-#     y = np.random.rand(100)
-#     z = np.random.rand(100)
-#     cs = np.random.rand(100)
-#     fig, ax = scatter_3d(x, y, z, cs)
-#     assert isinstance(fig, plt.Figure)
 
 def test_scatter_dot_colors_scaled_shape():
     assert scatter_dot_colors_scaled(0).shape == (0, 4)
@@ -147,37 +122,6 @@ def test_ground_track_plot_no_mock(dummy_ground_data, tmp_path):
     ground_track_plot(r, t, save_path=str(save_path))
 
     assert save_path.exists()
-
-# def test_groundTrackVideo_runs(dummy_ground_data):
-#     r, t, img_path = dummy_ground_data
-
-
-#     # Should not raise an error
-#     groundTrackVideo(r, t)
-
-# def test_globe_plot_executes(monkeypatch, dummy_ground_data):
-#     r, t, img_path = dummy_ground_data
-
-#     monkeypatch.setattr("ssapy.plotUtils.find_file", lambda name, ext=".png": img_path)
-
-#     fig, ax = globe_plot(r, t)
-#     assert isinstance(fig, plt.Figure)
-#     assert hasattr(ax, "plot_surface")
-
-# def test_koe_plot_executes(monkeypatch, dummy_ground_data):
-#     r, t, _ = dummy_ground_data
-#     v = np.random.rand(100, 3) * 1e3
-
-#     monkeypatch.setattr("ssapy.plotUtils.set_color_theme", lambda fig, ax, theme='black': (fig, ax))
-#     monkeypatch.setattr("ssapy.plotUtils.calculate_orbital_elements", lambda r, v, t=None, body="Earth": {
-#         'a': np.ones(len(r)) * 42164e3,
-#         'e': np.linspace(0, 0.1, len(r)),
-#         'i': np.linspace(0, np.pi / 4, len(r))
-#     })
-
-#     fig, ax = koe_plot(r, v, t=t, elements=['a', 'e', 'i'])
-#     assert isinstance(fig, plt.Figure)
-#     assert hasattr(ax, 'plot')
 
 class MockStableData:
     def __init__(self):

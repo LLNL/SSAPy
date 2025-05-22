@@ -576,7 +576,7 @@ def test_angles():
 #     print()
 
 
-@timer
+# @timer
  
 # def test_MG_3_4_rk78():
 #     """Exercise 3.4 from Montenbruck and Gill.  Tests SSAPy orbit propagation
@@ -1062,19 +1062,6 @@ def test_bielliptic_transfer():
     np.testing.assert_allclose(orbf.e, 0, atol=1e-4)
     np.testing.assert_allclose(orbf.i, 0, atol=1e-6)
 
-# class MockAccel(Accel):
-#     def __init__(self, time_breakpoints=None):
-#         super().__init__()
-#         self.time_breakpoints = time_breakpoints if time_breakpoints else []
-
-#     def __call__(self, r, v, t, **kwargs):
-#         # Return a simple acceleration as a function of position and velocity
-#         return np.array([1.0, 2.0, 3.0])  # Mock acceleration values
-
-#     def __eq__(self, rhs):
-#         # For equality testing
-#         return isinstance(rhs, MockAccel) and self.time_breakpoints == rhs.time_breakpoints
-
  
 def test_accelprod_initialization():
     # Create a mock Accel object
@@ -1088,27 +1075,6 @@ def test_accelprod_initialization():
     assert accel_prod.accel == mock_accel
     assert accel_prod.factor == factor
     assert accel_prod.time_breakpoints == mock_accel.time_breakpoints
-
- 
-# def test_accelprod_call():
-#     # Create a mock Accel object
-#     mock_accel = Accel()
-#     factor = 2.5
-
-#     # Initialize AccelProd
-#     accel_prod = AccelProd(mock_accel, factor)
-
-#     # Define inputs
-#     r = np.array([1.0, 0.0, 0.0])  # Position vector
-#     v = np.array([0.0, 1.0, 0.0])  # Velocity vector
-#     t = 5.0  # Time
-
-#     # Call AccelProd
-#     result = accel_prod(r, v, t)
-
-#     # Verify output
-#     expected_result = np.array([2.5, 5.0, 7.5])  # MockAccel output multiplied by factor
-#     assert np.allclose(result, expected_result)
 
  
 def test_accelprod_hash():
@@ -1172,37 +1138,6 @@ def test_import_erfa_present():
 
     assert ssapy.accel.erfa is fake_erfa
 
- 
-# def test_import_fallback_astropy_erfa():
-#     # Remove `erfa` to simulate ImportError
-#     sys.modules.pop("erfa", None)
-
-#     # Create a fake `astropy._erfa` module
-#     fake_astropy_erfa = types.ModuleType("astropy._erfa")
-#     sys.modules["astropy._erfa"] = fake_astropy_erfa
-
-#     # Import and test
-#     import ssapy.accel
-#     importlib.reload(ssapy.accel)
-
-#     assert ssapy.accel.erfa is fake_astropy_erfa
-
-
-# Dummy classes to verify structure
-# class DummyAccelProd:
-#     def __init__(self, left, right):
-#         self.left = left
-#         self.right = right
-
-# class DummyAccelSum:
-#     def __init__(self, terms):
-#         self.terms = terms
-
- 
-# @pytest.fixture(autouse=True)
-# def patch_accel_classes(monkeypatch):
-#     monkeypatch.setattr("ssapy.accel.AccelProd", DummyAccelProd)
-#     monkeypatch.setattr("ssapy.accel.AccelSum", DummyAccelSum)
 
  
 def test_accel_mul():
@@ -1219,11 +1154,6 @@ def test_accel_sub():
     result = a - b
     neg_b = AccelProd(b,-1)
     assert result == AccelSum([a,neg_b])
-    # assert len(result.terms) == 2
-    # assert result.terms[0] is a
-    # assert isinstance(result.terms[1], DummyAccelProd)
-    # assert result.terms[1].left is b
-    # assert result.terms[1].right == -1.0
 
  
 def test_kepler_eq_same_mu():
@@ -1242,15 +1172,6 @@ def test_kepler_eq_different_type():
     a = AccelKepler(mu=EARTH_MU)
     not_kepler = "not an AccelKepler"
     assert a != not_kepler
-
- 
-# def test_kepler_eq_with_subclass():
-#     class SubAccelKepler(AccelKepler):
-#         pass
-
-#     a = AccelKepler(mu=EARTH_MU)
-#     b = SubAccelKepler(mu=EARTH_MU)
-#     assert a != b 
 
  
 def test_solrad_eq_same_defaults():
@@ -1278,16 +1199,6 @@ def test_solrad_eq_different_type():
     assert a != not_accel
 
  
-# def test_solrad_eq_with_subclass():
-#     class SubAccelSolRad(AccelSolRad):
-#         pass
-
-#     kw = {'CR': 1.2, 'CD':2.3, 'area': 2.0, 'mass': 100.0}
-#     a = AccelSolRad(**kw)
-#     b = SubAccelSolRad(**kw)
-#     assert a != b  # Current logic treats subclass as unequal
-
- 
 @pytest.fixture(autouse=True)
 def patch_sunpos_and_norm(monkeypatch):
     monkeypatch.setattr("ssapy.utils.sunPos", lambda t: np.array([1e11, 0, 0]))  # Large distance to sun
@@ -1310,13 +1221,6 @@ def test_eq_different_params_rad():
 def test_eq_different_type_rad():
     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
     assert a != "not an AccelEarthRad"
-
- 
-# def test_eq_subclass_inequality_rad():
-#     class SubAccelEarthRad(AccelEarthRad): pass
-#     a = AccelEarthRad(CR=1.2, area=2.0, mass=100.0)
-#     b = SubAccelEarthRad(CR=1.2, area=2.0, mass=100.0)
-#     assert a != b
 
  
 def test_call_normr_below_one():
@@ -1373,13 +1277,6 @@ def test_eq_different_params():
 def test_eq_different_type():
     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
     assert a != "not an AccelDrag"
-
- 
-# def test_eq_subclass_inequality():
-#     class SubAccelDrag(AccelDrag): pass
-#     a = AccelDrag(CD=2.2, area=3.0, mass=500.0)
-#     b = SubAccelDrag(CD=2.2, area=3.0, mass=500.0)
-#     assert a != b
 
  
 def test_call_triggers_matrix_recalc():
