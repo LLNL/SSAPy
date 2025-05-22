@@ -3,6 +3,7 @@ import json
 import time
 import numpy as np
 from astropy.time import Time
+
 import ssapy
 from .ssapy_test_helpers import timer
 
