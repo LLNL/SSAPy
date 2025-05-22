@@ -9,20 +9,24 @@ SSAPy by Example
 Set an initial astropy time object
 
 .. code-block:: python
+
     t0 = Time("2024-1-1")
     print(t0)
 
 .. code-block:: python
+
     2024-01-01 00:00:00.000
 
 Get the position and velocity of the Moon.
 
 .. code-block:: python
+
     r_moon = get_body("moon").position(t0).T
     v_moon = (r_moon - get_body("moon").position(t0 + 1).T) / 2
     print(r_moon, v_moon)
 
 .. code-block:: python
+
     [-3.67980873e+08  1.42721025e+08  8.93144235e+07], [13379651.47831511 35015714.2905997  18263361.07635442]
 
 Get a starting position and velocity (statevector) for an orbit. This is a Lunar bound orbit.
@@ -34,11 +38,13 @@ Get a starting position and velocity (statevector) for an orbit. This is a Lunar
     print(r0, v0)
 
 .. code-block:: python
+
     -368980873.0925871 13379751.478315115
-    
+
 Initialize an orbit object.
 
 .. code-block:: python
+
     a = constants.RGEO
     e = 0
     i = np.radians(45)
@@ -52,6 +58,7 @@ orbit = Orbit.fromKeplerianElements(*kElements, t=t0)
 Set parameters of the satellite
 
 .. code-block:: python
+
     sat_kwargs = dict(
             mass=100,  # [kg]
             area=1,  # [m^2]
@@ -101,6 +108,7 @@ Plot the output in a GCRF (star fixed frame) and lunar (a non-interial Earth-Moo
 Lets see a ground track of the orbit.
 
 .. code-block:: python
+    
     plotUtils.ground_track_plot(r, times)
 
 .. figure:: ./ground_track_plot.png
