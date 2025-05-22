@@ -12,7 +12,7 @@ Set an initial astropy time object
 
     t0 = Time("2024-1-1")
     print(t0)
-
+    
 .. code-block:: python
 
     2024-01-01 00:00:00.000
@@ -108,7 +108,7 @@ Plot the output in a GCRF (star fixed frame) and lunar (a non-interial Earth-Moo
 Lets see a ground track of the orbit.
 
 .. code-block:: python
-    
+
     plotUtils.ground_track_plot(r, times)
 
 .. figure:: ./ground_track_plot.png
