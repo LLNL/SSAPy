@@ -140,7 +140,7 @@ def dummy_ground_data(tmp_path):
     img.save(path)
     return r, t, str(path)
 
-def test_ground_track_plot_no_mock( dummy_ground_data, tmp_path):
+def test_ground_track_plot_no_mock(dummy_ground_data, tmp_path):
     r, t, img_path = dummy_ground_data
 
     save_path = tmp_path / "ground_track.png"
