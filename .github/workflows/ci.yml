@@ -133,20 +133,14 @@ jobs:
     #    flake8 --version
     #    flake8 ssapy/ tests/ devel/
     - name: Install pytest plugins
+      if: matrix.os == 'ubuntu-latest'
       run: |
         pip install pytest pytest-cov pytest-xdist
     - name: Test with pytest
+      if: matrix.os == 'ubuntu-latest'
       run: |
-        # Run pytest with coverage, excluding the specified test
-        pytest --cov-report=xml --cov=ssapy || true
-    - name: Verify coverage files
-      run: |
-        if [ -f coverage.xml ]; then
-          echo "Coverage report generated successfully."
-        else
-          echo "Coverage report not found. Check pytest configuration."
-          exit 1
-        fi
+        # Run pytest with coverage, using all available CPUs and verbose output
+        pytest -v -n auto --cov-report=xml --cov=ssapy --durations=20
     - name: Upload coverage reports to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12'
       uses: codecov/codecov-action@v4

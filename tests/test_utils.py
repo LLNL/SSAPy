@@ -1,5 +1,4 @@
 import numpy as np
-
 from astropy.time import Time
 import astropy.units as u
 
@@ -7,6 +6,79 @@ import ssapy
 from ssapy import utils
 from ssapy.utils import normed
 from .ssapy_test_helpers import checkSphere, timer
+from ssapy import utils
+
+def test_wrap_and_num_wraps():
+    angles = np.array([4, -4, np.pi * 3])
+    wrapped = utils._wrapToPi(angles)
+    assert np.all((-np.pi <= wrapped) & (wrapped <= np.pi))
+
+    assert utils.num_wraps(np.pi * 5) == 2
+
+
+def test_norm_functions():
+    v = np.array([[1.0, 2.0, 2.0]])
+    assert np.isclose(utils.normSq(v), 9.0)
+    assert np.isclose(utils.norm(v), 3.0)
+    np.testing.assert_allclose(utils.normed(v), v / 3.0)
+
+    a = np.random.randn(10, 3)
+    np.testing.assert_allclose(utils.einsum_norm(a, 'ij,ij->i'), utils.norm(a))
+
+
+def test_unit_angle():
+    a = np.random.randn(10, 3)
+    a = utils.normed(a)
+    b = a.copy()
+    np.testing.assert_allclose(utils.unitAngle3(a, b), 0.0)
+
+
+def test_newton_raphson():
+    f = lambda x: x**2 - 2
+    fprime = lambda x: 2 * x
+    root = utils.newton_raphson(1.0, f, fprime)
+    assert np.isclose(root, np.sqrt(2), atol=1e-10)
+
+
+def test_find_extrema_brackets():
+    y = np.array([1, 2, 1, 0, -1, -2, -1])
+    brackets = utils.find_extrema_brackets(y)
+    assert len(brackets) > 0
+
+
+def test_sample_points():
+    x = np.array([0.0, 0.0])
+    C = np.eye(2)
+    samples = utils.sample_points(x, C, 100)
+    assert samples.shape == (100, 2)
+
+
+def test_sigma_points():
+    x = np.array([1.0, 2.0])
+    C = np.eye(2)
+    f = lambda pts: pts @ np.array([1.0, 1.0])
+    out = utils.sigma_points(f, x, C)
+    assert out.shape[0] == 2 * len(x) + 1
+
+
+def test_lru_cache():
+    hits = []
+    def f(x): hits.append(x); return x * 2
+    cached = utils.LRU_Cache(f, maxsize=2)
+    assert cached(2) == 4
+    assert cached(2) == 4
+    assert len(hits) == 1  # Cached
+
+
+def test_lazy_property():
+    class Foo:
+        @utils.lazy_property
+        def val(self):
+            return 42
+    f = Foo()
+    assert f.val == 42
+    f.__dict__['val'] = 100
+    assert f.val == 100
 
 
 @timer
