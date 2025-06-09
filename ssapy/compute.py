@@ -1818,7 +1818,7 @@ def moon_normal_vector(t):
     """
     r = get_body("moon").position(t).T
     r_random = get_body("moon").position(t.gps + 604800).T
-    return np.cross(r, r_random) / np.linalg.norm(r, axis=-1)
+    return np.cross(r, r_random) / np.linalg.norm(np.cross(r, r_random))
 
 
 def lunar_lagrange_points(t):
