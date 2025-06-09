@@ -1399,10 +1399,9 @@ def calculate_orbital_elements(r_, v_, mu_barycenter=EARTH_MU):
 
 def moon_shine(r_moon, r_sat, r_earth, r_sun, radius, albedo, albedo_moon, albedo_back, albedo_front, area_panels):  # In SI units, takes single values or arrays returns a fractional flux
     """
-    Calculate the fractional flux of sunlight reflected from the Moon to the satellite.
+    Calculate the fractional solar flux reflected from the Moon to the satellite.
 
-    This function estimates the *fraction* of the Sun’s total flux that is first reflected by the Moon
-    and then reflected again toward the observer by the satellite’s body and solar panels (both front and back surfaces).
+    This function computes the fraction of solar flux reflected from the Moon to the satellite, including contributions from both the front and back surfaces of the satellite's solar panels.
 
     Parameters:
     ----------
@@ -1415,30 +1414,29 @@ def moon_shine(r_moon, r_sat, r_earth, r_sun, radius, albedo, albedo_moon, albed
     r_sun : (n, 3) numpy.ndarray
         Array of coordinates representing the position of the Sun.
     radius : float
-        Radius of the satellite’s body in meters.
+        Radius of the satellite in meters.
     albedo : float
-        Albedo of the satellite’s surface.
+        Albedo of the satellite's surface.
     albedo_moon : float
         Albedo of the Moon.
     albedo_back : float
-        Albedo of the back surface of the satellite’s solar panels.
+        Albedo of the back surface of the satellite's solar panels.
     albedo_front : float
-        Albedo of the front surface of the satellite’s solar panels.
+        Albedo of the front surface of the satellite's solar panels.
     area_panels : float
-        Area of the satellite’s solar panels in square meters.
+        Area of the satellite's solar panels in square meters.
 
     Returns:
     -------
     dict
-        Dictionary containing *fractional* flux contributions from Moon-reflected sunlight:
-        - 'moon_bus': Fraction of light reflected off the satellite’s bus via Moon.
-        - 'moon_panels': Fraction of light reflected off the satellite’s panels via Moon.
+        Dictionary containing the flux contributions from the Moon to the satellite:
+        - 'moon_bus': Fraction of solar flux reflected off the satellite's bus from the Moon.
+        - 'moon_panels': Fraction of solar flux reflected off the satellite's panels from the Moon.
 
     Notes:
     ------
-    - Returns fractional (unitless) flux values — not W/m².
-    - Assumes the front of the panels face the Sun and the back receives secondary reflections.
-    - Both front and back surfaces may contribute to observed brightness depending on geometry.
+    - The function assumes that the solar panels are always facing the Sun and calculates flux based on the phase angles.
+    - Fraction of solar flux contributions from both the front and back surfaces of the solar panels are computed.
 
     Example:
     --------
@@ -1446,8 +1444,7 @@ def moon_shine(r_moon, r_sat, r_earth, r_sun, radius, albedo, albedo_moon, albed
     >>> r_sat = np.array([[1e7, 1e7, 1e7]])
     >>> r_earth = np.array([[0, 0, 0]])
     >>> r_sun = np.array([[1e11, 0, 0]])
-    >>> moon_shine(r_moon, r_sat, r_earth, r_sun, radius=0.4, albedo=0.20, albedo_moon=0.12,
-    ...            albedo_back=0.50, albedo_front=0.05, area_panels=100)
+    >>> moon_shine(r_moon, r_sat, r_earth, r_sun, radius=0.4, albedo=0.20, albedo_moon=0.12, albedo_back=0.50, albedo_front=0.05, area_panels=100)
     {'moon_bus': array([...]), 'moon_panels': array([...])}
     """
     # https://amostech.com/TechnicalPapers/2013/POSTER/COGNION.pdf
@@ -1471,23 +1468,22 @@ def earth_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_earth, albedo_back
     """
     Calculate the fractional flux of sunlight reflected from the Earth to the satellite.
 
-    This function estimates the *fraction* of the Sun's total flux that is reflected by the Earth
-    and then reflected again toward the observer by both the satellite's body and the back side of its solar panels.
+    This function computes the flux of sunlight reflected from the Earth to the satellite, including contributions from the back surface of the satellite's solar panels.
 
     Parameters:
     ----------
     r_sat : (n, 3) numpy.ndarray
         Array of coordinates representing the position of the satellite.
     r_earth : (n, 3) numpy.ndarray
-        Array of coordinates representing the position of the Earth (reflector).
+        Array of coordinates representing the position of the Earth.
     r_sun : (n, 3) numpy.ndarray
         Array of coordinates representing the position of the Sun.
     radius : float
-        Radius of the satellite's bus in meters.
+        Radius of the satellite in meters.
     albedo : float
-        Diffuse (Lambertian) albedo of the satellite's bus.
+        Albedo of the satellite's surface.
     albedo_earth : float
-        Average albedo of Earth.
+        Albedo of the Earth.
     albedo_back : float
         Albedo of the back surface of the satellite's solar panels.
     area_panels : float
@@ -1496,15 +1492,14 @@ def earth_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_earth, albedo_back
     Returns:
     -------
     dict
-        Dictionary containing the *fractional* flux contributions from Earth-reflected sunlight:
-        - 'earth_bus': Fraction of sunlight reflected off the satellite's bus via Earth.
-        - 'earth_panels': Fraction of sunlight reflected off the satellite's back-facing panels via Earth.
+        Dictionary containing the flux contributions from the Earth to the satellite:
+        - 'earth_bus': Fraction of solar flux reflected off the satellite's bus from the Earth.
+        - 'earth_panels': Fraction of solar flux reflected off the satellite's panels from the Earth.
 
     Notes:
     ------
-    - The function returns fractional fluxes (unitless), i.e., the fraction of solar flux reflected toward the satellite and then scattered to the observer.
-    - Assumes the back of the solar panels receives Earthshine and reflects toward the observer.
-    - The satellite's phase angle with respect to Earth and the Sun is used in the calculations.
+    - The function assumes that the solar panels are always facing the Sun and calculates flux based on the phase angle.
+    - Fraction of solar flux contributions from the back surface of the solar panels are computed.
 
     Example:
     --------
@@ -1528,10 +1523,9 @@ def earth_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_earth, albedo_back
 
 def sun_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_front, area_panels):  # In SI units, takes single values or arrays returns a fractional flux
     """
-    Calculate the fractional flux of sunlight reflected from the Sun to the observer via the satellite.
+    Calculate the fractional flux of sunlight reflected from the Sun to the satellite.
 
-    This function estimates the *fraction* of the Sun's total flux that is reflected toward the observer (assumed at Earth's position)
-    from both the satellite's body and its solar panels.
+    This function computes the fractional flux of sunlight reflected from the Sun to the satellite, including contributions from the front surface of the satellite's solar panels.
 
     Parameters:
     ----------
@@ -1553,24 +1547,14 @@ def sun_shine(r_sat, r_earth, r_sun, radius, albedo, albedo_front, area_panels):
     Returns:
     -------
     dict
-        Dictionary containing the *fractional* flux contributions from the Sun reflected toward Earth:
-        - 'sun_bus': Fraction of sunlight reflected off the satellite's bus.
-        - 'sun_panels': Fraction of sunlight reflected off the satellite's front-facing solar panels.
+        Dictionary containing the flux contributions from the Sun to the satellite:
+        - 'sun_bus': Fraction of solar flux reflected off the satellite's bus from the Sun.
+        - 'sun_panels': Fraction of solar flux reflected off the satellite's panels from the Sun.
 
     Notes:
     ------
-    - The function returns fractional fluxes (unitless), i.e., the fraction of solar flux reflected toward the observer.
-    - Assumes solar panels are always facing the Sun.
-    - Phase angle (Sun-Satellite-Earth) is used to calculate reflected intensity.
-
-    Example:
-    --------
-    >>> r_sat = np.array([[1e7, 1e7, 1e7]])
-    >>> r_earth = np.array([[0, 0, 0]])
-    >>> r_sun = np.array([[1e11, 0, 0]])
-    >>> sun_shine(r_sat, r_earth, r_sun, radius=0.4, albedo=0.20, albedo_front=0.05, area_panels=100)
-    {'sun_bus': array([...]), 'sun_panels': array([...])}
-    """
+    - The function assumes that the solar panels are always facing the Sun and calculates flux based on the phase angle.
+    - Fraction of solar flux contributions from the front surface of the solar panels are computed.
 
     Example:
     --------
@@ -1834,7 +1818,7 @@ def moon_normal_vector(t):
     """
     r = get_body("moon").position(t).T
     r_random = get_body("moon").position(t.gps + 604800).T
-    return np.cross(r, r_random) / np.linalg.norm(np.cross(r, r_random))
+    return np.cross(r, r_random) / np.linalg.norm(r, axis=-1)
 
 
 def lunar_lagrange_points(t):
