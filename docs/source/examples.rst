@@ -147,3 +147,45 @@ Calculate the Lambertian Reflectance of the orbit
     plt.show()
 
 .. figure:: ./reflectance_plot.png
+
+Plot the apparent magnitude of the orbit at each timestep
+
+.. code-block:: python
+    r_sun=get_body("sun").position(times).T
+    r_earth=get_body("earth").position(times).T
+
+    # Calculate the apparent magnitude at each timestep
+    mags=compute.calc_M_v(r,r_sun,r_earth)
+
+    RGEO = constants.RGEO
+    moon=get_body("moon").position(times).T
+
+    fig = plt.figure(figsize=(12, 12), layout='constrained')
+    plt.rcParams.update({'font.size': 12})
+    ax = fig.add_subplot(projection='3d')
+
+    x = r[:, 0] / RGEO
+    y = r[:, 1] / RGEO
+    z = r[:, 2] / RGEO
+
+    # Plot orbit
+    scatter = ax.scatter3D(x, y, z, c=mags, cmap='RdYlBu')
+
+    cbar = fig.colorbar(scatter, ax=ax, shrink=0.6, aspect=20, pad=0.1, orientation='vertical')
+    cbar.set_label('Vis Mag')
+    cbar.ax.invert_yaxis()
+
+    # Plot Earth
+    ax.scatter3D(0, 0, 0, color='green', label='Earth', s=100)
+
+    # Plot Moon
+    ax.plot(moon[:, 0] / RGEO, moon[:, 1] / RGEO, moon[:, 2] / RGEO, color='gray', label='Moon', lw=6)
+
+    ax.set_xlabel('X [GEO]')
+    ax.set_ylabel('Y [GEO]')
+    ax.set_zlabel('Z [GEO]')
+
+    plt.legend()
+    plt.show()
+
+.. figure:: ./magnitude_plot.png
