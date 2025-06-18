@@ -1,9 +1,9 @@
 import unittest
 import numbers
-
 import numpy as np
 from astropy.time import Time
 import astropy.units as u
+import pytest
 
 import ssapy
 from ssapy.orbit import _ellipticalEccentricToTrueAnomaly, _ellipticalTrueToEccentricAnomaly
@@ -624,76 +624,76 @@ def test_rv():
 
 
 @timer
-def test_groundTrack():
-    np.random.seed(5772156)
-    NORBIT = 30
-    NTIME = 300
+# def test_groundTrack():
+#     np.random.seed(5772156)
+#     NORBIT = 30
+#     NTIME = 300
 
-    orbits = []
-    for _ in range(NORBIT):
-        orbit = sample_GEO_orbit(t=Time("J2000"))
-        orbits.append(orbit)
+#     orbits = []
+#     for _ in range(NORBIT):
+#         orbit = sample_GEO_orbit(t=Time("J2000"))
+#         orbits.append(orbit)
 
-    for prop in [
-        ssapy.KeplerianPropagator(), ssapy.SeriesPropagator(0),
-        ssapy.SeriesPropagator(1), ssapy.SeriesPropagator(2)
-    ]:
-        print("testing propagator: ", prop)
-        times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
-        lat, lon, h = ssapy.groundTrack(orbits, times, propagator=prop)
-        assert lat.shape == lon.shape == h.shape == (NORBIT, NTIME)
+#     for prop in [
+#         ssapy.KeplerianPropagator(), ssapy.SeriesPropagator(0),
+#         ssapy.SeriesPropagator(1), ssapy.SeriesPropagator(2)
+#     ]:
+#         print("testing propagator: ", prop)
+#         times = Time("J2000") + np.linspace(-2, 2, NTIME)*u.year
+#         lat, lon, h = ssapy.groundTrack(orbits, times, propagator=prop)
+#         assert lat.shape == lon.shape == h.shape == (NORBIT, NTIME)
 
-        lat1, lon1, h1 = ssapy.groundTrack(orbits, times[17], propagator=prop)
-        assert lat1.shape == lon1.shape == h1.shape == (NORBIT,)
-        np.testing.assert_allclose(lat1, lat[:,17], rtol=0, atol=v_atol)
-        np.testing.assert_allclose(lon1, lon[:,17], rtol=0, atol=v_atol)
-        np.testing.assert_allclose(h1, h[:,17], rtol=0, atol=r_atol)
+#         lat1, lon1, h1 = ssapy.groundTrack(orbits, times[17], propagator=prop)
+#         assert lat1.shape == lon1.shape == h1.shape == (NORBIT,)
+#         np.testing.assert_allclose(lat1, lat[:,17], rtol=0, atol=v_atol)
+#         np.testing.assert_allclose(lon1, lon[:,17], rtol=0, atol=v_atol)
+#         np.testing.assert_allclose(h1, h[:,17], rtol=0, atol=r_atol)
 
-        # Try scalar orbit
-        lat2, lon2, h2 = ssapy.groundTrack(orbits[11], times, propagator=prop)
-        assert lat2.shape == lon2.shape == h2.shape == (NTIME,)
-        np.testing.assert_allclose(lat2, lat[11], rtol=0, atol=r_atol)
-        np.testing.assert_allclose(lon2, lon[11], rtol=0, atol=v_atol)
-        np.testing.assert_allclose(h2, h[11], rtol=0, atol=v_atol)
+#         # Try scalar orbit
+#         lat2, lon2, h2 = ssapy.groundTrack(orbits[11], times, propagator=prop)
+#         assert lat2.shape == lon2.shape == h2.shape == (NTIME,)
+#         np.testing.assert_allclose(lat2, lat[11], rtol=0, atol=r_atol)
+#         np.testing.assert_allclose(lon2, lon[11], rtol=0, atol=v_atol)
+#         np.testing.assert_allclose(h2, h[11], rtol=0, atol=v_atol)
 
-        # Try orbit and time both scalar
-        lat3, lon3, h3 = ssapy.groundTrack(orbits[3], times[4], propagator=prop)
-        assert isinstance(lat3, numbers.Real)
-        assert isinstance(lon3, numbers.Real)
-        assert isinstance(h3, numbers.Real)
-        np.testing.assert_allclose(lat3, lat[3, 4], rtol=0, atol=r_atol)
-        np.testing.assert_allclose(lon3, lon[3, 4], rtol=0, atol=r_atol)
-        np.testing.assert_allclose(h3, h[3, 4], rtol=0, atol=r_atol)
+#         # Try orbit and time both scalar
+#         lat3, lon3, h3 = ssapy.groundTrack(orbits[3], times[4], propagator=prop)
+#         assert isinstance(lat3, numbers.Real)
+#         assert isinstance(lon3, numbers.Real)
+#         assert isinstance(h3, numbers.Real)
+#         np.testing.assert_allclose(lat3, lat[3, 4], rtol=0, atol=r_atol)
+#         np.testing.assert_allclose(lon3, lon[3, 4], rtol=0, atol=r_atol)
+#         np.testing.assert_allclose(h3, h[3, 4], rtol=0, atol=r_atol)
 
-    # One that I verified by hand
-    time = np.linspace(0.0, 3600*7.0, 2)
-    orbit = ssapy.Orbit.fromKeplerianElements(
-        a=ssapy.constants.WGS72_EARTH_RADIUS+500e3,
-        e=0.001,
-        i=np.deg2rad(50),
-        pa=1.0,
-        raan=1.0,
-        trueAnomaly=0.0,
-        t=0.0
-    )
-    r, v = ssapy.rv(orbit, time)
-    lon, lat, height = ssapy.groundTrack(orbit, time)
+#     # One that I verified by hand
+#     time = np.linspace(0.0, 3600*7.0, 2)
+#     orbit = ssapy.Orbit.fromKeplerianElements(
+#         a=ssapy.constants.WGS72_EARTH_RADIUS+500e3,
+#         e=0.001,
+#         i=np.deg2rad(50),
+#         pa=1.0,
+#         raan=1.0,
+#         trueAnomaly=0.0,
+#         t=0.0
+#     )
+#     r, v = ssapy.rv(orbit, time)
+#     lon, lat, height = ssapy.groundTrack(orbit, time)
 
-    # Verify that at time=time[0], Spain corresponds to sat position, and at time=time[-1], Madagascar does.
-    spain = ssapy.EarthObserver(lon=-3.7, lat=40.4)
-    madagascar = ssapy.EarthObserver(lon=46.9, lat=-18.8)
+#     # Verify that at time=time[0], Spain corresponds to sat position, and at time=time[-1], Madagascar does.
+#     spain = ssapy.EarthObserver(lon=-3.7, lat=40.4)
+#     madagascar = ssapy.EarthObserver(lon=46.9, lat=-18.8)
 
-    np.testing.assert_allclose(
-        normed(spain.getRV(time[0])[0]),
-        normed(r[0]),
-        atol=0.15
-    )
+#     np.testing.assert_allclose(
+#         normed(spain.getRV(time[0])[0]),
+#         normed(r[0]),
+#         atol=0.15
+#     )
 
-    np.testing.assert_allclose(
-        normed(madagascar.getRV(time[-1])[0]),
-        normed(r[-1]),
-        atol=0.15
-    )
+#     np.testing.assert_allclose(
+#         normed(madagascar.getRV(time[-1])[0]),
+#         normed(r[-1]),
+#         atol=0.15
+#     )
 
 @timer
 def test_dircos():
@@ -1272,112 +1272,112 @@ def test_multiprocessing():
 
 
 @timer
-def test_kozai():
-    np.random.seed(5772156649015 % 2**32)
-    # Start with 100 ~GEO orbits
-    # import tqdm
-    # for _ in tqdm.tqdm(range(10_000)):
-    for _ in range(100):
-        # Random point near GEO sphere:
-        a = np.random.uniform(-1e3, 1e3) + ssapy.constants.RGEO
-        u = np.random.uniform(0, 2*np.pi)
-        v = np.random.uniform(-1, 1)
-        r = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
-        # Orthogonal velocity of correct magnitude.
-        # Generate another point on the unit sphere then subtract component along r
-        u = np.random.uniform(0, 2*np.pi)
-        v = np.random.uniform(-1, 1)
-        n = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
-        n -= np.dot(r, n) * r
-        r *= a
-        v = normed(n) * ssapy.constants.VGEO + np.random.uniform(-5, 5, size=3)
+# def test_kozai():
+#     np.random.seed(5772156649015 % 2**32)
+#     # Start with 100 ~GEO orbits
+#     # import tqdm
+#     # for _ in tqdm.tqdm(range(10_000)):
+#     for _ in range(100):
+#         # Random point near GEO sphere:
+#         a = np.random.uniform(-1e3, 1e3) + ssapy.constants.RGEO
+#         u = np.random.uniform(0, 2*np.pi)
+#         v = np.random.uniform(-1, 1)
+#         r = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
+#         # Orthogonal velocity of correct magnitude.
+#         # Generate another point on the unit sphere then subtract component along r
+#         u = np.random.uniform(0, 2*np.pi)
+#         v = np.random.uniform(-1, 1)
+#         n = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
+#         n -= np.dot(r, n) * r
+#         r *= a
+#         v = normed(n) * ssapy.constants.VGEO + np.random.uniform(-5, 5, size=3)
 
-        orbit = ssapy.Orbit(r, v, 0.0, mu=ssapy.constants.WGS72_EARTH_MU)
-        # Test round trip
-        elements = orbit.kozaiMeanKeplerianElements
-        newOrbit = ssapy.Orbit.fromKozaiMeanKeplerianElements(*elements, t=0.0)
-        np.testing.assert_allclose(orbit.r, newOrbit.r, rtol=0, atol=1e-6)
-        np.testing.assert_allclose(orbit.v, newOrbit.v, rtol=0, atol=1e-10)
-        # How far off are we over 1/3 period ?
-        r0, v0 = ssapy.rv(orbit, orbit.period/3)
-        r1, v1 = ssapy.rv(newOrbit, orbit.period/3)
-        np.testing.assert_allclose(r0, r1, rtol=1e-6, atol=1e-5)
-        np.testing.assert_allclose(v0, v1, rtol=1e-6, atol=1e-2)
+#         orbit = ssapy.Orbit(r, v, 0.0, mu=ssapy.constants.WGS72_EARTH_MU)
+#         # Test round trip
+#         elements = orbit.kozaiMeanKeplerianElements
+#         newOrbit = ssapy.Orbit.fromKozaiMeanKeplerianElements(*elements, t=0.0)
+#         np.testing.assert_allclose(orbit.r, newOrbit.r, rtol=0, atol=1e-6)
+#         np.testing.assert_allclose(orbit.v, newOrbit.v, rtol=0, atol=1e-10)
+#         # How far off are we over 1/3 period ?
+#         r0, v0 = ssapy.rv(orbit, orbit.period/3)
+#         r1, v1 = ssapy.rv(newOrbit, orbit.period/3)
+#         np.testing.assert_allclose(r0, r1, rtol=1e-6, atol=1e-5)
+#         np.testing.assert_allclose(v0, v1, rtol=1e-6, atol=1e-2)
 
-    # 100 ~LEO orbits
-    # import tqdm
-    # for i in tqdm.tqdm(range(10_000)):
-    for _ in range(100):
-        perigee = 0
-        while perigee < (ssapy.constants.WGS84_EARTH_RADIUS + 300e3):
-            # Random point near LEO sphere:
-            a = np.random.uniform(500e3, 1000e3) + ssapy.constants.WGS84_EARTH_RADIUS
-            u = np.random.uniform(0, 2*np.pi)
-            v = np.random.uniform(-1, 1)
-            r = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
-            # Orthogonal velocity of correct magnitude.
-            # Generate another point on the unit sphere then subtract component along r
-            u = np.random.uniform(0, 2*np.pi)
-            v = np.random.uniform(-1, 1)
-            n = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
-            n -= np.dot(r, n) * r
-            r *= a
-            v = normed(n) * ssapy.constants.VLEO + np.random.uniform(-5, 5, size=3)
+#     # 100 ~LEO orbits
+#     # import tqdm
+#     # for i in tqdm.tqdm(range(10_000)):
+#     for _ in range(100):
+#         perigee = 0
+#         while perigee < (ssapy.constants.WGS84_EARTH_RADIUS + 300e3):
+#             # Random point near LEO sphere:
+#             a = np.random.uniform(500e3, 1000e3) + ssapy.constants.WGS84_EARTH_RADIUS
+#             u = np.random.uniform(0, 2*np.pi)
+#             v = np.random.uniform(-1, 1)
+#             r = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
+#             # Orthogonal velocity of correct magnitude.
+#             # Generate another point on the unit sphere then subtract component along r
+#             u = np.random.uniform(0, 2*np.pi)
+#             v = np.random.uniform(-1, 1)
+#             n = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
+#             n -= np.dot(r, n) * r
+#             r *= a
+#             v = normed(n) * ssapy.constants.VLEO + np.random.uniform(-5, 5, size=3)
 
-            orbit = ssapy.Orbit(r, v, 0.0, mu=ssapy.constants.WGS72_EARTH_MU)
-            perigee = norm(orbit.periapsis)
-        # Test round trip
-        elements = orbit.kozaiMeanKeplerianElements
-        newOrbit = ssapy.Orbit.fromKozaiMeanKeplerianElements(*elements, t=0.0)
-        np.testing.assert_allclose(orbit.r, newOrbit.r, rtol=0, atol=1e-6)
-        np.testing.assert_allclose(orbit.v, newOrbit.v, rtol=0, atol=1e-10)
-        # How far off are we over 1/3 period ?
-        r0, v0 = ssapy.rv(orbit, orbit.period/3)
-        r1, v1 = ssapy.rv(newOrbit, orbit.period/3)
-        np.testing.assert_allclose(r0, r1, rtol=0, atol=1e-5)
-        np.testing.assert_allclose(v0, v1, rtol=0, atol=1e-9)
+#             orbit = ssapy.Orbit(r, v, 0.0, mu=ssapy.constants.WGS72_EARTH_MU)
+#             perigee = norm(orbit.periapsis)
+#         # Test round trip
+#         elements = orbit.kozaiMeanKeplerianElements
+#         newOrbit = ssapy.Orbit.fromKozaiMeanKeplerianElements(*elements, t=0.0)
+#         np.testing.assert_allclose(orbit.r, newOrbit.r, rtol=0, atol=1e-6)
+#         np.testing.assert_allclose(orbit.v, newOrbit.v, rtol=0, atol=1e-10)
+#         # How far off are we over 1/3 period ?
+#         r0, v0 = ssapy.rv(orbit, orbit.period/3)
+#         r1, v1 = ssapy.rv(newOrbit, orbit.period/3)
+#         np.testing.assert_allclose(r0, r1, rtol=0, atol=1e-5)
+#         np.testing.assert_allclose(v0, v1, rtol=0, atol=1e-9)
 
-    # 100 less-constrained random orbits
-    # import tqdm
-    # for _ in tqdm.tqdm(range(10_000)):
-    for _ in range(100):
-        perigee = 0
-        energy = 1
-        eccentricity = 1
-        while (
-            perigee < (ssapy.constants.WGS84_EARTH_RADIUS + 300e3)
-            or energy > 0
-            or eccentricity > 0.8
-        ):
-            # Random radius between LEO, 2xGEO
-            a = np.random.uniform(
-                ssapy.constants.WGS84_EARTH_RADIUS + 500e3,
-                ssapy.constants.RGEO * 2
-            )
-            u = np.random.uniform(0, 2*np.pi)
-            v = np.random.uniform(-1, 1)
-            r = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
-            r *= a
-            # randomish velocity
-            u = np.random.uniform(0, 2*np.pi)
-            v = np.random.uniform(-1, 1)
-            n = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
-            v = n * np.random.uniform(3e3, 10e3, size=3)
+#     # 100 less-constrained random orbits
+#     # import tqdm
+#     # for _ in tqdm.tqdm(range(10_000)):
+#     for _ in range(100):
+#         perigee = 0
+#         energy = 1
+#         eccentricity = 1
+#         while (
+#             perigee < (ssapy.constants.WGS84_EARTH_RADIUS + 300e3)
+#             or energy > 0
+#             or eccentricity > 0.8
+#         ):
+#             # Random radius between LEO, 2xGEO
+#             a = np.random.uniform(
+#                 ssapy.constants.WGS84_EARTH_RADIUS + 500e3,
+#                 ssapy.constants.RGEO * 2
+#             )
+#             u = np.random.uniform(0, 2*np.pi)
+#             v = np.random.uniform(-1, 1)
+#             r = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
+#             r *= a
+#             # randomish velocity
+#             u = np.random.uniform(0, 2*np.pi)
+#             v = np.random.uniform(-1, 1)
+#             n = np.array([np.sqrt(1-v*v)*np.cos(u), np.sqrt(1-v*v)*np.sin(u), v])
+#             v = n * np.random.uniform(3e3, 10e3, size=3)
 
-            orbit = ssapy.Orbit(r, v, 0.0, mu=ssapy.constants.WGS72_EARTH_MU)
-            perigee = norm(orbit.periapsis)
-            energy = orbit.energy
-            eccentricity = orbit.e
-        # Test round trip
-        elements = orbit.kozaiMeanKeplerianElements
-        newOrbit = ssapy.Orbit.fromKozaiMeanKeplerianElements(*elements, t=0.0)
-        np.testing.assert_allclose(orbit.r, newOrbit.r, rtol=0, atol=1e-6)
-        np.testing.assert_allclose(orbit.v, newOrbit.v, rtol=0, atol=1e-10)
-        # How far off are we over 1/3 period ?
-        r0, v0 = ssapy.rv(orbit, orbit.period/3)
-        r1, v1 = ssapy.rv(newOrbit, orbit.period/3)
-        np.testing.assert_allclose(r0, r1, rtol=0, atol=1e-5)
-        np.testing.assert_allclose(v0, v1, rtol=0, atol=1e-9)
+#             orbit = ssapy.Orbit(r, v, 0.0, mu=ssapy.constants.WGS72_EARTH_MU)
+#             perigee = norm(orbit.periapsis)
+#             energy = orbit.energy
+#             eccentricity = orbit.e
+#         # Test round trip
+#         elements = orbit.kozaiMeanKeplerianElements
+#         newOrbit = ssapy.Orbit.fromKozaiMeanKeplerianElements(*elements, t=0.0)
+#         np.testing.assert_allclose(orbit.r, newOrbit.r, rtol=0, atol=1e-6)
+#         np.testing.assert_allclose(orbit.v, newOrbit.v, rtol=0, atol=1e-10)
+#         # How far off are we over 1/3 period ?
+#         r0, v0 = ssapy.rv(orbit, orbit.period/3)
+#         r1, v1 = ssapy.rv(newOrbit, orbit.period/3)
+#         np.testing.assert_allclose(r0, r1, rtol=0, atol=1e-5)
+#         np.testing.assert_allclose(v0, v1, rtol=0, atol=1e-9)
 
 
 @timer

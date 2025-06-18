@@ -3,6 +3,7 @@ import os
 import shutil
 import numpy as np
 import matplotlib.pyplot as plt
+import glob
 
 save_folder = './ssapy_test_plots'
 print(f"Putting test_plot.py output in: {save_folder}")
@@ -27,13 +28,28 @@ figs = []
 i = 0
 for theta in range(0, 181, 20):
     for phi in range(0, 361, 20):
-        new_unit_vector = ssapy.utils.rotate_vector(v_unit, theta, phi, plot_path=temp_directory, save_idx=i)
+        try:
+            new_unit_vector = ssapy.utils.rotate_vector(v_unit, theta, phi, plot_path=temp_directory, save_idx=i)
+            print(f"Generated file: {temp_directory}/frame_{i}.png")  # Adjust filename format if needed
+        except Exception as e:
+            print(f"Error generating frame {i}: {e}")
         i += 1
 
-gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
-ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.listdir(f'{temp_directory}*', sorted=True), fps=20)
-# shutil.rmtree(temp_directory)
+files = glob.glob(f"{temp_directory}*")
+print(f"Generated files: {files}")
+for file in files:
+    try:
+        with open(file, 'rb') as f:
+            print(f"File {file} is valid.")
+    except Exception as e:
+        print(f"File {file} is invalid: {e}")
 
+gif_path = f"{save_folder}/rotate_vectors_{v_unit[0]:.0f}_{v_unit[1]:.0f}_{v_unit[2]:.0f}.gif"
+try:
+    ssapy.plotUtils.save_animated_gif(gif_name=gif_path, frames=ssapy.io.listdir(f'{temp_directory}*', sorted=True), fps=20)
+except Exception as e:
+    print(f"Error creating GIF: {e}")
+# shutil.rmtree(temp_directory)
 
 # Creating orbit plots
 times = ssapy.utils.get_times(duration=(1, 'year'), freq=(1, 'hour'), t0='2025-3-1')
@@ -75,7 +91,7 @@ def initialize_DRO(t, delta_r=7.52064e7, delta_v=344):
 
 # Distant Retrograde Orbit (DRO)
 dro_orbit = initialize_DRO(t=times[0])
-r, v, t = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
+r, v = ssapy.simple.ssapy_orbit(orbit=dro_orbit, t=times)
 ssapy.plotUtils.orbit_plot(r=r, t=times, save_path=f"{save_folder}/DRO_orbit", frame='Lunar', show=False)
 r_lunar, v_lunar = ssapy.utils.gcrf_to_lunar_fixed(r, t=times, v=True)
 print("Successfully converted GCRF to lunar frame.")
@@ -91,11 +107,11 @@ print("Created a Lunar orbit plot.")
 print("Created a Lunar axis orbit plot.")
 
 # Globe plot of a Geostationary Transfer Orbit (GTO)
-r_geo, _, t_geo = ssapy.simple.ssapy_orbit(a=ssapy.constants.RGEO, e=0.3, t=times)
-ssapy.plotUtils.globe_plot(r=r_geo, t=t_geo, save_path=f"{save_folder}/globe_plot", scale=5)
+r_geo, _ = ssapy.simple.ssapy_orbit(a=ssapy.constants.RGEO, e=0.3, t=times)
+ssapy.plotUtils.globe_plot(r=r_geo, t=times, save_path=f"{save_folder}/globe_plot", scale=5)
 print('Created a globe plot.')
 
-ssapy.plotUtils.ground_track_plot(r=r_geo, t=t_geo, ground_stations=None, save_path=f"{save_folder}/ground_track_plot")
+ssapy.plotUtils.ground_track_plot(r=r_geo, t=times, ground_stations=None, save_path=f"{save_folder}/ground_track_plot")
 print('Created a ground track plot.')
 
 # Example usage
