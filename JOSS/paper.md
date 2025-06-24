@@ -114,7 +114,7 @@ with uncertainty quantification. SSAPy, with its full-featured modeling framewor
 functionality, fills the gap in the orbital software landscape.
 
 
-![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 48 hour orbit has a semi-major axis of 0.75 GEO (27,000km), an eccentricity 0.2 and an inclination of 45 degrees.](ground_track.png)
+![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000km, an eccentricity 0.2 and an inclination of 45 degrees.](ground_track.png)
 
 ![Example SSAPy visualization plot. Simulated trajectory of the orbit shown in Figure 1. The color on this plot represents time.](orbit_plot.png){ width=50% }
 
