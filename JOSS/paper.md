@@ -110,11 +110,11 @@ simulation and modeling a critical analysis tool [@Yeager2023]. Current orbit mo
 are predominantly used via graphical user interfaces (e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit)
 and are not optimized for large scale simulation on HPC systems. Orbital modeling codes that
 can be run on HPC systems (e.g., REBOUND; @Rein2012) lack full observable generation and modeling capabilities
-with uncertainty quantification. SSAPy, with its full-featured modeling framework and scalable, parallelizable
+with uncertainty quantification. Existing space dynamics libraries such as Orekit (@OREKIT_2024) and Tudat (@TUDAT) have comprehensive and many overlapping features with SSAPy. However, one point of difference is that they rely on spherical harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to cislunar dynamics. SSAPy, with its full-featured modeling framework and scalable, parallelizable
 functionality, fills the gap in the orbital software landscape.
 
 
-![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 48 hour orbit has a semi-major axis of 0.75 GEO (27,000km), an eccentricity 0.2 and an inclination of 45 degrees.](ground_track.png)
+![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000km, an eccentricity 0.2 and an inclination of 45 degrees.](ground_track.png)
 
 ![Example SSAPy visualization plot. Simulated trajectory of the orbit shown in Figure 1. The color on this plot represents time.](orbit_plot.png){ width=50% }
 
