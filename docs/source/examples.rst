@@ -148,17 +148,18 @@ Calculate the Lambertian Reflectance of the orbit
 
 .. figure:: ./reflectance_plot.png
 
-Plot the apparent magnitude of the orbit at each timestep
+Plot the apparent magnitude of the orbit at each timestep:
 
 .. code-block:: python
-    r_sun=get_body("sun").position(times).T
-    r_earth=get_body("earth").position(times).T
+
+    r_sun = get_body("sun").position(times).T
+    r_earth = get_body("earth").position(times).T
 
     # Calculate the apparent magnitude at each timestep
-    mags=compute.calc_M_v(r,r_sun,r_earth)
+    mags = compute.calc_M_v(r, r_sun, r_earth)
 
     RGEO = constants.RGEO
-    moon=get_body("moon").position(times).T
+    moon = get_body("moon").position(times).T
 
     fig = plt.figure(figsize=(12, 12), layout='constrained')
     plt.rcParams.update({'font.size': 12})
@@ -189,3 +190,18 @@ Plot the apparent magnitude of the orbit at each timestep
     plt.show()
 
 .. figure:: ./magnitude_plot.png
+
+Plot the solar phase angle at each timestep:
+
+.. code-block:: python
+
+    sun_angle=compute.get_angle(r_sun,r,r_earth)
+
+    plt.scatter(sun_angle,mags)
+    plt.xlabel('Solar Equatorial Phase Angle [rad]')
+    plt.ylabel('Apparent Magnitude')
+    plt.ylim(max(mags), min(mags))
+    plt.grid()
+    plt.show()
+
+.. figure:: ./phase_angle.png
