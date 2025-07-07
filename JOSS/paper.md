@@ -80,7 +80,7 @@ aas-journal:
 SSAPy is a fast and flexible orbit modeling and analysis tool for orbits spanning from
 low-Earth into the cislunar regime. Orbits can be flexibly specified from common
 input formats such as Keplerian elements or two-line
-element data files. SSAPy allows users to model satellites and specify parameters such
+element (TLE) data files. SSAPy allows users to model satellites and specify parameters such
 as satellite area, mass, and drag coefficients. SSAPy includes a customizable force propagation
 with a range of Earth, Lunar, radiation, atmospheric, and maneuvering models. SSAPy makes
 use of various community integration methods and can calculate
@@ -110,7 +110,7 @@ simulation and modeling a critical analysis tool [@Yeager2023]. Current orbit mo
 are predominantly used via graphical user interfaces (e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit)
 and are not optimized for large scale simulation on HPC systems. Orbital modeling codes that
 can be run on HPC systems (e.g., REBOUND; @Rein2012) lack full observable generation and modeling capabilities
-with uncertainty quantification. Existing space dynamics libraries such as Orekit (@OREKIT_2024) and Tudat (@TUDAT) have comprehensive and many overlapping features with SSAPy. However, one point of difference is that they rely on spherical harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to cislunar dynamics. SSAPy, with its full-featured modeling framework and scalable, parallelizable
+with uncertainty quantification. Existing space dynamics libraries such as Orekit (@OREKIT_2024) and Tudat (@TUDAT) have comprehensive and many overlapping features with SSAPy. However, one point of difference is that they rely on spherical harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to cislunar dynamics such as Earth (EGM2008;@earthmodel) and Lunar (GRGM1200A;@lunarmodel) surface gravity models. Additionally SSAPy has utilities for determining from any location on Earth, on sky brightness, proper motion, Right Ascension and Declination and provides conversions between on sky coordinates, TLEs, the Geocentric Celestial Reference Frame and other commonly used coordinates. There are also built in observation linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
 functionality, fills the gap in the orbital software landscape.
 
 
