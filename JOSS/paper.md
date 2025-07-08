@@ -93,7 +93,7 @@ high performance computer (HPC) systems. Finally, SSAPy has plotting functionali
 visualize orbits and trajectories, an example of which is shown in Figures 1 and 2.
 
 SSAPy has been used for the
-classification of cislunar [@Higgins2024], and closely-spaced [@Pruett2024], orbits as
+classification of cislunar [@Higgins2024] and closely-spaced [@Pruett2024], orbits as
 well as for studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
 has also been used to build a case study for rare events analysis in the context of satellites
 passing close to each other in space [@Miller2022;@Bernstein2021].
@@ -110,13 +110,20 @@ simulation and modeling a critical analysis tool [@Yeager2023]. Current orbit mo
 are predominantly used via graphical user interfaces (e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit)
 and are not optimized for large scale simulation on HPC systems. Orbital modeling codes that
 can be run on HPC systems (e.g., REBOUND; @Rein2012) lack full observable generation and modeling capabilities
-with uncertainty quantification. Existing space dynamics libraries such as Orekit (@OREKIT_2024) and Tudat (@TUDAT) have comprehensive and many overlapping features with SSAPy. However, one point of difference is that they rely on spherical harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to cislunar dynamics such as Earth (EGM2008;@earthmodel) and Lunar (GRGM1200A;@lunarmodel) surface gravity models. Additionally SSAPy has utilities for determining from any location on Earth, on sky brightness, proper motion, Right Ascension and Declination and provides conversions between on sky coordinates, TLEs, the Geocentric Celestial Reference Frame and other commonly used coordinates. There are also built in observation linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
+with uncertainty quantification. Existing space dynamics libraries such as Orekit (@OREKIT_2024) and Tudat (@TUDAT) have 
+comprehensive and many overlapping features with SSAPy. However, one point of difference is that they rely on spherical 
+harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to 
+cislunar dynamics such as Earth (EGM2008;@earthmodel) and Lunar (GRGM1200A;@lunarmodel) surface gravity models. Additionally, 
+SSAPy has utilities for determining from any location on Earth, on-sky brightness, proper motion, right ascension and declination
+and provides conversions between on sky coordinates, TLEs, the Geocentric Celestial Reference Frame and other commonly used coordinates. 
+There are also built in observation linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
+
 functionality, fills the gap in the orbital software landscape.
 
 
-![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000km, an eccentricity 0.2 and an inclination of 45 degrees.](ground_track.png)
+![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000km, an eccentricity of 0.2 and an inclination of 45 degrees.](ground_track.png)
 
-![Example SSAPy visualization plot. Simulated trajectory of the orbit shown in Figure 1. The color on this plot represents time.](orbit_plot.png){ width=50% }
+![Example SSAPy visualization plot of a cislunar orbit. The color on this plot represents time.](orbit_plot.png){ width=50% }
 
 # Acknowledgements
 
@@ -126,7 +133,7 @@ We would like to thank Robert Armstrong and Iméne Goumiri for valuable contribu
  This work was performed under the auspices of the U.S.
 Department of Energy by Lawrence Livermore National
 Laboratory (LLNL) under Contract DE-AC52-07NA27344.
-The document number is LLNL-JRNL-871602-DRAFT and the code number is LLNL-CODE-862420. SSAPy was developed with support
+The document number is LLNL-JRNL-871602 and the code number is LLNL-CODE-862420. SSAPy was developed with support
 from LLNL's Laboratory Directed Research and Development Program under projects 19-SI-004 and 22-ERD-054.
 
 # References
