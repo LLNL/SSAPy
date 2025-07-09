@@ -116,7 +116,7 @@ harmonics or model the Moon as a point mass, whereas SSAPy incorporates more com
 cislunar dynamics such as Earth (EGM2008;@earthmodel) and Lunar (GRGM1200A;@lunarmodel) surface gravity models. Additionally, 
 SSAPy has utilities for determining -- from any location on Earth -- on-sky brightness, proper motion, right ascension and declination,
 and provides conversions between on-sky coordinates, TLEs, the Geocentric Celestial Reference Frame and other commonly used coordinates. 
-There are also built in observation linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
+There are also built-in observation-linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
 functionality, fills the gap in the orbital software landscape.
 
 
