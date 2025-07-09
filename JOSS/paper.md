@@ -92,8 +92,7 @@ The majority of SSAPy's methods are vectorized and parallelizable, allowing for 
 high-performance computer (HPC) systems. Finally, SSAPy has plotting functionality, allowing users to
 visualize orbits and trajectories. An example is shown in Figures 1 and 2.
 
-SSAPy has been used for the
-classification of cislunar [@Higgins2024] and closely-spaced [@Pruett2024] orbits as
+SSAPy has been used for the classification of cislunar [@Higgins2024] and closely-spaced [@Pruett2024] orbits as
 well as for studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
 has also been used to build a case study for rare events analysis in the context of satellites
 passing close to each other in space [@Miller2022;@Bernstein2021].
@@ -119,8 +118,8 @@ and provides conversions between on-sky coordinates, TLEs, the Geocentric Celest
 There are also built-in observation-linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
 functionality, fills the gap in the orbital software landscape.
 
-
 ![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000 km, an eccentricity of 0.2 and an inclination of 45 degrees.](ground_track.png)
+
 
 ![Example SSAPy visualization plot of a cislunar orbit. The color on this plot represents time.](orbit_plot.png){ width=50% }
 
