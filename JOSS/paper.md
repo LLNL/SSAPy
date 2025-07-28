@@ -90,7 +90,7 @@ multiple coordinate and reference frames. SSAPy also supports orbit analysis and
 propagation methods such as multiple hypothesis tracking and has built-in uncertainty quantification.
 The majority of SSAPy's methods are vectorized and parallelizable, allowing for effective use of
 high-performance computer (HPC) systems. Finally, SSAPy has plotting functionality, allowing users to
-visualize orbits and trajectories. An example is shown in Figures 1 and 2.
+visualize orbits and trajectories. Examples are shown in \autoref{fig:ground_track} and \autoref{fig:orbit_plot}.
 
 SSAPy has been used for the classification of cislunar [@Higgins2024] and closely-spaced [@Pruett2024] orbits as
 well as for studying the long-term stability of orbits in cislunar space [@Yeager2023]. SSAPy
@@ -102,31 +102,31 @@ passing close to each other in space [@Miller2022;@Bernstein2021].
 Cislunar space is a region between Earth out to beyond the Moon's orbit that includes the
 Lagrange points. This region of space is of growing importance to scientific and other space exploration endeavors [e.g., @Duggan2019].
 Understanding, mapping, and modeling orbits through cislunar space is
-critical to all of these endeavors. The challenge for cislunar orbits is that n-body dynamics (e.g., gravitational forces
+critical to all of these endeavors. The challenge for cislunar orbits is that N-body dynamics (e.g., gravitational forces
 from the Sun, Earth, Moon and other planets) are significant, leading to unpredictable and chaotic orbital motion.
 In this chaotic regime, orbits cannot be reduced to simple parametric descriptions making scalable orbit
 simulation and modeling a critical analysis tool [@Yeager2023]. Current orbit modeling software tools
-are predominantly used via graphical user interfaces (e.g., The General Mission Analysis Tool; @Hughes2014 or the Systems Tool Kit)
+are predominantly used via graphical user interfaces [e.g., The Systems Tool Kit or the General Mission Analysis Tool, @Hughes2014]
 and are not optimized for large-scale simulation on HPC systems. Orbital modeling codes that
-can be run on HPC systems (e.g., REBOUND; @Rein2012) lack full observable generation and modeling capabilities
-with uncertainty quantification. Existing space dynamics libraries such as Orekit (@OREKIT_2024) and Tudat (@TUDAT) share many 
-features with SSAPy. However, one point of difference is that they rely on spherical 
-harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to 
-cislunar dynamics such as Earth (EGM2008;@earthmodel) and Lunar (GRGM1200A;@lunarmodel) surface gravity models. Additionally, 
-SSAPy has utilities for determining -- from any location on Earth -- on-sky brightness, proper motion, right ascension and declination,
-and provides conversions between on-sky coordinates, TLEs, the Geocentric Celestial Reference Frame and other commonly used coordinates. 
+can be run on HPC systems [e.g., REBOUND, @Rein2012] lack full observable generation and modeling capabilities
+with uncertainty quantification. Existing space dynamics libraries such as Orekit [@OREKIT_2024] and Tudat [@TUDAT] share many
+features with SSAPy. However, one point of difference is that they rely on spherical
+harmonics or model the Moon as a point mass, whereas SSAPy incorporates more comprehensive physical modeling relevant to
+cislunar dynamics such as Earth [EGM2008, @earthmodel] and Lunar [GRGM1200A, @lunarmodel] surface gravity models. Additionally,
+SSAPy has utilities for determining---from any location on Earth---on-sky brightness, proper motion, right ascension and declination,
+and provides conversions between on-sky coordinates, TLEs, the Geocentric Celestial Reference Frame and other commonly used coordinates.
 There are also built-in observation-linking tools and orbit refinement. SSAPy, with its full-featured modeling framework and scalable, parallelizable
 functionality, fills the gap in the orbital software landscape.
 
-![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000 km, an eccentricity of 0.2 and an inclination of 45 degrees.](ground_track.png)
+![Example SSAPy visualization plot of an orbit ground track over the surface of the Earth. The 12–13 hour orbit has a semi-major axis of 27,000 km, an eccentricity of 0.2 and an inclination of 45 degrees.\label{fig:ground_track}](ground_track.png)
 
 
-![Example SSAPy visualization plot of a cislunar orbit. The color on this plot represents time.](orbit_plot.png){ width=50% }
+![Example SSAPy visualization plot of a cislunar orbit. The color on this plot represents time.\label{fig:orbit_plot}](orbit_plot.png){ width=50% }
 
 # Acknowledgements
 
-`SSAPy` depends on NumPy [@Harris2020], SciPy [@Virtanen2020], matplotlib [@Hunter2007], emcee [@ForemanMackey2013],
-astropy [@astropy2022], pyerfa [@Kerkwijk2023], lmfit [@newville2024], and sqp4 [@Vallado2006].
+SSAPy depends on NumPy [@Harris2020], SciPy [@Virtanen2020], Matplotlib [@Hunter2007], emcee [@ForemanMackey2013],
+Astropy [@astropy2022], PyERFA [@Kerkwijk2023], lmfit [@newville2024], and SGP4 [@Vallado2006].
 We would like to thank Robert Armstrong and Iméne Goumiri for valuable contributions to this project.
  This work was performed under the auspices of the U.S.
 Department of Energy by Lawrence Livermore National
