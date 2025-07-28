@@ -1,5 +1,8 @@
 name: CI/CD
 
+permissions:
+  contents: write
+
 on:
   # This Workflow can be triggered manually
   workflow_dispatch:
