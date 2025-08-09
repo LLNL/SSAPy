@@ -7,7 +7,7 @@ import numpy as np
 from astropy.time import Time
 
 from .utils import LRU_Cache, norm, teme_to_gcrf
-
+from .constants import EARTH_RADIUS
 
 # Set up a cache for propagation interpolants.  Useful in case one wants to
 # propagate using the same Propagator and Orbit multiple times, such as when
@@ -44,18 +44,35 @@ class Propagator(ABC):
     def _getRVOne(self, orbit, time):
         ...  # Subclasses must override
 
+    # def _getRVMany(self, orbit, time):
+    #     # Computes positions, velocities broadcasting both over orbits and
+    #     # times.  Base class version is just a for-loop, but subclasses may
+    #     # override if they can be more efficient (e.g., KeplerianPropagator).
+    #     nOrbit = len(orbit)
+    #     nTime = len(time)
+    #     outR = np.empty((nOrbit, nTime, 3,), dtype=float)
+    #     outV = np.empty_like(outR)
+    #     for j, orb in enumerate(orbit):
+    #         outR[j], outV[j] = self._getRVOne(orb, time)
+    #     return outR, outV
     def _getRVMany(self, orbit, time):
-        # Computes positions, velocities broadcasting both over orbits and
-        # times.  Base class version is just a for-loop, but subclasses may
-        # override if they can be more efficient (e.g., KeplerianPropagator).
         nOrbit = len(orbit)
-        nTime = len(time)
-        outR = np.empty((nOrbit, nTime, 3,), dtype=float)
-        outV = np.empty_like(outR)
-        for j, orb in enumerate(orbit):
-            outR[j], outV[j] = self._getRVOne(orb, time)
-        return outR, outV
+        outR_list = []
+        outV_list = []
+        min_len = len(time)
 
+        for j, orb in enumerate(orbit):
+            rj, vj = self._getRVOne(orb, time)
+            if len(rj) < min_len:
+                min_len = len(rj)
+            outR_list.append(rj)
+            outV_list.append(vj)
+
+        # Truncate all results and time array to minimum length returned
+        outR = np.array([r[:min_len] for r in outR_list])
+        outV = np.array([v[:min_len] for v in outV_list])
+
+        return outR, outV
 
 class KeplerianPropagator(Propagator):
     """ A basic Keplerian propagator for finding the position and velocity of an
@@ -262,6 +279,14 @@ class SGP4Propagator(Propagator):
         return np.all(self.t == rhs.t)
 
 
+def impact_event(t, s):
+        r = s[0:3]
+        return np.linalg.norm(r) - EARTH_RADIUS
+
+impact_event.terminal = True
+impact_event.direction = -1
+
+
 class SciPyPropagator(Propagator):
     """Propagate using the scipy.integrate.solve_ivp ODE solver.
 
@@ -324,8 +349,11 @@ class SciPyPropagator(Propagator):
                 [t0, t1],
                 sol(t0),
                 dense_output=True,
+                events=impact_event,
                 **self.ode_kwargs
             )
+            if soln.t_events and soln.t_events[0].size > 0:
+                print(f"Impact detected at t = {soln.t_events[0][0]:.2f} s")
             if not soln.success:
                 raise ValueError(soln.message)
             if t1 > t0:
@@ -340,7 +368,7 @@ class SciPyPropagator(Propagator):
         # Pattern for ScipyPropagator interpolant is just:
         # OdeSolution
         container = _InterpolantCache(orbit, self)
-
+        
         def fp(t, s):
             r = s[0:3]
             v = s[3:6]
@@ -374,6 +402,11 @@ class SciPyPropagator(Propagator):
         if update:
             container.clear()
             container.append(sol)
+        
+        tQuery = tQuery[tQuery <= sol.ts[-1]]
+        if len(tQuery) == 0:
+            return np.empty((0, 3)), np.empty((0, 3))
+    
         out = sol(tQuery).T
         return out[:, 0:3], out[:, 3:6]
 
@@ -473,6 +506,11 @@ class RKPropagator(Propagator, ABC):
             spline = make_interp_spline(times, states, k=self._minPoints)
             container.clear()
             container.extend([times, states, h_pre, h_app, spline])
+
+        tQuery = tQuery[tQuery <= times[-1]]
+        if len(tQuery) == 0:
+            return np.empty((0, 3)), np.empty((0, 3))
+
         out = spline(tQuery)
         return out[:, 0:3], out[:, 3:6]
 
@@ -532,6 +570,7 @@ class RK4Propagator(RKPropagator):
             t = times[0]
             state = states[0]
             pred = lambda t: t >= tthresh
+
         keepGoing = True
         while keepGoing:
             # test here so we always get 1 extra iteration...
@@ -543,12 +582,19 @@ class RK4Propagator(RKPropagator):
             k4 = fp(state + h * k3, t + h)
             state = state + h / 6.0 * (k1 + 2 * k2 + 2 * k3 + k4)
             t = t + h
+            
             if h > 0:
                 states.append(state)
                 times.append(t)
             else:
                 states.appendleft(state)
                 times.appendleft(t)
+
+            # EARTH COLLISION CHECK
+            if np.linalg.norm(state[0:3]) <= EARTH_RADIUS:
+                print("Collision with Earth detected. Propagation stopped at t =", t)
+                break  # Do not add this state — exit
+
         return h
 
     def __hash__(self):
@@ -661,6 +707,12 @@ class RK8Propagator(RKPropagator):
             else:
                 states.appendleft(state)
                 times.appendleft(t)
+
+            # EARTH COLLISION CHECK
+            if np.linalg.norm(state[0:3]) <= EARTH_RADIUS:
+                print("Collision with Earth detected. Propagation stopped at t =", t)
+                break  # Do not add this state — exit
+
         return h
 
     def __hash__(self):
@@ -766,6 +818,7 @@ class RK78Propagator(RK8Propagator):
             t = times[0]
             state = states[0]
             pred = lambda t: t >= tthresh
+
         keepGoing = True
         while keepGoing:
             # test here so we always get 1 extra iteration...
@@ -780,6 +833,12 @@ class RK78Propagator(RK8Propagator):
             else:
                 states.appendleft(state)
                 times.appendleft(t)
+
+            # EARTH COLLISION CHECK
+            if np.linalg.norm(state[0:3]) <= EARTH_RADIUS:
+                print("Collision with Earth detected. Propagation stopped at t =", t)
+                break  # Do not add this state — exit
+
         return h
 
     def __hash__(self):
