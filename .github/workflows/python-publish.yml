@@ -3,7 +3,7 @@ name: Upload Python Package
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Trigger on version tags like v1.0.0, v2.1.3, etc.
 
 permissions:
   contents: read
@@ -18,7 +18,7 @@ jobs:
           
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.8'
           
       - name: Install build dependencies
         run: |
@@ -50,7 +50,7 @@ jobs:
       name: pypi
       url: https://pypi.org/p/llnl-ssapy
     permissions:
-      id-token: write
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
       
     steps:
       - name: Download all the dists
