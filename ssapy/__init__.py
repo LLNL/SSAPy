@@ -1,6 +1,5 @@
 import os
 
-# Lazy data directory access
 def _get_datadir():
     """Get data directory, downloading data if needed (lazy loading)."""
     from .data_utils import get_data_dir
@@ -21,7 +20,6 @@ class _DataDir:
 
 datadir = _DataDir()
 
-# All your existing imports
 from . import _ssapy
 from .orbit import Orbit, EarthObserver, OrbitalObserver
 from .propagator import (
@@ -46,14 +44,12 @@ from .body import (
 )
 from .gravity import HarmonicCoefficients, AccelThirdBody, AccelHarmonic
 
-# Keep submodules available
 from . import constants
 from . import plotUtils
 from . import io
 from . import utils
 from . import simple
 
-# External dependencies
 from astropy.time import Time, TimeDelta
 import astropy.units as u
 from datetime import timedelta
