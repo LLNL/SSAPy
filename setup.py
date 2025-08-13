@@ -5,6 +5,20 @@ import subprocess
 import sys
 import os
 
+try:
+    import tomllib
+except ImportError:
+    import tomli as tomllib
+
+# Read dependencies from pyproject.toml
+def get_dependencies():
+    try:
+        with open('pyproject.toml', 'rb') as f:
+            pyproject = tomllib.load(f)
+        return pyproject['project']['dependencies']
+    except (FileNotFoundError, KeyError):
+        return []
+
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
@@ -48,9 +62,10 @@ setup(
     ext_modules=[CMakeExtension("ssapy._ssapy")],
     cmdclass={"build_ext": CMakeBuild},
     packages=find_packages(),
-    package_data={'ssapy': ['_ssapy*.so']},  # Adjust as necessary
+    package_data={'ssapy': ['_ssapy*.so']},
     license='MIT',
     zip_safe=False,
     include_package_data=True,
+    install_requires=get_dependencies(),
 )
 
