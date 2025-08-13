@@ -27,8 +27,8 @@ endif()
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 set(PYTHON_MODULE_INSTALL_DIR "${Python3_SITEARCH}/ssapy")
 
-# Include pybind11 using FetchContent
-find_package(pybind11 REQUIRED)
+# Use the bundled pybind11 subdirectory
+add_subdirectory(pybind11)
 
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)

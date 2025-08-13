@@ -35,7 +35,7 @@ dependencies = [
     ]
 
 [build-system]
-requires = ["setuptools>=42", "wheel", "scikit-build", "pybind11", "cmake"]
+requires = ["setuptools>=42", "wheel", "scikit-build", "cmake"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
