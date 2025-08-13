@@ -27,14 +27,8 @@ endif()
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 set(PYTHON_MODULE_INSTALL_DIR "${Python3_SITEARCH}/ssapy")
 
-# Include pybind11 using FetchContent
-include(FetchContent)
-FetchContent_Declare(
-    pybind11
-    GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG        v2.11.1
-)
-FetchContent_MakeAvailable(pybind11)
+# Use the bundled pybind11 subdirectory
+add_subdirectory(pybind11)
 
 # Include directories
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
