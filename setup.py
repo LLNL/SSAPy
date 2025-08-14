@@ -123,19 +123,6 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
-
-class CustomBuild(build):
-    """Custom build command that creates data archive before building"""
-    
-    def run(self):
-        # Create the data archive before building
-        print("=== SSAPy Custom Build Process ===")
-        DataManager.create_data_archive()
-        
-        # Run the standard build process
-        build.run(self)
-
-
 class CustomSdist(sdist):
     """Custom sdist command that ensures data archive is included"""
     
@@ -146,65 +133,6 @@ class CustomSdist(sdist):
         
         # Run the standard sdist process
         sdist.run(self)
-
-
-class CustomInstall(install):
-    """Custom install command that extracts data files after installation"""
-    
-    def run(self):
-        # Run the standard installation first (including CMake build)
-        print("=== SSAPy Custom Install Process ===")
-        install.run(self)
-        
-        # Then extract data files to the installed package location
-        self._extract_data_files()
-    
-    def _extract_data_files(self):
-        """Extract data files to the installed package location"""
-        # Find where the package was installed
-        install_dir = None
-        for path in sys.path:
-            potential_path = os.path.join(path, "ssapy")
-            if os.path.exists(potential_path):
-                install_dir = potential_path
-                break
-        
-        if install_dir is None:
-            print("Warning: Could not locate installed ssapy package for data extraction")
-            return
-            
-        print(f"Installing data files to: {install_dir}")
-        
-        # Look for the data archive in the package directory
-        package_tar = os.path.join(install_dir, "ssapy_data.tar.gz")
-        
-        if os.path.exists(package_tar):
-            try:
-                # Extract the archive directly to the package directory
-                with tarfile.open(package_tar, "r:gz") as tar:
-                    # Safety check for malicious archives
-                    def is_safe_member(member):
-                        member_path = Path(member.name)
-                        return not (
-                            member_path.is_absolute() or 
-                            ".." in member_path.parts or
-                            member.name.startswith("/")
-                        )
-                    
-                    safe_members = [m for m in tar.getmembers() if is_safe_member(m)]
-                    tar.extractall(path=install_dir, members=safe_members)
-                    
-                print(f"Successfully extracted {len(safe_members)} data files")
-                
-                # Optionally remove the archive after extraction to save space
-                # Uncomment the next line if you want to clean up the archive
-                # os.remove(package_tar)
-                
-            except Exception as e:
-                print(f"Warning: Failed to extract data files: {e}")
-        else:
-            print(f"Warning: Data archive not found at {package_tar}")
-
 
 class CustomDevelop(develop):
     """Custom develop command for editable installs"""
@@ -222,35 +150,155 @@ class CustomDevelop(develop):
         # Run the standard develop process
         develop.run(self)
 
+# Updated DataManager class for setup.py
+
+class DataManager:
+    """Utility class for managing SSAPy chunked data files"""
+    
+    DATA_DIR = "ssapy/data"
+    CHUNK_PREFIX = "ssapy_data_chunk_"
+    CHUNK_SIZE = 80 * 1024 * 1024  # 80 MB chunks
+    
+    @classmethod
+    def create_chunked_archive(cls):
+        """Create chunked tar archives of data directory"""
+        if not os.path.exists(cls.DATA_DIR):
+            print(f"Warning: {cls.DATA_DIR} directory not found, skipping archive creation")
+            return False
+            
+        # Use the chunked data manager
+        import subprocess
+        result = subprocess.run([
+            sys.executable, "scripts/chunked_data_manager.py", "create"
+        ], capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            print("Chunked archive created successfully")
+            return True
+        else:
+            print(f"Error creating chunked archive: {result.stderr}")
+            return False
+    
+    @classmethod
+    def reassemble_and_extract(cls, target_dir=None):
+        """Reassemble chunks and extract data"""
+        if target_dir is None:
+            target_dir = os.path.dirname(cls.DATA_DIR)
+            
+        # Use the chunked data manager to reassemble
+        import subprocess
+        result = subprocess.run([
+            sys.executable, "scripts/chunked_data_manager.py", 
+            "reassemble", "--target", target_dir
+        ], capture_output=True, text=True)
+        
+        return result.returncode == 0
+    
+    @classmethod
+    def get_chunk_filenames(cls):
+        """Get list of chunk filenames for package_data"""
+        chunk_pattern = f"{cls.CHUNK_PREFIX}*.tar.gz"
+        ssapy_dir = Path("ssapy")
+        chunk_files = sorted(list(ssapy_dir.glob(chunk_pattern)))
+        return [f.name for f in chunk_files]
+
+
+# Updated CustomBuild class
+class CustomBuild(build):
+    """Custom build command that creates chunked data archive"""
+    
+    def run(self):
+        print("=== SSAPy Custom Build Process (Chunked) ===")
+        DataManager.create_chunked_archive()
+        build.run(self)
+
+
+# Updated CustomInstall class  
+class CustomInstall(install):
+    """Custom install command that reassembles chunks and extracts data"""
+    
+    def run(self):
+        print("=== SSAPy Custom Install Process (Chunked) ===")
+        install.run(self)
+        self._reassemble_and_extract_data()
+    
+    def _reassemble_and_extract_data(self):
+        """Reassemble chunks and extract data files"""
+        # Find where the package was installed
+        install_dir = None
+        for path in sys.path:
+            potential_path = os.path.join(path, "ssapy")
+            if os.path.exists(potential_path):
+                install_dir = potential_path
+                break
+        
+        if install_dir is None:
+            print("Warning: Could not locate installed ssapy package")
+            return
+            
+        print(f"Reassembling data chunks in: {install_dir}")
+        
+        # Find chunk files in the installed package
+        chunk_pattern = f"{DataManager.CHUNK_PREFIX}*.tar.gz"
+        chunk_files = sorted(list(Path(install_dir).glob(chunk_pattern)))
+        
+        if not chunk_files:
+            print("Warning: No chunk files found in installed package")
+            return
+            
+        print(f"Found {len(chunk_files)} chunks to reassemble")
+        
+        # Reassemble chunks into temporary archive
+        temp_archive = os.path.join(install_dir, "temp_reassembled.tar.gz")
+        
+        try:
+            with open(temp_archive, 'wb') as output:
+                for chunk_file in chunk_files:
+                    print(f"Reading chunk: {chunk_file.name}")
+                    with open(chunk_file, 'rb') as chunk:
+                        while True:
+                            data = chunk.read(8192)
+                            if not data:
+                                break
+                            output.write(data)
+            
+            # Extract the reassembled archive
+            with tarfile.open(temp_archive, "r:gz") as tar:
+                tar.extractall(path=install_dir)
+                
+            print("Data successfully reassembled and extracted")
+            
+            # Clean up temporary archive
+            os.remove(temp_archive)
+            
+            # Optionally remove chunk files to save space
+            for chunk_file in chunk_files:
+                os.remove(chunk_file)
+                
+        except Exception as e:
+            print(f"Error reassembling chunks: {e}")
+
+
+def get_package_data():
+    """Get package data including dynamic chunk files"""
+    chunk_files = DataManager.get_chunk_filenames()
+    return {
+        'ssapy': ['_ssapy*.so'] + chunk_files
+    }
 
 setup(
     name='ssapy',
-    version='1.1.1',
-    
-    # CMake extension (preserved from original)
+    version='1.2.0',
     ext_modules=[CMakeExtension("ssapy._ssapy")],
-    
-    # Combined command classes (CMake + Data handling)
     cmdclass={
-        "build_ext": CMakeBuild,        # Original CMake build
-        "build": CustomBuild,           # New: Creates data archive
-        "sdist": CustomSdist,           # New: Includes archive in source dist
-        "install": CustomInstall,       # New: Extracts data on install
-        "develop": CustomDevelop,       # New: Handles editable installs
+        "build_ext": CMakeBuild,
+        "build": CustomBuild,           # Uses chunked archive creation
+        "sdist": CustomSdist, 
+        "install": CustomInstall,       # Uses chunk reassembly
+        "develop": CustomDevelop,
     },
-    
-    # Package configuration
     packages=find_packages(),
-    
-    # Package data - include both CMake artifacts and data archive
-    package_data={
-        'ssapy': [
-            '_ssapy*.so',           # Original CMake shared library
-            'ssapy_data.tar.gz',    # New: Data archive
-        ]
-    },
-    
-    # Metadata (preserved from original)
+    package_data=get_package_data(),    # Dynamic chunk inclusion
     license='MIT',
     zip_safe=False,
     include_package_data=True,

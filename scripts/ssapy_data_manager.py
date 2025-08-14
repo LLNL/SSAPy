@@ -1,32 +1,31 @@
 #!/usr/bin/env python
 """
-SSAPy Build and Data Management Scripts
+SSAPy Chunked Data Manager
 
-This module provides utilities for managing large data files in the SSAPy package
-using tar archives instead of git clones.
+Splits large tar archives into chunks that fit within PyPI's 100MB per-file limit.
 """
 
 import os
 import sys
-import shutil
 import tarfile
 import argparse
 from pathlib import Path
 
 
-class SSAPyDataManager:
+class ChunkedDataManager:
     """
-    Manages SSAPy data files using tar archives
+    Manages SSAPy data files using chunked tar archives for PyPI compatibility
     """
     
     def __init__(self, base_dir=None):
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
         self.data_dir = self.base_dir / "ssapy" / "data"
-        self.archive_path = self.base_dir / "ssapy" / "ssapy_data.tar.gz"
+        self.chunk_size = 80 * 1024 * 1024  # 80 MB chunks (under 100 MB limit)
+        self.chunk_prefix = "ssapy_data_chunk_"
         
-    def create_archive(self, compression_level=6):
+    def create_chunked_archive(self, compression_level=6):
         """
-        Create a compressed tar archive of the data directory
+        Create tar archive and split into chunks under 100MB
         
         Args:
             compression_level (int): Compression level (1-9, default 6)
@@ -38,222 +37,223 @@ class SSAPyDataManager:
             print(f"Error: Data directory {self.data_dir} does not exist")
             return False
             
-        print(f"Creating data archive: {self.archive_path}")
-        print(f"Source directory: {self.data_dir}")
+        print(f"Creating chunked data archive from: {self.data_dir}")
+        
+        # Step 1: Create temporary full tar archive
+        temp_tar = self.base_dir / "ssapy" / "temp_ssapy_data.tar.gz"
         
         try:
-            # Count files for progress indication
-            file_count = sum(1 for _ in self.data_dir.rglob("*") if _.is_file())
-            print(f"Archiving {file_count} files...")
+            # Create full archive first
+            print("Creating temporary full archive...")
+            with tarfile.open(temp_tar, f"w:gz", compresslevel=compression_level) as tar:
+                tar.add(self.data_dir, arcname="data")
+                
+            archive_size = temp_tar.stat().st_size / (1024 * 1024)
+            print(f"Full archive size: {archive_size:.1f} MB")
             
-            # Create the archive with specified compression
-            with tarfile.open(self.archive_path, f"w:gz", compresslevel=compression_level) as tar:
-                # Add files individually for better control
-                for file_path in self.data_dir.rglob("*"):
-                    if file_path.is_file():
-                        # Create relative archive path (remove ssapy/data prefix)
-                        arcname = file_path.relative_to(self.data_dir)
-                        tar.add(file_path, arcname=f"data/{arcname}")
-                        
-            archive_size = self.archive_path.stat().st_size / (1024 * 1024)
-            print(f"Archive created successfully: {archive_size:.1f} MB")
-            return True
+            # Step 2: Split into chunks
+            chunk_files = self._split_into_chunks(temp_tar)
             
+            # Step 3: Clean up temporary file
+            temp_tar.unlink()
+            
+            if chunk_files:
+                print(f"Successfully created {len(chunk_files)} chunks:")
+                for i, chunk_file in enumerate(chunk_files):
+                    size_mb = chunk_file.stat().st_size / (1024 * 1024)
+                    print(f"  {chunk_file.name}: {size_mb:.1f} MB")
+                return True
+            else:
+                return False
+                
         except Exception as e:
-            print(f"Error creating archive: {e}")
+            print(f"Error creating chunked archive: {e}")
+            if temp_tar.exists():
+                temp_tar.unlink()
             return False
     
-    def extract_archive(self, target_dir=None, force=False):
+    def _split_into_chunks(self, archive_path):
+        """Split archive into chunks under the size limit"""
+        chunk_files = []
+        chunk_num = 0
+        
+        print(f"Splitting archive into {self.chunk_size / (1024*1024):.0f}MB chunks...")
+        
+        try:
+            with open(archive_path, 'rb') as source:
+                while True:
+                    chunk_filename = f"{self.chunk_prefix}{chunk_num:03d}.tar.gz"
+                    chunk_path = self.base_dir / "ssapy" / chunk_filename
+                    
+                    with open(chunk_path, 'wb') as chunk_file:
+                        bytes_written = 0
+                        while bytes_written < self.chunk_size:
+                            remaining = self.chunk_size - bytes_written
+                            data = source.read(min(8192, remaining))
+                            if not data:
+                                break
+                            chunk_file.write(data)
+                            bytes_written += len(data)
+                    
+                    if bytes_written == 0:
+                        # No data written, remove empty file
+                        chunk_path.unlink()
+                        break
+                    
+                    chunk_files.append(chunk_path)
+                    chunk_num += 1
+                    
+                    if bytes_written < self.chunk_size:
+                        # Last chunk
+                        break
+                        
+        except Exception as e:
+            print(f"Error splitting archive: {e}")
+            # Clean up any partial chunks
+            for chunk_file in chunk_files:
+                if chunk_file.exists():
+                    chunk_file.unlink()
+            return []
+            
+        return chunk_files
+    
+    def reassemble_chunks(self, target_dir=None):
         """
-        Extract the data archive
+        Reassemble chunks back into full archive and extract
         
         Args:
-            target_dir (str): Target directory (defaults to ssapy directory)
-            force (bool): Force extraction even if data directory exists
+            target_dir: Directory to extract to (defaults to ssapy/)
             
         Returns:
             bool: True if successful, False otherwise
         """
-        if not self.archive_path.exists():
-            print(f"Error: Archive {self.archive_path} does not exist")
-            return False
-            
         if target_dir is None:
             target_dir = self.base_dir / "ssapy"
         else:
             target_dir = Path(target_dir)
-            
-        data_target = target_dir / "data"
         
-        if data_target.exists() and not force:
-            print(f"Data directory {data_target} already exists (use --force to overwrite)")
-            return True
+        # Find all chunk files
+        chunk_pattern = f"{self.chunk_prefix}*.tar.gz"
+        chunk_files = sorted(list((self.base_dir / "ssapy").glob(chunk_pattern)))
+        
+        if not chunk_files:
+            print(f"Error: No chunk files found matching {chunk_pattern}")
+            return False
             
-        print(f"Extracting data archive to: {target_dir}")
+        print(f"Found {len(chunk_files)} chunks to reassemble")
+        
+        # Reassemble into temporary full archive
+        temp_archive = target_dir / "temp_reassembled.tar.gz"
         
         try:
-            with tarfile.open(self.archive_path, "r:gz") as tar:
-                # Extract with safety checks
-                def is_safe_path(member_path):
-                    return not (member_path.is_absolute() or ".." in member_path.parts)
-                
-                members = tar.getmembers()
-                safe_members = []
-                
-                for member in members:
+            with open(temp_archive, 'wb') as output:
+                for chunk_file in chunk_files:
+                    print(f"Reading chunk: {chunk_file.name}")
+                    with open(chunk_file, 'rb') as chunk:
+                        while True:
+                            data = chunk.read(8192)
+                            if not data:
+                                break
+                            output.write(data)
+            
+            print("Chunks reassembled, extracting data...")
+            
+            # Extract the reassembled archive
+            with tarfile.open(temp_archive, "r:gz") as tar:
+                # Safety check for malicious archives
+                def is_safe_member(member):
                     member_path = Path(member.name)
-                    if is_safe_path(member_path):
-                        safe_members.append(member)
-                    else:
-                        print(f"Skipping unsafe path: {member.name}")
+                    return not (
+                        member_path.is_absolute() or 
+                        ".." in member_path.parts or
+                        member.name.startswith("/")
+                    )
                 
+                safe_members = [m for m in tar.getmembers() if is_safe_member(m)]
                 tar.extractall(path=target_dir, members=safe_members)
                 
-            print(f"Successfully extracted {len(safe_members)} files")
+            print(f"Successfully extracted {len(safe_members)} items")
+            
+            # Clean up temporary archive
+            temp_archive.unlink()
             return True
             
         except Exception as e:
-            print(f"Error extracting archive: {e}")
+            print(f"Error reassembling chunks: {e}")
+            if temp_archive.exists():
+                temp_archive.unlink()
             return False
     
-    def verify_archive(self):
-        """
-        Verify the integrity of the data archive
+    def verify_chunks(self):
+        """Verify that all chunks exist and can be reassembled"""
+        chunk_pattern = f"{self.chunk_prefix}*.tar.gz"
+        chunk_files = sorted(list((self.base_dir / "ssapy").glob(chunk_pattern)))
         
-        Returns:
-            bool: True if archive is valid, False otherwise
-        """
-        if not self.archive_path.exists():
-            print(f"Archive {self.archive_path} does not exist")
+        if not chunk_files:
+            print(f"No chunk files found matching {chunk_pattern}")
             return False
             
-        try:
-            with tarfile.open(self.archive_path, "r:gz") as tar:
-                members = tar.getmembers()
-                print(f"Archive contains {len(members)} entries")
-                
-                # Check for basic structure
-                has_data_dir = any(m.name.startswith("data/") for m in members)
-                if not has_data_dir:
-                    print("Warning: Archive does not contain expected 'data/' directory")
-                    return False
-                    
-                # Calculate total uncompressed size
-                total_size = sum(m.size for m in members if m.isfile()) / (1024 * 1024)
-                print(f"Total uncompressed size: {total_size:.1f} MB")
-                
-                # Show file type breakdown
-                file_types = {}
-                for member in members:
-                    if member.isfile():
-                        ext = Path(member.name).suffix.lower()
-                        if not ext:
-                            ext = "no_extension"
-                        file_types[ext] = file_types.get(ext, 0) + 1
-                
-                print("File type breakdown:")
-                for ext, count in sorted(file_types.items()):
-                    print(f"  {ext}: {count} files")
-                    
-                # List some large files
-                large_files = [m for m in members if m.isfile() and m.size > 10*1024*1024]
-                if large_files:
-                    print("Large files (>10MB):")
-                    for member in sorted(large_files, key=lambda x: x.size, reverse=True)[:5]:
-                        size_mb = member.size / (1024 * 1024)
-                        print(f"  {member.name} ({size_mb:.1f} MB)")
-                
-                return True
-                
-        except Exception as e:
-            print(f"Error verifying archive: {e}")
+        print(f"Found {len(chunk_files)} chunks:")
+        total_size = 0
+        
+        for chunk_file in chunk_files:
+            size_mb = chunk_file.stat().st_size / (1024 * 1024)
+            total_size += size_mb
+            status = "✓" if size_mb < 100 else "✗ TOO LARGE"
+            print(f"  {chunk_file.name}: {size_mb:.1f} MB {status}")
+            
+        print(f"Total reassembled size: {total_size:.1f} MB")
+        
+        # Verify all chunks are under 100 MB
+        oversized = [f for f in chunk_files if f.stat().st_size > 100 * 1024 * 1024]
+        if oversized:
+            print(f"ERROR: {len(oversized)} chunks exceed 100 MB limit")
             return False
-    
-    def clean(self):
-        """Remove generated archive and temporary files"""
-        if self.archive_path.exists():
-            self.archive_path.unlink()
-            print(f"Removed archive: {self.archive_path}")
-        
-        # Clean up any build artifacts
-        for pattern in ["build", "dist", "*.egg-info", "_skbuild"]:
-            for path in self.base_dir.glob(pattern):
-                if path.is_dir():
-                    shutil.rmtree(path)
-                    print(f"Removed directory: {path}")
-                elif path.is_file():
-                    path.unlink()
-                    print(f"Removed file: {path}")
-
-    def cleanup_data_directory(self):
-        """Remove the original data directory after archiving"""
-        if self.data_dir.exists():
-            shutil.rmtree(self.data_dir)
-            print(f"Cleaned up original {self.data_dir} directory")
-    
-    def get_statistics(self):
-        """Get statistics about data directory and archive"""
-        stats = {}
-        
-        # Original data directory stats
-        if self.data_dir.exists():
-            files = list(self.data_dir.rglob("*"))
-            file_count = sum(1 for f in files if f.is_file())
-            total_size = sum(f.stat().st_size for f in files if f.is_file())
-            stats['original'] = {
-                'file_count': file_count,
-                'total_size_mb': total_size / (1024 * 1024),
-                'exists': True
-            }
-        else:
-            stats['original'] = {'exists': False}
-        
-        # Archive stats
-        if self.archive_path.exists():
-            archive_size = self.archive_path.stat().st_size
-            stats['archive'] = {
-                'size_mb': archive_size / (1024 * 1024),
-                'exists': True
-            }
             
-            # Calculate compression ratio if both exist
-            if stats['original']['exists']:
-                compression_ratio = (1 - archive_size / (stats['original']['total_size_mb'] * 1024 * 1024)) * 100
-                stats['compression_ratio'] = compression_ratio
-        else:
-            stats['archive'] = {'exists': False}
+        return True
+    
+    def clean_chunks(self):
+        """Remove all chunk files"""
+        chunk_pattern = f"{self.chunk_prefix}*.tar.gz"
+        chunk_files = list((self.base_dir / "ssapy").glob(chunk_pattern))
+        
+        for chunk_file in chunk_files:
+            chunk_file.unlink()
+            print(f"Removed chunk: {chunk_file.name}")
             
-        return stats
+        print(f"Cleaned up {len(chunk_files)} chunk files")
+    
+    def get_chunk_files(self):
+        """Get list of chunk files for package_data"""
+        chunk_pattern = f"{self.chunk_prefix}*.tar.gz"
+        chunk_files = sorted(list((self.base_dir / "ssapy").glob(chunk_pattern)))
+        return [f.name for f in chunk_files]
 
 
 def main():
-    """Command-line interface for data management"""
-    parser = argparse.ArgumentParser(description="SSAPy Data Management Utility")
+    """Command-line interface"""
+    parser = argparse.ArgumentParser(description="SSAPy Chunked Data Manager")
     parser.add_argument("--base-dir", help="Base directory (default: current directory)")
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     
-    # Archive command
-    archive_parser = subparsers.add_parser("archive", help="Create data archive")
-    archive_parser.add_argument("--compression", type=int, default=6, 
-                               help="Compression level (1-9, default: 6)")
-    archive_parser.add_argument("--cleanup", action="store_true",
-                               help="Remove original data directory after archiving")
+    # Create chunks
+    create_parser = subparsers.add_parser("create", help="Create chunked archive")
+    create_parser.add_argument("--compression", type=int, default=6,
+                              help="Compression level (1-9, default: 6)")
     
-    # Extract command  
-    extract_parser = subparsers.add_parser("extract", help="Extract data archive")
-    extract_parser.add_argument("--target", help="Target directory")
-    extract_parser.add_argument("--force", action="store_true",
-                               help="Force extraction even if data exists")
+    # Verify chunks
+    subparsers.add_parser("verify", help="Verify chunks are under 100MB")
     
-    # Verify command
-    subparsers.add_parser("verify", help="Verify archive integrity")
+    # Reassemble chunks
+    reassemble_parser = subparsers.add_parser("reassemble", help="Reassemble chunks and extract")
+    reassemble_parser.add_argument("--target", help="Target directory")
     
-    # Clean command
-    subparsers.add_parser("clean", help="Clean up generated files")
+    # Clean chunks
+    subparsers.add_parser("clean", help="Remove chunk files")
     
-    # Stats command
-    subparsers.add_parser("stats", help="Show statistics about data and archive")
+    # List chunks
+    subparsers.add_parser("list", help="List chunk files for package_data")
     
     args = parser.parse_args()
     
@@ -261,49 +261,29 @@ def main():
         parser.print_help()
         return 1
         
-    manager = SSAPyDataManager(args.base_dir)
+    manager = ChunkedDataManager(args.base_dir)
     
-    if args.command == "archive":
-        success = manager.create_archive(args.compression)
-        if success and args.cleanup:
-            manager.cleanup_data_directory()
-        return 0 if success else 1
-        
-    elif args.command == "extract":
-        success = manager.extract_archive(args.target, args.force)
+    if args.command == "create":
+        success = manager.create_chunked_archive(args.compression)
         return 0 if success else 1
         
     elif args.command == "verify":
-        success = manager.verify_archive()
+        success = manager.verify_chunks()
+        return 0 if success else 1
+        
+    elif args.command == "reassemble":
+        success = manager.reassemble_chunks(args.target)
         return 0 if success else 1
         
     elif args.command == "clean":
-        manager.clean()
+        manager.clean_chunks()
         return 0
         
-    elif args.command == "stats":
-        stats = manager.get_statistics()
-        
-        print("=== SSAPy Data Statistics ===")
-        
-        if stats['original']['exists']:
-            orig = stats['original']
-            print(f"Original data directory:")
-            print(f"  Files: {orig['file_count']}")
-            print(f"  Size: {orig['total_size_mb']:.1f} MB")
-        else:
-            print("Original data directory: Not found")
-            
-        if stats['archive']['exists']:
-            arch = stats['archive']
-            print(f"Data archive:")
-            print(f"  Size: {arch['size_mb']:.1f} MB")
-            
-            if 'compression_ratio' in stats:
-                print(f"  Compression: {stats['compression_ratio']:.1f}% reduction")
-        else:
-            print("Data archive: Not found")
-            
+    elif args.command == "list":
+        chunks = manager.get_chunk_files()
+        print("Chunk files for package_data:")
+        for chunk in chunks:
+            print(f'    "{chunk}",')
         return 0
     
     return 1

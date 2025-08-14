@@ -1,8 +1,7 @@
 """
-SSAPy Runtime Data Loader
+SSAPy Runtime Data Loader (Chunked Version)
 
-This module handles loading data files from the tar archive at runtime.
-It replaces the git clone approach with efficient tar extraction.
+This module handles loading data files from chunked tar archives at runtime.
 """
 
 import os
@@ -19,7 +18,7 @@ from functools import wraps
 
 class SSAPyDataLoader:
     """
-    Handles loading and managing SSAPy data files from tar archive
+    Handles loading and managing SSAPy data files from chunked tar archives
     """
     
     _instance = None
@@ -27,6 +26,8 @@ class SSAPyDataLoader:
     _temp_dir = None
     _extracted = False
     _lock = threading.Lock()
+    
+    CHUNK_PREFIX = "ssapy_data_chunk_"
     
     def __new__(cls):
         if cls._instance is None:
@@ -50,43 +51,76 @@ class SSAPyDataLoader:
             except Exception:
                 pass  # Ignore cleanup errors
     
-    def _find_archive(self) -> Optional[Path]:
+    def _find_chunk_files(self) -> list:
         """
-        Find the data archive in the package installation
+        Find chunk files in the package installation
         
         Returns:
-            Path to the archive file, or None if not found
+            List of chunk file paths, empty if not found
         """
-        # Try to find the archive relative to this module
+        # Try to find chunks relative to this module
         try:
             import ssapy
             package_dir = Path(ssapy.__file__).parent
-            archive_path = package_dir / "ssapy_data.tar.gz"
+            chunk_pattern = f"{self.CHUNK_PREFIX}*.tar.gz"
+            chunk_files = sorted(list(package_dir.glob(chunk_pattern)))
             
-            if archive_path.exists():
-                return archive_path
+            if chunk_files:
+                return chunk_files
                 
         except ImportError:
             pass
         
         # Fallback: look in common locations
-        search_paths = [
-            Path.cwd() / "ssapy" / "ssapy_data.tar.gz",
-            Path(__file__).parent / "ssapy_data.tar.gz",
+        search_dirs = [
+            Path.cwd() / "ssapy",
+            Path(__file__).parent,
         ]
         
-        for path in search_paths:
-            if path.exists():
-                return path
+        for search_dir in search_dirs:
+            chunk_pattern = f"{self.CHUNK_PREFIX}*.tar.gz"
+            chunk_files = sorted(list(search_dir.glob(chunk_pattern)))
+            if chunk_files:
+                return chunk_files
                 
-        return None
+        return []
+    
+    def _reassemble_chunks(self, chunk_files: list, output_path: Path) -> bool:
+        """
+        Reassemble chunk files into a single archive
+        
+        Args:
+            chunk_files: List of chunk file paths
+            output_path: Path for reassembled archive
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            print(f"[ssapy] Reassembling {len(chunk_files)} chunks...")
+            
+            with open(output_path, 'wb') as output:
+                for chunk_file in chunk_files:
+                    with open(chunk_file, 'rb') as chunk:
+                        while True:
+                            data = chunk.read(8192)
+                            if not data:
+                                break
+                            output.write(data)
+                            
+            print(f"[ssapy] Chunks reassembled to {output_path}")
+            return True
+            
+        except Exception as e:
+            print(f"Error reassembling chunks: {e}")
+            return False
     
     def _extract_archive(self, archive_path: Path, target_dir: Path) -> bool:
         """
-        Extract the data archive to target directory
+        Extract the reassembled archive to target directory
         
         Args:
-            archive_path: Path to the tar archive
+            archive_path: Path to the reassembled tar archive
             target_dir: Directory to extract to
             
         Returns:
@@ -139,24 +173,31 @@ class SSAPyDataLoader:
             if self._extracted and self._data_dir:  # Double-check pattern
                 return str(self._data_dir)
             
-            # Find the archive
-            archive_path = self._find_archive()
-            if not archive_path:
-                print("Error: SSAPy data archive not found")
+            # Find the chunk files
+            chunk_files = self._find_chunk_files()
+            if not chunk_files:
+                print("Error: SSAPy data chunks not found")
                 print("This may indicate an incomplete installation.")
                 return None
             
-            # Create temporary directory for extraction
+            # Create temporary directory for reassembly and extraction
             if self._temp_dir is None:
                 self._temp_dir = tempfile.mkdtemp(prefix="ssapy_data_")
             
             temp_path = Path(self._temp_dir)
+            temp_archive = temp_path / "reassembled_data.tar.gz"
             
-            # Extract archive
-            if self._extract_archive(archive_path, temp_path):
+            # Reassemble chunks
+            if not self._reassemble_chunks(chunk_files, temp_archive):
+                return None
+            
+            # Extract reassembled archive
+            if self._extract_archive(temp_archive, temp_path):
                 self._data_dir = temp_path / "data"
                 if self._data_dir.exists():
                     self._extracted = True
+                    # Clean up the temporary archive to save space
+                    temp_archive.unlink()
                     return str(self._data_dir)
                 else:
                     print("Error: Expected 'data' directory not found after extraction")
@@ -171,7 +212,7 @@ _data_loader = SSAPyDataLoader()
 
 def ensure_data_downloaded():
     """
-    Ensures data is extracted from archive if needed.
+    Ensures data is extracted from chunked archives if needed.
     Thread-safe and only runs once per process.
     
     This function replaces the git clone functionality from data_utils.
@@ -212,42 +253,49 @@ def get_data_dir():
     return _data_loader.get_data_dir()
 
 
-if __name__ == "__main__":
-    # Simple command-line interface for testing
-    import argparse
+def is_data_available() -> bool:
+    """
+    Check if SSAPy data files are available
     
-    parser = argparse.ArgumentParser(description="SSAPy Data Loader")
-    parser.add_argument("--test", action="store_true", help="Test data loading")
-    parser.add_argument("--info", action="store_true", help="Show data directory info")
+    Returns:
+        True if data is available, False otherwise
+    """
+    return _data_loader.get_data_dir() is not None
+
+
+def get_data_file(relative_path: str) -> Optional[Path]:
+    """
+    Get the full path to a specific data file
     
-    args = parser.parse_args()
-    
-    if args.test:
-        try:
-            ensure_data_downloaded()
-            print("✓ Data loading test successful")
-        except Exception as e:
-            print(f"✗ Data loading test failed: {e}")
-            sys.exit(1)
-    
-    elif args.info:
-        data_dir = get_data_dir()
-        if data_dir:
-            data_path = Path(data_dir)
-            files = list(data_path.rglob("*"))
-            file_count = sum(1 for f in files if f.is_file())
-            total_size = sum(f.stat().st_size for f in files if f.is_file()) / (1024 * 1024)
-            print(f"Data directory: {data_dir}")
-            print(f"Files: {file_count}")
-            print(f"Total size: {total_size:.1f} MB")
-        else:
-            print("Data directory not available")
-    
+    Args:
+        relative_path: Path relative to the data directory
+        
+    Returns:
+        Full path to the file, or None if not found
+    """
+    data_dir = _data_loader.get_data_dir()
+    if not data_dir:
+        return None
+        
+    file_path = Path(data_dir) / relative_path
+    if file_path.exists():
+        return file_path
     else:
-        # Default: just test that data is available
-        try:
-            data_dir = get_data_dir()
-            print(f"✓ SSAPy data available at: {data_dir}")
-        except Exception as e:
-            print(f"✗ SSAPy data not available: {e}")
-            sys.exit(1)
+        return None
+
+
+def list_data_files(pattern: str = "*") -> list:
+    """
+    List all data files matching a pattern
+    
+    Args:
+        pattern: Glob pattern to match files
+        
+    Returns:
+        List of Path objects for matching files
+    """
+    data_dir = _data_loader.get_data_dir()
+    if not data_dir:
+        return []
+        
+    return list(Path(data_dir).rglob(pattern))
