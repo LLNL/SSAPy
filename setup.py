@@ -31,7 +31,7 @@ class DataManager:
     
     DATA_DIR = "ssapy/data"
     CHUNK_PREFIX = "ssapy_data_chunk_"
-    CHUNK_SIZE = 80 * 1024 * 1024  # 80 MB chunks
+    CHUNK_SIZE = 75 * 1024 * 1024  # 75 MB chunks (safer margin)
     
     @classmethod
     def create_chunked_archive(cls):
@@ -271,6 +271,7 @@ def get_package_data():
             "ssapy_data_chunk_000.tar.gz",
             "ssapy_data_chunk_001.tar.gz", 
             "ssapy_data_chunk_002.tar.gz",
+            "ssapy_data_chunk_003.tar.gz",  # Added 4th chunk
         ]
         package_files.extend(expected_chunks)
         print(f"Including {len(expected_chunks)} expected chunk files")

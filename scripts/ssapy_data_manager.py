@@ -20,7 +20,7 @@ class ChunkedDataManager:
     def __init__(self, base_dir=None):
         self.base_dir = Path(base_dir) if base_dir else Path.cwd()
         self.data_dir = self.base_dir / "ssapy" / "data"
-        self.chunk_size = 80 * 1024 * 1024  # 80 MB chunks (under 100 MB limit)
+        self.chunk_size = 75 * 1024 * 1024  # 75 MB chunks (safer margin under 100 MB)
         self.chunk_prefix = "ssapy_data_chunk_"
         
     def create_chunked_archive(self, compression_level=6):
