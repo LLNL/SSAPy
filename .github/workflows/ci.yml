@@ -73,8 +73,8 @@ jobs:
         python -m pip install --upgrade pip setuptools wheel build
         python -m pip install -r requirements.txt
 
-        # Create data archive before building
-        python scripts/ssapy_data_manager.py archive
+        # Create chunked data archives before building
+        python scripts/ssapy_data_manager.py create
         python scripts/ssapy_data_manager.py verify
 
         # Build and install the project with new tar-based approach
@@ -120,8 +120,8 @@ jobs:
         echo "CMAKE_OSX_ARCHITECTURES=$CMAKE_OSX_ARCHITECTURES"
         echo "CIBW_BUILD=$CIBW_BUILD"
 
-        # Create data archive before building
-        python scripts/ssapy_data_manager.py archive
+        # Create chunked data archives before building
+        python scripts/ssapy_data_manager.py create
         python scripts/ssapy_data_manager.py verify
     
         # Ensure delocate is installed
