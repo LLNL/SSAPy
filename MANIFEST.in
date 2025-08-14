@@ -1,16 +1,33 @@
+# Essential project files
 include README.rst
 include LICENSE
 include pyproject.toml
 include CMakeLists.txt
 
+# CMake and C++ source files
 include include/*.h
 include pysrc/*.cpp
 include src/*.cpp
 
+# Pybind11 dependencies
 recursive-include pybind11/include/ *
 include pybind11/CMakeLists.txt
 include pybind11/LICENSE
 recursive-include pybind11/tools *
+
+# Compiled shared libraries
 recursive-include ssapy *.so
 
+# Include the data archive
+include ssapy/ssapy_data.tar.gz
+
+# Exclude the original uncompressed data directory to save space
 recursive-exclude ssapy/data *
+
+# Exclude common build artifacts and cache files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
+global-exclude *.egg-info
+prune build
+prune dist
