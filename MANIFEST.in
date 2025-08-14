@@ -18,10 +18,11 @@ recursive-include pybind11/tools *
 # Compiled shared libraries
 recursive-include ssapy *.so
 
-# Include the data archive
-include ssapy/ssapy_data.tar.gz
+# CRITICAL: Include the chunked data archives (this replaces git clone functionality)
+include ssapy/ssapy_data_chunk_*.tar.gz
 
 # Exclude the original uncompressed data directory to save space
+# (since we're including the compressed archive instead)
 recursive-exclude ssapy/data *
 
 # Exclude common build artifacts and cache files

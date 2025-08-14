@@ -253,11 +253,30 @@ class CustomDevelop(develop):
 # Get package data including dynamic chunk files
 def get_package_data():
     """Get package data including chunk files"""
-    chunk_files = DataManager.get_chunk_filenames()
+    # Always include the CMake shared library
+    package_files = ['_ssapy*.so']
+    
+    # Look for existing chunk files
+    chunk_pattern = f"ssapy_data_chunk_*.tar.gz"
+    ssapy_dir = Path("ssapy")
+    if ssapy_dir.exists():
+        chunk_files = sorted([f.name for f in ssapy_dir.glob(chunk_pattern)])
+        package_files.extend(chunk_files)
+        print(f"Including {len(chunk_files)} chunk files in package")
+    else:
+        print("Warning: No chunk files found - they may be created during build")
+        # Include expected chunk files even if they don't exist yet
+        # The build process will create them
+        expected_chunks = [
+            "ssapy_data_chunk_000.tar.gz",
+            "ssapy_data_chunk_001.tar.gz", 
+            "ssapy_data_chunk_002.tar.gz",
+        ]
+        package_files.extend(expected_chunks)
+        print(f"Including {len(expected_chunks)} expected chunk files")
+    
     return {
-        'ssapy': [
-            '_ssapy*.so',           # Original CMake shared library
-        ] + chunk_files             # Dynamic chunk files
+        'ssapy': package_files
     }
 
 
@@ -265,10 +284,10 @@ setup(
     name='ssapy',
     version='1.2.0',  # Bump version for chunked approach
     
-    # CMake extension
+    # CMake extension (preserved from original)
     ext_modules=[CMakeExtension("ssapy._ssapy")],
     
-    # Combined command classes
+    # Combined command classes (CMake + Chunked Data handling)
     cmdclass={
         "build_ext": CMakeBuild,        # Original CMake build
         "build": CustomBuild,           # New: Creates chunked archives

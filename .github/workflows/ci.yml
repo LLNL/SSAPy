@@ -138,6 +138,34 @@ jobs:
         # List installed Python packages
         python3 -m pip list
         
+    - name: Debug installed package contents
+      run: |
+        python -c "
+        import ssapy
+        import os
+        from pathlib import Path
+        
+        # Find where ssapy was installed
+        ssapy_dir = Path(ssapy.__file__).parent
+        print(f'SSAPy installed at: {ssapy_dir}')
+        
+        # List all files in the ssapy directory
+        print('Contents of installed ssapy directory:')
+        for item in sorted(ssapy_dir.iterdir()):
+            if item.is_file():
+                size_mb = item.stat().st_size / (1024*1024)
+                print(f'  {item.name}: {size_mb:.1f} MB')
+            else:
+                print(f'  {item.name}/ (directory)')
+        
+        # Look specifically for chunk files
+        chunk_files = list(ssapy_dir.glob('ssapy_data_chunk_*.tar.gz'))
+        print(f'Found {len(chunk_files)} chunk files:')
+        for chunk in chunk_files:
+            size_mb = chunk.stat().st_size / (1024*1024)
+            print(f'  {chunk.name}: {size_mb:.1f} MB')
+        "
+        
     - name: Verify data loading works
       run: |
         python -c "
