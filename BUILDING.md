@@ -1,34 +1,36 @@
 # SSAPy Build Instructions for Developers
 
-This document explains how to build and maintain the SSAPy package, particularly the custom data handling system.
+This document explains how to build and maintain the SSAPy package, particularly the custom chunked data handling system.
 
 ## Overview
 
-SSAPy uses a **tar archive approach** for handling large data files (307+ MB) instead of git clones during installation. This provides faster, more reliable installations for end users.
+SSAPy uses a **chunked tar archive approach** for handling large data files (307+ MB) to comply with PyPI's 100 MB per-file limit. This provides faster, more reliable installations for end users while staying within distribution limits.
 
 ## Build System Architecture
 
 ### Data File Handling
 - **Source**: Large data files in `ssapy/data/` (307.4 MB, 22 files)
-- **Build time**: Compressed into `ssapy/ssapy_data.tar.gz` (242.7 MB, 21% reduction)
-- **Install time**: Archive extracted to temporary directory
+- **Build time**: Compressed and split into chunks (3 files of ~80 MB each)
+- **Install time**: Chunks reassembled and extracted to temporary directory
 - **Runtime**: Data accessed from extracted location
 
 ### Key Files
 ```
 ssapy/
-├── data/                    # Original large data files (excluded from git)
-├── ssapy_data.tar.gz       # Compressed archive (created during build)
-├── data_loader.py          # Runtime data extraction and access
-└── __init__.py             # Uses data_loader instead of data_utils
+├── data/                         # Original large data files (excluded from git)
+├── ssapy_data_chunk_000.tar.gz   # Chunk 1 (~80 MB, created during build)
+├── ssapy_data_chunk_001.tar.gz   # Chunk 2 (~80 MB, created during build)
+├── ssapy_data_chunk_002.tar.gz   # Chunk 3 (~80 MB, created during build)
+├── data_loader.py                # Runtime data reassembly and access
+└── __init__.py                   # Uses data_loader instead of data_utils
 
 scripts/
-├── ssapy_data_manager.py   # Data archive management utility
-└── build_ssapy.sh          # Automated build workflow
+├── ssapy_data_manager.py         # Chunked data archive management utility
+└── build_ssapy.sh                # Automated build workflow
 
-setup.py                    # Custom setuptools commands for data handling
-pyproject.toml              # Modern packaging configuration  
-MANIFEST.in                 # Controls what goes in source distributions
+setup.py                          # Custom setuptools commands for chunked data handling
+pyproject.toml                    # Modern packaging configuration  
+MANIFEST.in                       # Controls what goes in source distributions
 ```
 
 ## Building SSAPy
@@ -40,8 +42,8 @@ MANIFEST.in                 # Controls what goes in source distributions
 
 ### Quick Build
 ```bash
-# Create data archive and build package
-python scripts/ssapy_data_manager.py archive
+# Create chunked data archives and build package
+python scripts/ssapy_data_manager.py create
 python -m build
 ```
 
@@ -53,10 +55,10 @@ python -m build
 
 ### Individual Steps
 ```bash
-# 1. Create data archive
-python scripts/ssapy_data_manager.py archive
+# 1. Create chunked data archives
+python scripts/ssapy_data_manager.py create
 
-# 2. Verify archive integrity  
+# 2. Verify chunks are under 100 MB  
 python scripts/ssapy_data_manager.py verify
 
 # 3. Build package
@@ -68,35 +70,35 @@ python -m build
 
 ## Data Management Commands
 
-### Archive Operations
+### Chunked Archive Operations
 ```bash
-# Create compressed archive from ssapy/data/
-python scripts/ssapy_data_manager.py archive
+# Create chunked archives from ssapy/data/
+python scripts/ssapy_data_manager.py create
 
-# Verify archive integrity
+# Verify chunks are under PyPI 100MB limit
 python scripts/ssapy_data_manager.py verify
 
-# Show compression statistics
-python scripts/ssapy_data_manager.py stats
+# List chunk files (for setup.py package_data)
+python scripts/ssapy_data_manager.py list
 
-# Extract archive (for testing)
-python scripts/ssapy_data_manager.py extract --target ./test_dir
+# Reassemble chunks and extract (for testing)
+python scripts/ssapy_data_manager.py reassemble --target ./test_dir
 
-# Clean up build artifacts
+# Clean up chunk files and build artifacts
 python scripts/ssapy_data_manager.py clean
 ```
 
 ### Build Workflow Commands
 ```bash
 # Individual operations
-./scripts/build_ssapy.sh archive   # Create data archive
+./scripts/build_ssapy.sh archive   # Create chunked archives
 ./scripts/build_ssapy.sh build     # Clean and build package
 ./scripts/build_ssapy.sh test      # Test package installation
 ./scripts/build_ssapy.sh clean     # Remove build artifacts
 ./scripts/build_ssapy.sh stats     # Show file size statistics
 
 # Complete workflow
-./scripts/build_ssapy.sh full      # Archive → Build → Test
+./scripts/build_ssapy.sh full      # Create chunks → Build → Test
 ```
 
 ## Data File Access (Runtime)
@@ -109,14 +111,14 @@ import ssapy
 data_path = ssapy.datadir
 print(data_path)  # /tmp/ssapy_data_xyz/data
 
-# Data is extracted automatically on first access
+# Data is automatically reassembled and extracted on first access
 ```
 
 ### For Developers
 ```python
 from ssapy.data_loader import get_data_dir, ensure_data_downloaded
 
-# Direct data directory access
+# Direct data directory access (handles chunk reassembly)
 data_dir = get_data_dir()
 
 # Ensure data is available before use
@@ -131,27 +133,46 @@ def my_function():
     pass
 ```
 
+## PyPI Size Limit Compliance
+
+### Chunking Strategy
+- **Original data**: 307.4 MB (22 files)
+- **Compressed**: 242.7 MB (21% reduction)
+- **Chunked**: 3 files of ~80 MB each
+- **PyPI limit**: 100 MB per file ✓
+
+### Chunk File Naming
+```
+ssapy_data_chunk_000.tar.gz  # First 80 MB
+ssapy_data_chunk_001.tar.gz  # Second 80 MB  
+ssapy_data_chunk_002.tar.gz  # Remaining ~80 MB
+```
+
 ## Troubleshooting
 
 ### Common Issues
 
-**"Data archive not found"**
+**"Chunks not found"**
 ```bash
-# Solution: Create the archive
-python scripts/ssapy_data_manager.py archive
+# Solution: Create the chunked archives
+python scripts/ssapy_data_manager.py create
 ```
 
 **"Data directory does not exist"**
 - Ensure `ssapy/data/` contains the 22 data files
 - Check that files aren't excluded by `.gitignore`
 
+**"Chunk exceeds 100 MB"**
+- Reduce chunk size in `chunked_data_manager.py`
+- Current default: 80 MB (safe margin under 100 MB limit)
+
 **"CMake build fails"**
 - Ensure CMake is installed and in PATH
 - Check that C++ build tools are available
 
 **"Package data not included in wheel"**
-- Verify `MANIFEST.in` includes `ssapy/ssapy_data.tar.gz`
-- Check that archive was created before building
+- Verify `MANIFEST.in` includes `ssapy/ssapy_data_chunk_*.tar.gz`
+- Check that chunks were created before building
 
 ### Debug Commands
 
@@ -159,14 +180,17 @@ python scripts/ssapy_data_manager.py archive
 # Check what files are in the data directory
 ls -la ssapy/data/
 
-# Verify archive contents
+# Verify chunk files and sizes
 python scripts/ssapy_data_manager.py verify
 
-# Test data loading
+# List chunk files for setup.py
+python scripts/ssapy_data_manager.py list
+
+# Test data loading (reassembly + extraction)
 python -c "from ssapy.data_loader import get_data_dir; print(get_data_dir())"
 
-# Check package contents
-python -c "import tarfile; tar=tarfile.open('dist/*.tar.gz'); tar.list()"
+# Check what chunks are in your package
+ls -lh ssapy/ssapy_data_chunk_*.tar.gz
 ```
 
 ## Release Process
@@ -176,15 +200,19 @@ python -c "import tarfile; tar=tarfile.open('dist/*.tar.gz'); tar.list()"
 1. **Update version** in `setup.py` and `pyproject.toml`
 2. **Ensure data is current**:
    ```bash
-   # If data files changed, recreate archive
+   # If data files changed, recreate chunks
    python scripts/ssapy_data_manager.py clean
-   python scripts/ssapy_data_manager.py archive
+   python scripts/ssapy_data_manager.py create
    ```
-3. **Build and test**:
+3. **Verify PyPI compliance**:
+   ```bash
+   python scripts/ssapy_data_manager.py verify
+   ```
+4. **Build and test**:
    ```bash
    ./scripts/build_ssapy.sh full
    ```
-4. **Upload to PyPI**:
+5. **Upload to PyPI**:
    ```bash
    python -m twine upload dist/*
    ```
@@ -194,15 +222,33 @@ python -c "import tarfile; tar=tarfile.open('dist/*.tar.gz'); tar.list()"
 If the data files in `ssapy/data/` are updated:
 
 ```bash
-# 1. Remove old archive
+# 1. Remove old chunks
 python scripts/ssapy_data_manager.py clean
 
-# 2. Create new archive with updated data
-python scripts/ssapy_data_manager.py archive
+# 2. Create new chunks with updated data
+python scripts/ssapy_data_manager.py create
 
-# 3. Rebuild package
+# 3. Verify sizes are still compliant
+python scripts/ssapy_data_manager.py verify
+
+# 4. Rebuild package
 python -m build
 ```
+
+### Adding New Large Data Files
+
+If you add files that increase the total size significantly:
+
+1. **Check if chunking is still adequate**:
+   ```bash
+   python scripts/ssapy_data_manager.py create
+   python scripts/ssapy_data_manager.py verify
+   ```
+
+2. **If chunks exceed 100 MB**, reduce chunk size in `chunked_data_manager.py`:
+   ```python
+   self.chunk_size = 70 * 1024 * 1024  # Reduce to 70 MB
+   ```
 
 ## Migration Notes
 
@@ -214,24 +260,40 @@ This system replaced the previous git clone approach:
 - Slower first-time usage
 - Potential network/git failures
 
-### After (v1.2+)
-- Data included in package as compressed archive
+### After (v1.2.0+)
+- Data included in package as chunked compressed archives
 - No git or network dependency for users
 - Fast, reliable installations
 - Works offline
+- **PyPI compliant**: All files under 100 MB limit
 
 ### Code Changes Made
 - `data_utils.py` → `data_loader.py`
-- Git clone → Tar extraction
+- Git clone → Chunked tar reassembly and extraction
 - Same API preserved for backward compatibility
+- Added chunking system for PyPI compliance
 
 ## File Size Reference
 
 Current data statistics:
-- **22 files** in `ssapy/data/`
+- **22 files** in `ssapy/data/` (includes .egm, .bsp, .cof, .png files)
 - **307.4 MB** uncompressed
-- **242.7 MB** compressed archive (21.1% reduction)
-- **File types**: `.egm`, `.bsp`, `.cof`, `.png`, `.zip`, etc.
+- **242.7 MB** compressed (21.1% reduction)
+- **3 chunks** of ~80 MB each (PyPI compliant)
+- **Largest files**: de430.bsp (119.7 MB), gggrx_1200a_sha.tab (88.1 MB), egm2008.egm.cof (75.8 MB)
+
+## Architecture Benefits
+
+### For Developers
+- **Automated chunking** handles PyPI size limits
+- **Same build process** as before
+- **Better compression** than git clone approach
+
+### For End Users  
+- **No git dependency** required
+- **Faster installation** (no network downloads)
+- **Offline capable** installations
+- **Automatic data management** (transparent chunking)
 
 ## Contact
 
