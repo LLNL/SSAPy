@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.11'
           
       - name: Install system dependencies
         run: |
@@ -49,15 +49,15 @@ jobs:
           echo "Data directory contains $(find ssapy/data -type f | wc -l) files"
           du -sh ssapy/data/
           
-      - name: Create data archive
+      - name: Create chunked data archives
         run: |
-          python scripts/ssapy_data_manager.py archive
+          python scripts/ssapy_data_manager.py create
           python scripts/ssapy_data_manager.py verify
           
-      - name: Show archive statistics
+      - name: Show chunk statistics
         run: |
-          python scripts/ssapy_data_manager.py stats
-          ls -lh ssapy/ssapy_data.tar.gz
+          python scripts/ssapy_data_manager.py verify
+          ls -lh ssapy/ssapy_data_chunk_*.tar.gz
           
       - name: Build distributions
         run: |
