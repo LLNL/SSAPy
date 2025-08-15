@@ -10,7 +10,7 @@ SSAPy uses a **chunked tar archive approach** for handling large data files (307
 
 ### Data File Handling
 - **Source**: Large data files in `ssapy/data/` (307.4 MB, 22 files)
-- **Build time**: Compressed and split into chunks (3 files of ~80 MB each)
+- **Build time**: Compressed and split into chunks (4 files: 3×83.8 MB + 1×2.8 MB)
 - **Install time**: Chunks reassembled and extracted to temporary directory
 - **Runtime**: Data accessed from extracted location
 
@@ -138,14 +138,15 @@ def my_function():
 ### Chunking Strategy
 - **Original data**: 307.4 MB (22 files)
 - **Compressed**: 242.7 MB (21% reduction)
-- **Chunked**: 3 files of ~80 MB each
+- **Chunked**: 4 files (3×83.8 MB + 1×2.8 MB)
 - **PyPI limit**: 100 MB per file ✓
 
 ### Chunk File Naming
 ```
-ssapy_data_chunk_000.tar.gz  # First 80 MB
-ssapy_data_chunk_001.tar.gz  # Second 80 MB  
-ssapy_data_chunk_002.tar.gz  # Remaining ~80 MB
+ssapy_data_chunk_000.tar.gz  # First 83.8 MB
+ssapy_data_chunk_001.tar.gz  # Second 83.8 MB  
+ssapy_data_chunk_002.tar.gz  # Third 83.8 MB
+ssapy_data_chunk_003.tar.gz  # Final 2.8 MB
 ```
 
 ## Troubleshooting
@@ -245,7 +246,7 @@ If you add files that increase the total size significantly:
    python scripts/ssapy_data_manager.py verify
    ```
 
-2. **If chunks exceed 100 MB**, reduce chunk size in `chunked_data_manager.py`:
+2. **If chunks exceed 100 MB**, reduce chunk size in `scripts/ssapy_data_manager.py`:
    ```python
    self.chunk_size = 70 * 1024 * 1024  # Reduce to 70 MB
    ```
@@ -279,7 +280,7 @@ Current data statistics:
 - **22 files** in `ssapy/data/` (includes .egm, .bsp, .cof, .png files)
 - **307.4 MB** uncompressed
 - **242.7 MB** compressed (21.1% reduction)
-- **3 chunks** of ~80 MB each (PyPI compliant)
+- **4 chunks** (3×83.8 MB + 1×2.8 MB, all under PyPI 100 MB limit)
 - **Largest files**: de430.bsp (119.7 MB), gggrx_1200a_sha.tab (88.1 MB), egm2008.egm.cof (75.8 MB)
 
 ## Architecture Benefits
