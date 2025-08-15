@@ -1,19 +1,10 @@
 import os
 
-def _get_datadir():
-    """Get data directory, downloading data if needed (lazy loading)."""
-    from .data_utils import get_data_dir
-    return get_data_dir()
-
-# Make datadir a property that downloads data when first accessed
 class _DataDir:
-    def __init__(self):
-        self._path = None
-    
     def __str__(self):
-        if self._path is None:
-            self._path = _get_datadir()
-        return self._path
+        from .data_loader import get_data_dir
+        data_path = get_data_dir()
+        return str(data_path) if data_path else ""
     
     def __fspath__(self):
         return str(self)

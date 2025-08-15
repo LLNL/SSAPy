@@ -21,18 +21,66 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+          lfs: true  # Ensure LFS files are downloaded
           
-      - name: Install dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+          
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install build-essential git git-lfs cmake
-          git lfs install
-          git lfs pull
-          python -m pip install --upgrade pip build
+          sudo apt-get install build-essential cmake
+          
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip build setuptools wheel
           python -m pip install -r requirements.txt
           
-      - name: Build source distribution
-        run: python -m build --sdist
-        
+      - name: Checkout LFS files (ensure data is available)
+        run: |
+          git lfs install
+          git lfs pull
+          
+      - name: Verify data directory exists
+        run: |
+          ls -la ssapy/data/
+          echo "Data directory contains $(find ssapy/data -type f | wc -l) files"
+          du -sh ssapy/data/
+          
+      - name: Create data archive
+        run: |
+          python scripts/ssapy_data_manager.py archive
+          python scripts/ssapy_data_manager.py verify
+          
+      - name: Show archive statistics
+        run: |
+          python scripts/ssapy_data_manager.py stats
+          ls -lh ssapy/ssapy_data.tar.gz
+          
+      - name: Build distributions
+        run: |
+          python -m build
+          
+      - name: Check package size
+        run: |
+          echo "=== Built Package Sizes ==="
+          ls -lh dist/
+          echo "=== Verifying package contents ==="
+          python -c "
+          import tarfile
+          import os
+          for f in os.listdir('dist'):
+              if f.endswith('.tar.gz'):
+                  print(f'Source dist {f}:')
+                  with tarfile.open(f'dist/{f}', 'r:gz') as tar:
+                      members = [m for m in tar.getmembers() if 'ssapy_data.tar.gz' in m.name]
+                      if members:
+                          print(f'  ✓ Contains data archive: {members[0].name} ({members[0].size/1024/1024:.1f} MB)')
+                      else:
+                          print('  ✗ Data archive not found in source distribution')
+          "
+          
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

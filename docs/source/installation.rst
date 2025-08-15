@@ -19,7 +19,7 @@ These requirements can be easily installed on most modern macOS and Linux system
        .. code-block:: console
 
           apt update
-          apt install build-essential git git-lfs python3 python3-distutils python3-venv graphviz
+          apt install build-essential python3 python3-distutils python3-venv graphviz
 
     .. tab:: RHEL
 
@@ -27,14 +27,14 @@ These requirements can be easily installed on most modern macOS and Linux system
 
           dnf install epel-release
           dnf group install "Development Tools"
-          dnf install git git-lfs gcc-gfortran python3 python3-pip python3-setuptools graphviz
+          dnf install gcc-gfortran python3 python3-pip python3-setuptools graphviz
 
     .. tab:: macOS Brew
 
        .. code-block:: console
 
           brew update
-          brew install gcc git git-lfs python3 graphviz
+          brew install gcc python3 graphviz
 
 Installation
 ------------
@@ -44,6 +44,10 @@ As the package has been published on `PyPI <https://pypi.org/project/llnl-ssapy/
 .. code-block:: console
 
    pip install llnl-ssapy
+
+.. note::
+
+   Starting with version 1.2.0, SSAPy includes all necessary data files and no longer requires git or network access during installation.
 
 Orekit dependency
 ^^^^^^^^^^^^^^^^^
