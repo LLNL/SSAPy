@@ -47,7 +47,7 @@ As the package has been published on `PyPI <https://pypi.org/project/llnl-ssapy/
 
 .. note::
 
-   Starting with version 1.1.1, SSAPy includes all necessary data files and no longer requires git or network access during installation.
+   Starting with version 1.2.0, SSAPy includes all necessary data files and no longer requires git or network access during installation.
 
 Orekit dependency
 ^^^^^^^^^^^^^^^^^
