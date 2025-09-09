@@ -1,6 +1,6 @@
 [project]
 name = "llnl-ssapy"
-version = "1.2"
+version = "1.1.1"
 authors = [
     { name="LLNL SSAPy Software Team", email="yeagerastro@gmail.com" },
 ]
@@ -8,14 +8,8 @@ description = "A fast, flexible, high-fidelity orbital modeling and analysis too
 readme = "README.rst"
 requires-python = ">=3.8"
 classifiers = [
-    "Development Status :: 4 - Beta",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Scientific/Engineering :: Astronomy",
-    "Topic :: Scientific/Engineering :: Physics",
 ]
 license = { file = "LICENSE" }
 dependencies = [
@@ -40,23 +34,6 @@ dependencies = [
         'graphviz',
     ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=6.0",
-    "pytest-cov",
-    "pytest-timeout",
-    "black",
-    "flake8",
-    "sphinx",
-    "sphinx-rtd-theme",
-    "build",
-]
-test = [
-    "pytest>=6.0", 
-    "pytest-timeout",
-    "pytest-cov",
-]
-
 [build-system]
 requires = ["setuptools>=42", "wheel", "scikit-build", "cmake"]
 build-backend = "setuptools.build_meta"
@@ -66,74 +43,25 @@ packages = ["ssapy"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-ssapy = [
-    "*.cpp", 
-    "*.h", 
-    "_ssapy*.so",
-    "ssapy_data.tar.gz"
-]
+ssapy = ["*.cpp", "*.h"]
 
 [tool.setuptools.exclude-package-data]
-# Exclude the original uncompressed data directory since we include the archive
 ssapy = ["data/*"]
+
+[tool.poetry]
+packages = [
+    { include = "ssapy" },
+]
+
+[tool.poetry.include]
+files = ["ssapy/_ssapy.cpython-38-x86_64-linux-gnu.so"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 timeout = 30
 timeout_method = "thread"
-# Add markers for data-dependent tests
-markers = [
-    "data_required: tests that require SSAPy data files",
-    "slow: slow running tests",
-]
 
 [project.urls]
 Homepage = "https://github.com/LLNL/SSAPy"
 Issues = "https://github.com/LLNL/SSAPy/issues"
-Documentation = "https://software.llnl.gov/SSAPy/"
-Repository = "https://github.com/LLNL/SSAPy"
-
-[project.scripts]
-# Add utility script for data management
-ssapy-data = "ssapy.data_loader:main"
-
-# Tool configurations for development
-
-[tool.black]
-line-length = 88
-target-version = ["py38", "py39", "py310", "py311", "py312"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-  /(
-      \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-  )/
-)
-'''
-
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 88
-known_first_party = ["ssapy"]
-
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "W503"]
-exclude = [
-    ".git",
-    "__pycache__", 
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
+Documentation = "https://software.llnl.gov/SSAPy/" 
