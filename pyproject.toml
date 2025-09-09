@@ -1,6 +1,6 @@
 [project]
 name = "llnl-ssapy"
-version = "1.1.1"
+version = "1.1.2"
 authors = [
     { name="LLNL SSAPy Software Team", email="yeagerastro@gmail.com" },
 ]
@@ -43,10 +43,7 @@ packages = ["ssapy"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-ssapy = ["*.cpp", "*.h"]
-
-[tool.setuptools.exclude-package-data]
-ssapy = ["data/*"]
+ssapy = ["*.cpp", "*.h", "data/*", "*.so"]
 
 [tool.poetry]
 packages = [

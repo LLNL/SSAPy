@@ -1,24 +1,5 @@
 import os
-
-def _get_datadir():
-    """Get data directory, downloading data if needed (lazy loading)."""
-    from .data_utils import get_data_dir
-    return get_data_dir()
-
-# Make datadir a property that downloads data when first accessed
-class _DataDir:
-    def __init__(self):
-        self._path = None
-    
-    def __str__(self):
-        if self._path is None:
-            self._path = _get_datadir()
-        return self._path
-    
-    def __fspath__(self):
-        return str(self)
-
-datadir = _DataDir()
+datadir = os.path.join(os.path.dirname(__file__), "data")
 
 from . import _ssapy
 from .orbit import Orbit, EarthObserver, OrbitalObserver
