@@ -76,42 +76,37 @@ jobs:
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
-        # Update Homebrew and install dependencies
+        # Update Homebrew
         brew update
-        brew install git python3 cmake
-        
-        # Initialize and update submodules
-        git submodule update --init --recursive
-        
-        # Upgrade pip and install Python dependencies
-        python3 -m pip install --upgrade pip setuptools flake8
-        python3 -m pip install -r requirements.txt
+
+        # Only install if missing (avoids tap conflicts)
+        brew list --formula git >/dev/null 2>&1 || brew install git
+        brew list --formula cmake >/dev/null 2>&1 || brew install cmake
+
+        # Use the toolchain set by actions/setup-python
+        python -m pip install --upgrade pip setuptools flake8
+        python -m pip install -r requirements.txt
 
         PYTHON_VERSION=$(python -c "import sys; print(f'cp{sys.version_info.major}{sys.version_info.minor}')")
-
         export ARCHFLAGS="-arch arm64"
         export CMAKE_OSX_ARCHITECTURES=arm64
         export CIBW_BUILD="${PYTHON_VERSION}-macosx_*"
 
-
-        # Optional: print to confirm
         echo "ARCHFLAGS=$ARCHFLAGS"
         echo "CMAKE_OSX_ARCHITECTURES=$CMAKE_OSX_ARCHITECTURES"
         echo "CIBW_BUILD=$CIBW_BUILD"
-    
-        # Ensure delocate is installed
-        python3 -m pip install --upgrade cibuildwheel delocate        
+
+        python -m pip install --upgrade cibuildwheel delocate
         python -m cibuildwheel --platform macos
 
-        # Check the wheel for missing shared libraries
+        # Check wheel deps
         find wheelhouse -name '*.whl' -exec delocate-listdeps {} \;
-            
-        # Install the generated wheel
-        pip install wheelhouse/*.whl
+
+        # Install the generated wheel and hide the source tree so imports use the wheel
+        python -m pip install wheelhouse/*.whl
         mv ssapy ssapy_src_backup
 
-        # List installed Python packages
-        python3 -m pip list
+        python -m pip list
     - name: Debug build artifacts
       run: |
         find . -name "*_ssapy*.so"
