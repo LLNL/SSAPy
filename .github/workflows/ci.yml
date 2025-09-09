@@ -76,14 +76,17 @@ jobs:
     - name: Install dependencies (MacOS)
       if: matrix.os == 'macOS-latest'
       run: |
-        # Update Homebrew
+        # Update Homebrew; only install missing formulae (avoid tap conflicts)
         brew update
-
-        # Only install if missing (avoids tap conflicts)
         brew list --formula git >/dev/null 2>&1 || brew install git
         brew list --formula cmake >/dev/null 2>&1 || brew install cmake
+        brew list --formula git-lfs >/dev/null 2>&1 || brew install git-lfs
 
-        # Use the toolchain set by actions/setup-python
+        # Make LFS usable in this headless environment
+        git lfs install --skip-repo
+        git config --global credential.helper ""   # avoid Keychain prompts
+
+        # Use the actions/setup-python toolchain consistently
         python -m pip install --upgrade pip setuptools flake8
         python -m pip install -r requirements.txt
 
@@ -102,18 +105,16 @@ jobs:
         # Check wheel deps
         find wheelhouse -name '*.whl' -exec delocate-listdeps {} \;
 
-        # Install the generated wheel and hide the source tree so imports use the wheel
+        # Install the generated wheel into the SAME interpreter
         python -m pip install wheelhouse/*.whl
+
+        # Hide source tree so imports resolve to the wheel
         mv ssapy ssapy_src_backup
 
         python -m pip list
     - name: Debug build artifacts
       run: |
         find . -name "*_ssapy*.so"
-    - name: Debug installed ssapy
-      run: |
-        python -c "import ssapy; print('ssapy is at:', ssapy.__file__)"
-        ls -l $(python -c "import ssapy; import os; print(os.path.dirname(ssapy.__file__))")
     #- name: Install dependencies (Windows)
     #  if: matrix.os == 'windows-latest'
     #  run: |
