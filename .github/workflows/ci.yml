@@ -3,11 +3,6 @@ name: CI/CD
 permissions:
   contents: write
 on:
-  # This Workflow can be triggered manually
-  workflow_dispatch:
-  # Run daily at 0:01 UTC
-  schedule:
-    - cron:  '1 0 * * *'
   # Run on pushes that modify this branch or tag the repo
   push:
     branches:
@@ -43,7 +38,8 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: 'recursive'
-        persist-credentials: false
+        lfs: true
+        token: ${{ github.token }}
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
