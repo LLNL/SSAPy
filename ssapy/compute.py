@@ -281,7 +281,7 @@ def rv(orbit, time, propagator=KeplerianPropagator()):
     """
     nOrbit, squeezeOrbit, orbit = _countOrbit(orbit)
     nTime, squeezeTime, time = _countTime(time)
-    print(nOrbit, squeezeOrbit, orbit, nTime, squeezeTime, time)
+    # print(nOrbit, squeezeOrbit, orbit, nTime, squeezeTime, time)
     outR, outV = _rv(orbit, HashableArrayContainer(time), propagator)
 
     return _doSqueeze(squeezeOrbit, squeezeTime, outR, outV)
